@@ -1,4 +1,4 @@
-const CACHE = 'dxy-workbench-v10';
+const CACHE = 'dxy-workbench-v11';
 const ASSETS = ['./', './index.html', './daily-topics.js', './inspirations.js', './manifest.webmanifest', './icon.svg', './德馨远二维码.png', './三伏天宣传-01.jpg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(() => {})).then(() => self.skipWaiting()));
@@ -9,8 +9,9 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
-  // HTML 文件用 network-first，确保每次拿到最新版本
-  if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/')) {
+  const path = url.pathname;
+  // HTML / daily-topics.js / inspirations.js 用 network-first，确保实时内容最新
+  if (path.endsWith('.html') || path === '/' || path.endsWith('/') || path.endsWith('/daily-topics.js') || path.endsWith('/inspirations.js')) {
     e.respondWith(
       fetch(e.request).then(resp => {
         const cp = resp.clone();
