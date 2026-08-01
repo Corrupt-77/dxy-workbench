@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>德馨远医馆 · 短视频运营工作台</title>
+  <style>
+    :root {
+      --bg: #faf8f4; --card: #ffffff; --text: #3d352e; --muted: #7a6f64;
+      --border: #e6e0d6; --primary: #8b6f47; --primary-light: #f3efe8;
+      --accent: #5a7a5a; --accent-light: #e8f0e8;
+      --warning: #c9a227; --danger: #b54a4a; --info: #4a6fa5;
+      --shadow: 0 2px 8px rgba(61,53,46,0.06); --radius: 10px;
+      --side: #6d5638;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+      background:var(--bg); color:var(--text); line-height:1.6; }
+    /* 侧边导航 */
+    .app { display:flex; min-height:100vh; }
+    .sidebar { width:208px; background:var(--side); color:#fff; position:fixed; top:0; bottom:0; left:0; overflow-y:auto; z-index:50; box-shadow:2px 0 8px rgba(0,0,0,.08); }
+    .sidebar .brand { padding:20px 18px 14px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,.12); }
+    .sidebar .brand .logo { width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
+    .sidebar .brand b { font-size:16px; } .sidebar .brand small { display:block; font-size:11px; opacity:.75; font-weight:400; }
+    .sidebar nav { padding:10px 0; }
+    .sidebar nav a { display:flex; align-items:center; gap:10px; padding:11px 18px; color:#fff; opacity:.82; cursor:pointer; font-size:14px; border-left:3px solid transparent; text-decoration:none; }
+    .sidebar nav a:hover { background:rgba(255,255,255,.07); opacity:1; }
+    .sidebar nav a.active { background:rgba(255,255,255,.13); border-left-color:var(--warning); opacity:1; font-weight:600; }
+    .sidebar nav a .ico { width:18px; text-align:center; }
+    .sidebar .foot { padding:14px 18px; font-size:11px; opacity:.6; border-top:1px solid rgba(255,255,255,.12); }
+    .main { margin-left:208px; flex:1; padding:18px 26px 40px; min-width:0; }
+    .topbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
+    .topbar h2 { margin:0; font-size:19px; }
+    .topbar .meta { margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; font-size:12.5px; }
+    .topbar .meta span { background:var(--card); border:1px solid var(--border); padding:4px 12px; border-radius:20px; }
+    .page { display:none; }
+    .page.active { display:block; }
+    .section-title { font-size:16px; font-weight:600; margin:22px 0 12px; padding-left:10px; border-left:4px solid var(--primary); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .section-title .tag { font-size:12px; font-weight:500; color:var(--muted); border:1px solid var(--border); padding:1px 8px; border-radius:10px; }
+    button { border:1px solid var(--border); background:var(--card); color:var(--text); padding:8px 14px; border-radius:6px; cursor:pointer; font-size:13px; transition:all .2s; display:inline-flex; align-items:center; gap:6px; }
+    button:hover { background:var(--primary-light); border-color:var(--primary); }
+    button.primary { background:var(--primary); color:#fff; border-color:var(--primary); }
+    button.primary:hover { background:#6d5638; }
+    button.success { background:var(--accent); color:#fff; border-color:var(--accent); }
+    button.success:hover { background:#486248; }
+    button.info { background:var(--info); color:#fff; border-color:var(--info); }
+    button.info:hover { background:#3c5b86; }
+    button.ghost { background:transparent; }
+    .panel { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    @media(max-width:980px){ .grid-2,.grid-3{ grid-template-columns:1fr; } }
+    .field { margin-bottom:12px; }
+    .field label { display:block; font-size:13px; font-weight:600; margin-bottom:4px; color:var(--muted); }
+    input[type=text],input[type=number],textarea,select { width:100%; border:1px solid transparent; background:transparent; color:var(--text); font-family:inherit; font-size:14px; padding:6px; border-radius:4px; resize:vertical; }
+    input:focus,textarea:focus,select:focus { outline:none; background:#fff; border-color:var(--primary); }
+    textarea { min-height:44px; }
+    table { width:100%; border-collapse:collapse; background:var(--card); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); font-size:14px; }
+    th,td { border:1px solid var(--border); padding:9px; vertical-align:top; }
+    th { background:var(--primary-light); font-weight:600; text-align:left; white-space:nowrap; }
+    td { background:#fff; }
+    /* 统计看板 */
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+    @media(max-width:780px){ .stats{ grid-template-columns:repeat(2,1fr); } }
+    .stat { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; box-shadow:var(--shadow); }
+    .stat .num { font-size:26px; font-weight:700; color:var(--primary); }
+    .stat .lbl { font-size:12px; color:var(--muted); }
+    .stat.done .num { color:var(--accent); } .stat.pending .num { color:var(--warning); } .stat.rate .num { color:var(--info); }
+    .pbar { height:8px; background:var(--border); border-radius:4px; overflow:hidden; margin-top:8px; }
+    .pbar i { display:block; height:100%; background:var(--accent); }
+    /* 周选题条 */
+    .weekstrip { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:6px; }
+    .wday { flex:0 0 auto; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:9px 12px; min-width:130px; box-shadow:var(--shadow); }
+    .wday.today { border:2px solid var(--primary); background:#fffdf5; }
+    .wday .wd { font-size:12px; color:var(--muted); } .wday .wdir { font-size:13px; font-weight:600; } .wday .wdoc { font-size:11px; color:var(--accent); }
+    .need-doc { color:var(--danger); font-weight:600; } .no-need { color:var(--accent); font-weight:600; }
+    /* 看板 */
+    .kanban { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    @media(max-width:780px){ .kanban{ grid-template-columns:1fr; } }
+    .kcol { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px; min-height:320px; }
+    .kcol h4 { margin:0 0 10px; font-size:14px; display:flex; justify-content:space-between; align-items:center; }
+    .kcol .cnt { font-size:12px; color:var(--muted); font-weight:400; }
+    .kcol.todo { border-top:3px solid var(--muted); }
+    .kcol.doing { border-top:3px solid var(--warning); }
+    .kcol.done { border-top:3px solid var(--accent); }
+    .kcard { background:#fff; border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:8px; cursor:grab; box-shadow:var(--shadow); font-size:13px; }
+    .kcard:hover { border-color:var(--primary); }
+    .kcard.dragging { opacity:.4; }
+    .kcard.done { opacity:.62; }
+    .kcard .kname { font-weight:600; }
+    .kcard .kact { margin-top:6px; display:flex; gap:6px; }
+    .kcard .kact button { padding:3px 8px; font-size:11px; }
+    /* 选题卡 */
+    .topics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; }
+    .topic-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); position:relative; }
+    .topic-card.recommend { border:2px solid var(--primary); }
+    .rec-badge { position:absolute; top:-10px; left:14px; background:var(--primary); color:#fff; font-size:12px; padding:2px 10px; border-radius:10px; font-weight:600; }
+    .alt-badge { position:absolute; top:-10px; left:14px; background:var(--muted); color:#fff; font-size:12px; padding:2px 10px; border-radius:10px; }
+    .plat-badges { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+    .plat { font-size:12px; font-weight:600; padding:2px 8px; border-radius:4px; color:#fff; }
+    .p-dy { background:#1c1c1c; } .p-xhs { background:#ff2442; } .p-sph { background:#07c160; }
+    .topic-card .title { font-size:16px; font-weight:600; margin-bottom:8px; }
+    .topic-card .hook { font-size:13px; color:var(--muted); background:var(--primary-light); padding:8px 10px; border-radius:6px; margin-bottom:10px; }
+    .meta-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; font-size:12px; }
+    .meta-row span { background:var(--bg); border:1px solid var(--border); padding:2px 8px; border-radius:4px; }
+    .script-box { font-size:12.5px; background:var(--accent-light); border:1px dashed var(--accent); border-radius:6px; padding:8px 10px; white-space:pre-wrap; margin-top:8px; color:#33473a; }
+    .coop { font-size:12px; color:var(--muted); margin-top:10px; border-top:1px dashed var(--border); padding-top:8px; }
+    .no-topics { background:var(--card); border:1px dashed var(--border); border-radius:var(--radius); padding:20px; text-align:center; color:var(--muted); }
+    /* 灵感芯片 */
+    .chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip { background:var(--primary-light); border:1px solid var(--border); color:var(--text); padding:5px 12px; border-radius:16px; font-size:13px; cursor:pointer; }
+    .chip:hover { background:var(--primary); color:#fff; }
+    .chipgrp { margin-bottom:14px; }
+    .chipgrp h5 { margin:0 0 6px; font-size:13px; color:var(--muted); }
+    /* 热点卡 */
+    .hot-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; box-shadow:var(--shadow); }
+    .hot-card h4 { margin:0 0 6px; font-size:15px; color:var(--primary); }
+    .hot-card .hot-tag { display:inline-block; background:#fff5d6; color:#8a6d0b; font-size:11px; padding:1px 8px; border-radius:10px; margin-right:6px; }
+    .hot-card .hot-angle { font-size:13px; margin:6px 0; }
+    .hot-card .hot-warn { font-size:12px; color:var(--danger); margin-top:6px; }
+    .report-box { width:100%; min-height:150px; background:#fbfaf7; border:1px solid var(--border); border-radius:8px; padding:12px; font-size:13px; line-height:1.7; white-space:pre-wrap; }
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#3d352e; color:#fff; padding:10px 18px; border-radius:8px; font-size:13px; opacity:0; transition:opacity .3s; z-index:100; pointer-events:none; }
+    .toast.show { opacity:1; }
+    /* 本周选题看板 */
+    .week-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
+    .day-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); }
+    .day-card.today { border:2px solid var(--primary); background:#fffdf5; }
+    .day-card.review { border-top:3px solid var(--info); }
+    .day-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .day-wd { font-weight:700; font-size:15px; }
+    .today-badge { background:var(--primary); color:#fff; font-size:11px; padding:2px 8px; border-radius:10px; }
+    .day-dir { font-size:14px; font-weight:600; color:var(--primary); margin-bottom:4px; }
+    .day-meta { font-size:12px; color:var(--muted); margin-bottom:8px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+    .day-note { font-size:12.5px; color:var(--info); background:#eef3fa; border:1px dashed var(--info); border-radius:6px; padding:8px 10px; }
+    .cands { display:flex; flex-direction:column; gap:8px; }
+    .cand { border:1px solid var(--border); border-radius:8px; padding:8px 10px; background:var(--bg); }
+    .cand.rec { border-color:var(--primary); background:#fffdf5; }
+    .cand-rank { font-size:11px; font-weight:700; color:var(--primary); }
+    .cand-title { font-size:13.5px; font-weight:600; margin:2px 0; }
+    .cand-hook { font-size:12px; color:var(--muted); }
+    .cand-detail { font-size:12px; margin-top:4px; }
+    .cand-detail summary { cursor:pointer; color:var(--info); }
+    .cand-outline { margin:4px 0; color:var(--muted); }
+    .hotbar { margin-bottom:6px; }
+    .refresh-time { font-size:11px; color:var(--muted); }
+    /* 爆款拆解卡 */
+    .viral-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:var(--shadow); }
+    .viral-rank { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; background:var(--primary); color:#fff; border-radius:50%; font-size:12px; font-weight:700; margin-right:8px; vertical-align:middle; }
+    .viral-plat { font-size:11px; background:#eaf3ea; color:#2f7d3a; padding:1px 8px; border-radius:10px; margin-left:6px; }
+    .viral-card h4 { display:inline; font-size:15px; color:var(--primary); }
+    .viral-heat { font-size:11px; color:var(--danger); margin:6px 0 4px; }
+    .viral-row { font-size:12.5px; margin:5px 0; line-height:1.6; }
+    .viral-row b { color:var(--primary); }
+    .viral-dxy { background:#fffdf5; border:1px dashed var(--primary); border-radius:8px; padding:8px 10px; margin-top:6px; font-size:12.5px; line-height:1.6; }
+    .viral-dxy b { color:var(--accent); }
+    @media print { .sidebar,.topbar .meta button,.hamburger,.overlay { display:none!important; } .main{margin-left:0;} .page{display:block!important;} }
+    /* 手机模式 */
+    .hamburger { display:none; font-size:20px; padding:6px 10px; line-height:1; }
+    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:45; }
+    @media(max-width:780px){
+      .hamburger { display:inline-flex; }
+      .sidebar { transform:translateX(-100%); transition:transform .25s ease; box-shadow:2px 0 12px rgba(0,0,0,.25); }
+      .sidebar.open { transform:translateX(0); }
+      .overlay.show { display:block; }
+      .main { margin-left:0; padding:14px 14px 40px; }
+      .topbar h2 { font-size:17px; }
+      .topbar .meta span { font-size:11px; padding:3px 8px; }
+      .stats { grid-template-columns:repeat(2,1fr); gap:8px; }
+      .stat { padding:10px 12px; } .stat .num { font-size:22px; }
+      .kanban { display:flex; overflow-x:auto; padding-bottom:10px; -webkit-overflow-scrolling:touch; }
+      .kcol { min-width:80%; flex:0 0 auto; min-height:240px; }
+      .grid-2,.grid-3 { grid-template-columns:1fr; }
+      .topics-grid { grid-template-columns:1fr; }
+      table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+      th,td { white-space:nowrap; }
+      .section-title { font-size:15px; }
+      .panel { padding:12px; }
+      .weekstrip .wday { min-width:120px; }
+      .kcard .kact button { padding:5px 10px; font-size:12px; }
+    }
+    /* 右侧三栏 */
+    .rightbar { width:360px; flex:0 0 360px; align-self:flex-start; position:sticky; top:0; height:100vh; overflow-y:auto; background:var(--bg); border-left:1px solid var(--border); padding:14px 14px 40px; }
+    .rightbar h3 { font-size:14px; margin:0; display:flex; align-items:center; gap:6px; }
+    .rb-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:12px; box-shadow:var(--shadow); margin-bottom:14px; }
+    .rb-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:8px; }
+    .rb-tag { font-size:11px; color:var(--muted); border:1px solid var(--border); padding:1px 8px; border-radius:10px; white-space:nowrap; }
+    .rb-refresh { font-size:11px; padding:3px 9px; }
+    .tcm-card { border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:8px; padding:10px; background:var(--accent-light); }
+    .tcm-all { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+    .tcm-all .tcm-card { background:var(--bg); }
+    .tcm-tag { font-size:11px; color:#486248; font-weight:600; }
+    .tcm-title { font-size:13.5px; font-weight:600; margin:2px 0; }
+    .tcm-body { font-size:12.5px; color:var(--text); line-height:1.55; }
+    .tcm-more { font-size:12px; color:var(--muted); margin-top:8px; }
+    .gallery { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .gallery figure { margin:0; }
+    .gallery img { width:100%; height:88px; object-fit:cover; border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:transform .15s; display:block; background:#f0ece4; }
+    .gallery img:hover { transform:scale(1.04); }
+    .gallery figcaption { font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.3; text-align:center; }
+    .design-list { display:flex; flex-direction:column; gap:8px; }
+    .insp-cat { margin-bottom:14px; }
+    .insp-cat-h { font-weight:600; font-size:13px; color:var(--accent); margin-bottom:6px; }
+    .insp-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .insp-card { display:block; border:1px solid var(--border); border-radius:8px; padding:9px 10px; background:var(--bg); text-decoration:none; color:inherit; position:relative; transition:transform .12s, box-shadow .12s; }
+    .insp-card:hover { transform:translateY(-2px); box-shadow:0 3px 10px rgba(0,0,0,.08); }
+    .insp-card-t { font-size:12px; font-weight:600; line-height:1.35; }
+    .insp-card-tip { font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.3; }
+    .insp-badge { position:absolute; top:6px; right:6px; font-size:9px; padding:1px 5px; border-radius:6px; background:var(--accent-light); color:var(--accent); }
+    .insp-badge.ref { background:#f3ede2; color:#9a7b4f; }
+    .insp-card.cc0 { border-color:var(--info); }
+    .insp-card.cc0 .insp-badge { background:#e3f2e8; color:#2e7d4f; }
+
+    .design-item { border:1px solid var(--border); border-radius:8px; padding:8px 10px; background:var(--bg); }
+    .design-item .di-name { font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; }
+    .design-item .di-spec { font-size:11.5px; color:var(--muted); margin-top:2px; }
+    .design-item .di-why { font-size:11.5px; color:var(--info); margin-top:2px; }
+    .concept-card { border:1px solid var(--border); border-radius:10px; padding:14px; background:var(--bg); margin-bottom:12px; }
+    .concept-card .cc-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+    .concept-card .cc-num { display:inline-flex; width:22px; height:22px; border-radius:50%; background:var(--primary); color:#fff; font-size:12px; align-items:center; justify-content:center; font-weight:600; flex-shrink:0; }
+    .concept-card .cc-name { font-size:14px; font-weight:700; color:var(--text); }
+    .concept-card .cc-size { font-size:11px; color:var(--muted); background:var(--card); border:1px solid var(--border); padding:1px 8px; border-radius:10px; margin-left:auto; }
+    .concept-card .cc-usage { font-size:12px; color:var(--info); margin-bottom:10px; }
+    .concept-card .cc-section { font-size:12.5px; line-height:1.6; margin-bottom:8px; }
+    .concept-card .cc-label { display:inline-block; font-size:11px; font-weight:600; color:var(--primary); background:var(--primary-light); padding:1px 6px; border-radius:6px; margin-right:6px; vertical-align:top; }
+    .concept-card .cc-copy { color:var(--text); }
+    .concept-card .cc-prompt-box { background:var(--card); border:1px dashed var(--border); border-radius:8px; padding:10px; margin-top:10px; }
+    .concept-card .cc-prompt { font-size:12px; color:var(--text); line-height:1.65; margin-bottom:8px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .concept-card .cc-colors { font-size:11.5px; color:var(--muted); margin-top:6px; }
+    .concept-card .cc-actions { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+    .prompt-card { border:1px solid var(--border); border-radius:8px; padding:10px; background:var(--bg); margin-bottom:10px; }
+    .prompt-card .pc-title { font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+    .prompt-card .pc-idx { display:inline-flex; width:18px; height:18px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; align-items:center; justify-content:center; }
+    .prompt-card .pc-body { font-size:12.5px; color:var(--text); line-height:1.6; margin-bottom:8px; }
+    .di-pri { font-size:10px; padding:1px 6px; border-radius:8px; color:#fff; white-space:nowrap; }
+    .pri-P0 { background:var(--danger); } .pri-P1 { background:var(--warning); } .pri-P2 { background:var(--info); }
+    .lb-tip { font-size:11px; color:var(--muted); margin-top:8px; }
+    /* 内容复盘：周一到周日 数据录入 */
+    .daytabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; -webkit-overflow-scrolling:touch; }
+    .daytab { flex:0 0 auto; position:relative; border:1px solid var(--border); background:var(--bg); color:var(--text); border-radius:8px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; }
+    .daytab .dot { position:absolute; top:4px; right:4px; width:7px; height:7px; border-radius:50%; background:var(--accent); }
+    .daytab.sel { background:var(--primary); color:#fff; border-color:var(--primary); }
+    .daytab.today { box-shadow:0 0 0 2px var(--warning); }
+    .dp-head { font-size:14px; font-weight:700; color:var(--primary); margin:6px 0 10px; }
+    .dp-fields { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:10px; }
+    .dp-fields .field { margin-bottom:0; }
+    .sum-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+    .sum-card { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 8px; text-align:center; }
+    .sum-card .sum-num { font-size:20px; font-weight:700; color:var(--primary); }
+    .sum-card .sum-lbl { font-size:11px; color:var(--muted); margin-top:2px; }
+    .sum-card.hl { background:#fff7ef; border-color:var(--warning); } .sum-card.hl .sum-num { color:var(--warning); }
+    .sum-row { font-size:13px; margin-top:10px; color:var(--text); }
+    .sum-row b { color:var(--primary); }
+    .sum-sub { font-size:13px; font-weight:600; color:var(--accent); margin:14px 0 6px; }
+    .sum-tbl { font-size:13px; }
+    .theme-list { display:flex; flex-direction:column; gap:6px; }
+    .theme-chip { font-size:12.5px; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:7px 10px; line-height:1.5; }
+    .theme-chip .theme-dt { display:inline-block; font-size:11px; font-weight:600; color:var(--primary); background:var(--primary-light); padding:1px 7px; border-radius:8px; margin-right:8px; }
+    @media(max-width:780px){ .sum-grid { grid-template-columns:repeat(3,1fr); } }
+    @media(max-width:1180px){
+      .rightbar { display:none; }
+      .main { order:1; }
+    }
+    .dec-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:12px; }
+    .dec-head { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+    .dec-platform { font-size:11px; font-weight:600; color:var(--primary); background:var(--primary-light); padding:1px 8px; border-radius:8px; }
+    .dec-title { font-weight:600; }
+    .dec-row { font-size:13.5px; line-height:1.7; margin:6px 0; }
+    .dec-row b { color:var(--primary); }
+    .dec-queue-item { font-size:13px; color:var(--muted); padding:8px 10px; border:1px dashed var(--border); border-radius:8px; margin-bottom:8px; word-break:break-all; }
+  </style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="德馨远运营台">
+<link rel="apple-touch-icon" href="icon.svg">
+</head>
+<body>
+<div class="app">
+  <!-- 左侧导航 -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">德</div><div><b>德馨远</b><small>短视频运营工作台</small></div></div>
+    <nav id="nav">
+      <a data-page="daily" class="active"><span class="ico">🗓️</span>每日计划</a>
+      <a data-page="inspire"><span class="ico">💡</span>选题灵感</a>
+      <a data-page="hot"><span class="ico">🔥</span>爆款热点</a>
+      <a data-page="decompose"><span class="ico">🔗</span>爆款链接拆解</a>
+      <a data-page="review"><span class="ico">📊</span>内容复盘</a>
+      <a data-page="ai"><span class="ico">🤖</span>AI推荐选题</a>
+      <a data-page="mine"><span class="ico">✍️</span>我的选题</a>
+      <div class="nav-group" style="font-size:11px;color:var(--muted);padding:12px 18px 4px;letter-spacing:.5px;">素材与参考</div>
+      <a data-page="knowledge"><span class="ico">🌿</span>中医小知识</a>
+      <a data-page="gallery"><span class="ico">🖼️</span>宣传图片库</a>
+      <a data-page="designs"><span class="ico">🎨</span>今日所需设计图</a>
+      <a data-page="dailyimg"><span class="ico">✨</span>每日自动任务</a>
+      <a data-page="sync"><span class="ico">☁️</span>同步设置</a>
+    </nav>
+    <div class="foot">数据可同步云端<br>每日 08:30 自动选题<br>周日 18:00 自动周报<br><span style="color:#ffd27f;">同步需在「同步设置」开启</span></div>
+  </aside>
+  <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
+
+  <!-- 主区 -->
+  <main class="main">
+    <div class="topbar">
+      <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="菜单">☰</button>
+      <h2 id="page-title">每日计划</h2>
+      <div class="meta">
+        <span id="current-date">--</span>
+        <span id="current-theme">--</span>
+        <button class="ghost" onclick="window.print()">🖨️ 打印</button>
+      </div>
+    </div>
+
+    <!-- 页面：每日计划 -->
+    <section class="page active" id="page-daily">
+      <div class="stats">
+        <div class="stat"><div class="num" id="s-total">0</div><div class="lbl">今日任务总数</div></div>
+        <div class="stat done"><div class="num" id="s-done">0</div><div class="lbl">已完成</div></div>
+        <div class="stat pending"><div class="num" id="s-pending">0</div><div class="lbl">待完成</div></div>
+        <div class="stat rate"><div class="num" id="s-rate">0%</div><div class="lbl">完成率</div><div class="pbar"><i id="s-rate-bar" style="width:0%"></i></div></div>
+      </div>
+
+      <div class="section-title">本周选题 <span class="tag">周一~周日 · 今日高亮</span></div>
+      <div class="weekstrip" id="weekstrip"></div>
+
+      <div class="section-title"><span id="kanban-title">今日任务看板</span> <span class="tag">点上方某天切换 · 待办可编辑 · 拖动或点→推进</span></div>
+      <div class="kanban" id="kanban">
+        <div class="kcol todo" data-col="待办"><h4>📥 待办 <span class="cnt" id="cnt-待办"></span></h4><div class="klist" data-col="待办"></div></div>
+        <div class="kcol doing" data-col="进行中"><h4>🔨 进行中 <span class="cnt" id="cnt-进行中"></span></h4><div class="klist" data-col="进行中"></div></div>
+        <div class="kcol done" data-col="已完成"><h4>✅ 已完成 <span class="cnt" id="cnt-已完成"></span></h4><div class="klist" data-col="已完成"></div></div>
+      </div>
+    </section>
+
+    <!-- 页面：选题灵感 -->
+    <section class="page" id="page-inspire">
+      <div class="section-title">周排期总览 <span class="tag">可编辑 · 灵活排期 · 结合爆款</span></div>
+      <div class="panel">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
+          <button class="primary" onclick="genWeekPlan()">🤖 一键结合爆款生成本周</button>
+          <span class="lb-tip" style="margin:0;">每天可自由填写「内容方向 / 钩子 / 文案 / 脚本分镜」，出镜医生与拍摄时长可改；不再硬性绑定周排期。点单日 🤖 可结合当前爆款 + 医馆实景生成。</span>
+        </div>
+        <div class="week-grid" id="plan-board"></div>
+      </div>
+      <div class="section-title">选题灵感芯片 <span class="tag">点击加入下方备忘</span></div>
+      <div class="panel">
+        <div class="chipgrp" id="chips-chang"></div>
+        <div class="chipgrp" id="chips-wang"></div>
+        <div class="chipgrp" id="chips-general"></div>
+        <div class="field" style="margin-top:10px;"><label>选题灵感备忘（自动保存）</label>
+          <textarea id="inspire-notes" style="min-height:120px;" placeholder="随时记下想到的点子、患者反馈、灵感…"></textarea></div>
+      </div>
+    </section>
+
+    <!-- 页面：爆款热点（实时） -->
+    <section class="page" id="page-hot">
+      <div class="section-title">实时中医热点 <span class="tag" id="hot-meta2">按当前节气/季节推算</span>
+        <button class="ghost" onclick="refreshHot()">🔄 刷新实时热点</button>
+      </div>
+      <div id="hot-list" class="topics-grid"></div>
+      <div class="section-title">🔥 每日爆款拆解 Top10 <span class="tag" id="viral-meta">每天 09:00 自动刷新</span>
+        <button class="ghost" onclick="refreshViral()">🔄 刷新爆款</button>
+      </div>
+      <div id="viral-list" class="topics-grid"></div>
+      <div class="section-title">我刷到的爆款 <span class="tag">贴链接/描述，存下来慢慢拆</span></div>
+      <div class="panel"><textarea id="hot-links" style="min-height:120px;" placeholder="把抖音/小红书刷到的爆款视频链接或描述贴这里…"></textarea></div>
+      <div class="refresh-time" id="hot-time" style="margin-top:8px;"></div>
+    </section>
+
+    <!-- 页面：爆款链接拆解 -->
+    <section class="page" id="page-decompose">
+      <div class="section-title">爆款链接拆解 <span class="tag">粘贴抖音/小红书/视频号链接 · AI 自动拆解文案与结构</span></div>
+      <div class="panel">
+        <div class="field">
+          <label>视频分享链接</label>
+          <input type="text" id="dec-url" placeholder="粘贴分享链接，如 https://v.douyin.com/xxxx/ 或 https://xhslink.com/xxxx">
+        </div>
+        <div class="field">
+          <label>视频文案（强烈建议粘贴：平台常抓不到，贴文案拆得更准；抖音可尝试自动抓）</label>
+          <textarea id="dec-caption" rows="4" placeholder="把视频里的口播/标题文案复制到这里"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap;">
+          <button class="ghost" onclick="submitDecompose()">🚀 提交拆解</button>
+          <button class="ghost" onclick="loadDecompose()">🔄 刷新结果</button>
+          <span id="dec-msg" style="font-size:13px;color:var(--muted);"></span>
+        </div>
+      </div>
+      <div class="section-title">我的拆解库 <span class="tag">最新在上 · 自动更新</span></div>
+      <div id="dec-list"></div>
+      <div class="section-title">待拆解队列 <span class="tag">提交后由 AI 自动处理（约每 30 分钟一次）</span></div>
+      <div id="dec-queue"></div>
+    </section>
+
+    <!-- 页面：内容复盘 -->
+    <section class="page" id="page-review">
+      <div class="section-title">每日数据录入 <span class="tag">三平台 · 按周一到周日填写 · 18:00 发策划</span></div>
+      <div class="panel">
+        <div class="daytabs" id="day-tabs"></div>
+        <div id="day-panel"></div>
+      </div>
+      <div class="section-title">周报 <span class="tag">聚合本周七天 · AI 周日 18:00 自动出</span></div>
+      <div class="panel">
+        <div id="week-summary"></div>
+        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="success" onclick="genWeekReport()">📊 生成本周周报</button>
+          <button class="ghost" onclick="copyWeekReport()">📎 复制周报</button>
+        </div>
+        <textarea id="week-report" class="report-box" style="margin-top:10px;" placeholder="聚合本周录入数据生成"></textarea>
+      </div>
+      <div class="section-title">数据总结 <span class="tag">自动汇总本周表现</span></div>
+      <div class="panel">
+        <div id="data-summary"></div>
+      </div>
+    </section>
+
+    <!-- 页面：AI推荐选题（按 7 天分布 + 实时热点） -->
+    <section class="page" id="page-ai">
+      <div class="section-title">实时中医热点 <span class="tag" id="hot-meta">--</span>
+        <button class="ghost" onclick="refreshAll()">🔄 刷新</button>
+      </div>
+      <div id="ai-hotspot" class="hotbar"></div>
+
+      <div class="section-title">本周 AI 推荐选题 <span class="tag">按周一~周日排期 · 每日随日期滚动生成</span></div>
+      <div class="panel" style="margin-bottom:14px;font-size:13px;color:var(--muted);">
+        选题按硬性周排期（周一整骨 / 周二脱发 / 周三脏腑推拿 / 周四非遗脉诊 / 周五三大准则 / 周六随机养生 / 周日复盘）自动生成，<b>每天 3 个候选、主推第 1 条</b>；今日的脚本优先复用 <code>daily-topics.js</code>（08:30 AI 自动产出）。热点按当前<b>节气 / 季节 / 星期</b>实时推算，点「刷新」即时更新。
+      </div>
+      <div id="weekly-topics" class="week-grid"></div>
+      <div class="refresh-time" id="ai-time" style="margin-top:8px;"></div>
+    </section>
+
+    <!-- 页面：我的选题 -->
+    <section class="page" id="page-mine">
+      <div class="section-title">我的选题 <span class="tag">我定方向 · AI 写脚本文案</span></div>
+      <div class="panel">
+        <div class="grid-2">
+          <div>
+            <div class="field"><label>内容方向 / 主题</label><input type="text" id="mt-direction" placeholder="例：三伏天小孩积食怎么调"></div>
+            <div class="field"><label>出镜医生</label>
+              <select id="mt-doctor"><option value="常玦明">常玦明（整骨/脏腑推拿）</option><option value="王东超">王东超（脱发/脉诊）</option><option value="其他医生">其他医生（自填）</option><option value="无">无（图文/口播）</option></select></div>
+            <div class="field"><label>拍摄时长</label><input type="text" id="mt-duration" placeholder="例：1h / 图文无需拍摄"></div>
+          </div>
+          <div>
+            <div class="field"><label>备注 / 重点</label><textarea id="mt-note" placeholder="想突出的卖点、禁忌、参考热点等"></textarea></div>
+            <div style="display:flex; gap:10px;">
+              <button class="info" onclick="genScriptPrompt()">📝 让AI写脚本</button>
+              <button class="ghost" onclick="addMyTopic()">➕ 保存到我的选题</button>
+            </div>
+            <div class="field" style="margin-top:10px;"><label>已生成的提示词（复制发给我）</label>
+              <textarea id="mt-prompt" style="min-height:90px;background:#fbfaf7;"></textarea></div>
+          </div>
+        </div>
+      </div>
+      <div id="mytopics-list" style="margin-top:14px;"></div>
+    </section>
+
+    <!-- 页面：同步设置 -->
+    <section class="page" id="page-sync">
+      <div class="section-title">☁️ 数据同步设置 <span class="tag">手机/电脑互通</span></div>
+      <div class="panel">
+        <p style="color:var(--muted);font-size:13px;margin-top:0;">开启后，所有录入数据（任务看板、灵感备忘、数据复盘、我的选题）实时存到你的 <b>GitHub 私有仓库</b>。手机和电脑打开同一个分享链接，数据自动一致。Token 仅保存在本机浏览器，不上传他人。</p>
+        <div class="field" style="max-width:520px;">
+          <label>GitHub 仓库（格式 owner/repo）</label>
+          <input type="text" id="sync-repo" placeholder="例如：Corrupt-77/Dxy-Sync" value="Corrupt-77/Dxy-Sync">
+        </div>
+        <div class="field" style="max-width:520px;">
+          <label>Personal Access Token（经典令牌勾 <code>repo</code>；细粒度令牌需授权该仓库 Contents 读写）</label>
+          <input type="password" id="sync-token" placeholder="ghp_... 或 github_pat_...">
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px;">
+          <button class="primary" id="sync-save">💾 保存并启用</button>
+          <button class="ghost" id="sync-now">🔄 立即同步</button>
+          <button class="ghost" id="sync-disable">⏸ 停用</button>
+          <span id="sync-status" style="font-size:12px;color:var(--muted);"></span>
+        </div>
+        <div id="sync-filewarn" style="display:none;margin-top:8px;padding:8px 10px;border-radius:8px;background:#fff4e5;color:#a85a00;font-size:12px;">⚠️ 你正在用 <b>file://</b> 打开，浏览器可能拦截 GitHub 同步（CORS）。请改用手机/电脑通用的云链接打开本工作台，同步才稳定。</div>
+        <div class="lb-tip">首次使用三步：① 连接 GitHub ② 新建一个<strong>私有</strong>仓库 ③ 生成 Token（经典令牌勾 <code>repo</code> 权限最省事）。详细步骤见随附《数据互通使用说明》。停用后仅本机保存。</div>
+      </div>
+    </section>
+
+    <!-- 页面：中医小知识 -->
+    <section class="page" id="page-knowledge">
+      <div class="section-title">🌿 中医小知识 <span class="tag">每日轮换 · 可当文案素材</span></div>
+      <div class="panel">
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+          <button class="ghost" onclick="rotateTCM()">🔄 换一条</button>
+          <span style="color:var(--muted);font-size:12px;">点「换一条」按顺序轮换；下方为全部知识库，可直接取用做口播/字幕。</span>
+        </div>
+        <div id="tcm-featured-page"></div>
+        <div id="tcm-all" class="tcm-all"></div>
+      </div>
+    </section>
+
+    <!-- 页面：宣传图片库 -->
+    <section class="page" id="page-gallery">
+      <div class="section-title">🖼️ 宣传图片库 <span class="tag">医生·节气·医馆海报</span></div>
+      <div class="panel">
+        <div class="lb-tip">点击放大 · 取自本机素材库，可直接取用（未上传云端的图在手机端会隐藏）</div>
+        <div class="gallery" id="gallery-page" style="margin-top:10px;"></div>
+      </div>
+      <div class="section-title" style="margin-top:18px;">🌐 每日灵感参考 <span class="tag" id="insp-updated">每日更新</span></div>
+      <div class="panel">
+        <div class="lb-tip" id="insp-note"></div>
+        <div id="insp-wrap" style="margin-top:8px;"></div>
+      </div>
+    </section>
+
+    <!-- 页面：今日所需设计图 -->
+    <section class="page" id="page-designs">
+      <div class="section-title">🎨 今日所需设计图 <span class="rb-tag" id="design-target-page">--</span></div>
+      <div class="panel">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+          <b>今日方向：</b><span id="design-direction-page" style="color:var(--primary);">--</span>
+          <span class="lb-tip" style="margin:0;">以下按今日拍摄脚本自动生成 10 版设计概念，含创意、文案、钩子、AI 出图提示词</span>
+        </div>
+        <div class="design-list" id="designs-page" style="margin-top:10px;"></div>
+      </div>
+    </section>
+
+    <!-- 页面：每日自动任务（AI 出图提示词 + 参考图） -->
+    <section class="page" id="page-dailyimg">
+      <div class="section-title">✨ 每日自动任务 <span class="tag">按当日方向自动出图提示词</span></div>
+      <div class="panel">
+        <div class="lb-tip">按今日内容方向，自动生成可直接复制到 即梦 / 豆包 / Midjourney 的中医宣传出图提示词；下方附现有素材做参考。把生成好的图放进 <code>daily-images/</code> 即可在此展示（本助手当前环境无 AI 出图能力，提示词由你贴到出图工具生成）。</div>
+        <div id="dailyimg-prompts" style="margin-top:10px;"></div>
+        <div class="section-title" style="margin-top:16px;font-size:14px;">🖼️ 现有素材参考</div>
+        <div id="dailyimg-page" class="gallery" style="margin-top:8px;"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 右侧：今日速览 -->
+  <aside class="rightbar" id="rightbar">
+    <div class="rb-card">
+      <div class="rb-head"><h3>📌 今日速览</h3></div>
+      <div id="today-brief"></div>
+      <div class="lb-tip">中医小知识 / 宣传图片库 / 今日所需设计图 / 每日自动任务 已移至左侧导航。</div>
+    </div>
+  </aside>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="daily-topics.js"></script>
+<script src="inspirations.js"></script>
+<script>
+/* ---------- 基础工具 ---------- */
+const today = new Date();
+const dateStr = fmtDate(today);
+const PLATFORMS = ['抖音','小红书','视频号'];
+const METRICS = [['views','播放量'],['likes','点赞'],['favs','收藏'],['comments','评论'],['dms','私信咨询'],['bookings','到店预约']];
+function fmtDate(d){ const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return y+'-'+m+'-'+day; }
+function getWeekday(d){ return ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()]; }
+function $(id){ return document.getElementById(id); }
+function escapeHtml(t){ if(t==null) return ''; return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function platClass(p){ return p==='抖音'?'p-dy':(p==='小红书'?'p-xhs':'p-sph'); }
+function toast(msg){ const el=$('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2200); }
+function copyText(t){ if(!t) return; if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).catch(()=>fallbackCopy(t)); } else fallbackCopy(t); }
+function fallbackCopy(t){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
+
+/* ---------- 导航 ---------- */
+const PAGE_TITLES = { daily:'每日计划', inspire:'选题灵感', hot:'爆款热点', decompose:'爆款链接拆解', review:'内容复盘', ai:'AI推荐选题', mine:'我的选题', knowledge:'中医小知识', gallery:'宣传图片库', designs:'今日所需设计图', dailyimg:'每日自动任务', sync:'同步设置' };
+document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>{ switchPage(a.dataset.page); toggleSidebar(false); }));
+function toggleSidebar(open){ const sb=document.querySelector('.sidebar'); const ov=$('overlay'); const show=open===undefined?!sb.classList.contains('open'):open; sb.classList.toggle('open',show); ov.classList.toggle('show',show); }
+function switchPage(p){
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active', a.dataset.page===p));
+  document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active', s.id==='page-'+p));
+  $('page-title').textContent = PAGE_TITLES[p]||'';
+  if(p==='daily') renderKanban();
+  if(p==='knowledge') renderKnowledgePage();
+  if(p==='gallery'){ renderGalleryPage(); renderInspirations(); }
+  if(p==='designs') renderDesignsPage();
+  if(p==='dailyimg') renderDailyImg();
+  if(p==='review'){ renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary(); }
+  if(p==='inspire'){ renderPlanBoard(); renderInspireChips(); }
+  if(p==='hot'){ renderHot(); renderViral(); fetchLiveHotspots(); fetchLiveViral(); fetchTopics(); }
+  if(p==='decompose'){ renderDecompose(); }
+}
+
+/* ---------- 周排期 ---------- */
+function mondayOf(d){ const x=new Date(d); const day=x.getDay(); const diff=(day===0?-6:1-day); x.setDate(x.getDate()+diff); x.setHours(0,0,0,0); return x; }
+function weekDates(){ const mon=mondayOf(today); const arr=[]; for(let i=0;i<7;i++){ const d=new Date(mon); d.setDate(d.getDate()+i); arr.push(fmtDate(d)); } return arr; }
+function fridayPrinciple(){ const anchor=new Date(2026,6,27); const mon=mondayOf(today); const days=Math.round((mon-anchor)/86400000); const idx=((Math.floor(days/7))%3+3)%3; return ['环境好','医生多','服务好'][idx]; }
+const ROTATION={1:{direction:'常医生整骨',doctor:'常玦明',duration:'1–1.5h',needDoc:'是·周日约'},2:{direction:'王医生脱发',doctor:'王东超',duration:'1–1.5h',needDoc:'是·周一约'},3:{direction:'常医生脏腑推拿',doctor:'常玦明',duration:'1h',needDoc:'是·周二约'},4:{direction:'王医生非遗脉诊',doctor:'王东超',duration:'1h',needDoc:'是·周三约'},5:{direction:'三大准则·'+fridayPrinciple(),doctor:'无',duration:'无需',needDoc:'否'},6:{direction:'随机养生',doctor:'视情况',duration:'可图文',needDoc:'否'},0:{direction:'数据复盘+下周选题',doctor:'无',duration:'居家',needDoc:'否'}};
+
+/* ---------- 节气 / 季节 / 实时热点引擎 ---------- */
+const SOLAR_TERMS_2026 = [
+  ['小寒',1,5],['大寒',1,20],['立春',2,4],['雨水',2,19],['惊蛰',3,5],['春分',3,20],
+  ['清明',4,5],['谷雨',4,20],['立夏',5,5],['小满',5,21],['芒种',6,5],['夏至',6,21],
+  ['小暑',7,7],['大暑',7,22],['立秋',8,7],['处暑',8,23],['白露',9,7],['秋分',9,23],
+  ['寒露',10,8],['霜降',10,23],['立冬',11,7],['小雪',11,22],['大雪',12,7],['冬至',12,22]
+];
+function getSolarTerm(date){
+  const y=date.getFullYear();
+  const list=SOLAR_TERMS_2026.map(([name,m,d])=>({name,date:new Date(y,m-1,d)}));
+  list.push({name:SOLAR_TERMS_2026[0][0], date:new Date(y+1,SOLAR_TERMS_2026[0][1]-1,SOLAR_TERMS_2026[0][2])});
+  let cur=list[0], next=list[1];
+  for(let i=0;i<list.length-1;i++){ if(list[i].date<=date){ cur=list[i]; next=list[i+1]; } }
+  const daysLeft=Math.max(0,Math.round((next.date-date)/86400000));
+  return {cur:cur.name, next:next.name, daysLeft};
+}
+function getSeason(date){
+  const m=date.getMonth()+1;
+  if(m>=3&&m<=5) return '春';
+  if(m>=6&&m<=8) return '夏';
+  if(m>=9&&m<=11) return '秋';
+  return '冬';
+}
+const TERM_HOTSPOTS = {
+  '__sanfu__':[
+    {tag:'中伏·祛湿',title:'中伏祛湿黄金期',angle:'中伏湿气最重，三豆饮+艾草泡脚+足三里/承山按压，清单式干货。',warn:'忌口要给，不写「根治湿气」。'},
+    {tag:'三伏晒背',title:'三伏晒背打卡',angle:'上午9-10点背对阳光15-20分钟「天灸补阳」，打卡vlog+时间表卡片。',warn:'阴虚火旺不宜久晒，限调理体验。'},
+    {tag:'冬病夏治',title:'宫寒/鼻炎/关节痛顺时调',angle:'冬天易犯的毛病趁三伏调理，案例+医生讲解，信任向。',warn:'个案化，不承诺治愈。'},
+    {tag:'三伏贴',title:'三伏贴穴位指南',angle:'初伏/中伏/末伏穴位示意图+禁忌人群，直接变现款。',warn:'提示咨询专业医师，选械字号。'}
+  ],
+  '大暑':[
+    {tag:'湿热伤脾',title:'大暑祛湿养脾',angle:'大暑湿热最伤脾胃，山药薏米粥+少贪凉，讲「湿气信号」。',warn:'食材功效限养生参考。'},
+    {tag:'空调病',title:'空调房里的寒湿',angle:'久吹空调肩颈僵、肠胃凉，艾灸/姜茶/护关节。',warn:'体感描述，不诊断。'},
+    {tag:'夏养心',title:'大暑静心养神',angle:'暑热扰神睡不安，午休+酸枣仁+少怒，做养心清单。',warn:'不适请就医。'}
+  ],
+  '小暑':[
+    {tag:'入伏养生',title:'小暑入伏怎么养',angle:'小暑接三伏，养阳避寒、循序渐进晒背。',warn:'循序渐进，勿暴晒。'},
+    {tag:'心烦失眠',title:'暑热扰神睡不安',angle:'心火偏旺易失眠，莲子百合+穴位安神。',warn:'长期失眠就医。'}
+  ],
+  '立秋':[
+    {tag:'秋燥先防',title:'立秋润燥先养肺',angle:'立秋后燥气起，梨+银耳+少辛，讲「秋养肺」。',warn:'限食疗参考。'},
+    {tag:'贴秋膘有度',title:'贴秋膘别盲补',angle:'暑湿未清先别大补，健脾祛湿过渡。',warn:'体质不同，勿盲补。'}
+  ],
+  '夏至':[
+    {tag:'阳气最盛',title:'夏至养阳正当时',angle:'夏至一阴生，午休养阳、忌过度贪凉。',warn:'限调理建议。'},
+    {tag:'冬病夏治',title:'夏至启动冬病夏治',angle:'阳虚体质趁夏至起调，讲顺时养生逻辑。',warn:'不承诺疗效。'}
+  ],
+  '小满':[
+    {tag:'湿热蕴肤',title:'小满祛湿防疹',angle:'小满湿热易生疹痘，清淡+利湿茶饮。',warn:'皮肤问题就医。'},
+    {tag:'苦夏开胃',title:'苦夏没胃口怎么调',angle:'芳香化浊、少油腻，讲脾胃运化。',warn:'限食疗参考。'}
+  ]
+};
+const SEASON_HOTSPOTS = {
+  '春':[{tag:'春季养肝',title:'春养肝·疏泄为顺',angle:'春天对应肝，早卧早起、舒情少怒，做「春季养肝清单」。',warn:'不替代治疗。'},
+        {tag:'过敏季',title:'春敏喷嚏不停',angle:'花粉季鼻痒喷嚏，辛夷/按揉迎香，讲体质调理。',warn:'急性过敏就医。'}],
+  '夏':[{tag:'夏季养心',title:'夏养心·少苦多酸',angle:'夏季对应心，宜静心、适度出汗、补水。',warn:'不替代治疗。'},
+        {tag:'空调寒湿',title:'空调房里的寒湿',angle:'久吹空调肩颈僵、肠胃凉，艾灸/姜茶护关节。',warn:'体感描述，不诊断。'}],
+  '秋':[{tag:'秋燥润肺',title:'秋燥润肺正当时',angle:'秋燥伤肺，梨/银耳/少辛，做润燥清单。',warn:'限食疗参考。'},
+        {tag:'温差感冒',title:'昼夜温差防感冒',angle:'秋凉添衣+玉屏风思路，讲卫外固表。',warn:'发热就医。'}],
+  '冬':[{tag:'冬藏养肾',title:'冬藏养肾蓄精气',angle:'冬季对应肾，早卧晚起、温补有度。',warn:'限调理建议。'},
+        {tag:'三九贴',title:'三九贴扶阳',angle:'三九天穴位敷贴，冬病冬治思路。',warn:'提示咨询医师。'}]
+};
+function getHotspots(date, weekday){
+  const st=getSolarTerm(date); const season=getSeason(date);
+  let list=(TERM_HOTSPOTS[st.cur]||[]).slice();
+  if(['小暑','大暑','立秋','处暑'].includes(st.cur)) list=TERM_HOTSPOTS['__sanfu__'].concat(list);
+  if(!list.length) list=(SEASON_HOTSPOTS[season]||[]).slice();
+  const todayFocus=list.length?list[weekday%list.length]:null;
+  return {term:st.cur, next:st.next, daysLeft:st.daysLeft, season, list, todayFocus};
+}
+
+/* ---------- 每周 7 天候选选题生成 ---------- */
+function fill(s, ctx){
+  if(!s) return '';
+  return String(s)
+    .replace(/\{term\}/g, ctx.term)
+    .replace(/\{season\}/g, ctx.season)
+    .replace(/\{nextTerm\}/g, ctx.next)
+    .replace(/\{principle\}/g, ctx.principle);
+}
+function ctaFor(rot){
+  if(rot.doctor && rot.doctor.indexOf('常')>=0) return '同款不适，来德馨远找常医生辨证调理';
+  if(rot.doctor && rot.doctor.indexOf('王')>=0) return '同款困扰，来德馨远找王医生辨证调理';
+  return '想系统调理，到店导航搜「德馨远医馆」';
+}
+function buildScript(rot, title, hook, outline){
+  const demo = (rot.doctor && rot.doctor!=='无' && rot.doctor!=='视情况') ? (rot.doctor+'演示：') : '';
+  return '【开场】'+hook+'\n【正文】'+demo+outline+'\n【结尾CTA】'+ctaFor(rot);
+}
+const WEEKLY_CANDIDATES = {
+  1:[ // 周一 整骨
+    {title:'{term}湿热重、久坐腰酸？常医生整骨调体态',hook:'一到{term}就浑身沉、腰发板？多半是湿热困筋+久坐体态歪。',outline:'常医生现场评估长短腿/骨盆，演示整骨复位手法，讲「骨正筋柔气血通」。',kw:['整骨','常玦明','体态矫正','脊柱','德馨远']},
+    {title:'孩子书包越背越歪？常医生整骨早干预脊柱侧弯',hook:'娃写作业歪着坐、背书包一肩高一肩低？脊柱侧弯要早看。',outline:'常医生讲青少年脊柱筛查，演示简易评估动作。',kw:['青少年','脊柱侧弯','整骨','常玦明']},
+    {title:'骨盆一歪浑身疼？常医生整骨复位',hook:'没撞过却总腰胯疼、走路不稳？可能是骨盆错位。',outline:'常医生演示骨盆评估与轻柔复位，强调需专业辨证。',kw:['骨盆','整骨','常玦明','腰痛']}
+  ],
+  2:[ // 周二 脱发
+    {title:'{term}掉发猛？王医生讲清脂溢性脱发根因',hook:'洗头一抓一把、发际线后移？不是洗发水问题，是脂溢+体质。',outline:'王医生拆解脂溢性脱发成因，讲头皮辨证与调理思路。',kw:['脱发','王东超','脂溢性脱发','头皮养护']},
+    {title:'产后脱发别慌，王医生非遗脉诊辨体质',hook:'生完娃大把掉发、发际线塌了？多是气血亏+激素波动。',outline:'王医生用非遗脉诊辨气血虚实，给产后养发方向。',kw:['产后脱发','王东超','脉诊','养发']},
+    {title:'头顶稀疏救星？王医生脱发分型调理',hook:'头顶见头皮、扎不起马尾？脱发要分型对因。',outline:'王医生讲脱发分型（脂溢/血虚/肾虚），对应调理路径。',kw:['脱发调理','王东超','中医养发']}
+  ],
+  3:[ // 周三 脏腑推拿
+    {title:'{term}一吃就胀？常医生脏腑推拿帮肠腑动起来',hook:'吃点东西就胀、上厕所不痛快？{term}湿热最伤脾胃。',outline:'常医生演示叠掌顺时针推腹，讲「六腑以通为用」。',kw:['脏腑推拿','常玦明','脾胃','中伏养生']},
+    {title:'宫寒痛经别硬扛，常医生一招温通下焦',hook:'每到来例假冷得发抖、疼到打滚？可能是下焦寒凝。',outline:'常医生掌根按揉关元、气海，教居家揉腹小动作。',kw:['宫寒','痛经','脏腑推拿','常玦明']},
+    {title:'熬夜后睡不醒像灌铅？常医生调气机醒神',hook:'熬夜后整个人像灌铅、白天睡不醒？可能是气机下陷。',outline:'常医生轻快揉腹升清手法，教办公族1分钟醒神。',kw:['神疲乏力','脏腑推拿','常玦明','办公族']}
+  ],
+  4:[ // 周四 非遗脉诊
+    {title:'中医怎么把脉？王医生非遗脉诊当场揭秘',hook:'老中医三根手指知全身？脉诊没那么玄，今天拆给你看。',outline:'王医生示教寸关尺定位，讲浮沉迟数对应什么。',kw:['脉诊','王东超','非遗','中医辨证']},
+    {title:'总疲劳查不出病？王医生脉诊辨「虚损」',hook:'体检正常却天天累、提不起劲？中医叫「虚劳」，脉上能看。',outline:'王医生用脉诊辨气血阴阳虚损，给调理方向。',kw:['疲劳','脉诊','王东超','虚劳']},
+    {title:'你体质偏寒还是热？王医生脉诊一句话说清',hook:'喝凉的拉肚子、吃辣就上火？先辨清寒热体质再说补。',outline:'王医生讲寒热体质脉象差异，给对应饮食建议。',kw:['体质','脉诊','王东超','寒热']}
+  ],
+  5:[ // 周五 三大准则
+    {title:'为什么选德馨远？三大准则之「{principle}」',hook:'看病最怕环境乱、医生少、服务冷。德馨远用三条准则兜底。',outline:'用真实场景讲「{principle}」怎么落到实处。',kw:['德馨远','三大准则','{principle}','医馆']},
+    {title:'好医馆看什么？「{principle}」是底线',hook:'选医馆别只看装修，这条底线守不住再便宜也别去。',outline:'对比行业乱象，讲德馨远如何把「{principle}」做成标准。',kw:['医馆选择','{principle}','德馨远']},
+    {title:'患者说好才是好：{principle}实录',hook:'广告会骗人，患者口碑不会。看看德馨远的{principle}日常。',outline:'用患者视角/真实片段呈现{principle}。',kw:['口碑','{principle}','德馨远']}
+  ],
+  6:[ // 周六 随机养生
+    {title:'{term}{season}季养生：三豆饮+泡脚祛湿',hook:'{term}湿气最重，脸油、身沉、大便黏？一杯三豆饮安排上。',outline:'讲三豆饮配方+艾草泡脚+穴位按压清单。',kw:['祛湿','{season}季养生','三豆饮','食疗']},
+    {title:'{season}季食疗方：平民食材养好底子',hook:'养生不靠贵，2块钱食材就能调体质，收藏这组搭配。',outline:'列3-4个当季食疗方（如紫苏/山药/薏米）。',kw:['食疗','{season}季','药食同源']},
+    {title:'每天5分钟，{season}季居家调理小动作',hook:'没空去医馆？每天5分钟居家动作，养气血防小毛病。',outline:'教八段锦片段/揉腹/穴位按压跟练。',kw:['居家调理','八段锦','{season}季']}
+  ],
+  0:[]
+};
+function buildWeeklyTopics(){
+  const ctx={term:getSolarTerm(today).cur, next:getSolarTerm(today).next, season:getSeason(today), principle:fridayPrinciple()};
+  const dates=weekDates();
+  return dates.map(dt=>{
+    const d=new Date(dt+'T00:00:00'); const wd=d.getDay(); const rot=ROTATION[wd];
+    const isToday=(dt===dateStr);
+    if(wd===0){
+      return {weekday:getWeekday(d), date:dt, wd, direction:rot.direction, doctor:rot.doctor, duration:rot.duration, needDoc:rot.needDoc, isToday, isReview:true, candidates:[]};
+    }
+    let candidates=[];
+    if(isToday && window.DAILY_TOPICS && window.DAILY_TOPICS.date===dateStr && window.DAILY_TOPICS.topics && window.DAILY_TOPICS.topics.length){
+      candidates=window.DAILY_TOPICS.topics.map(t=>({
+        rank:0, title:t.title, hook:t.hook, outline:t.scriptOutline,
+        keywords:t.keywords, script:t.script, needsDoctor:t.needsDoctor,
+        cta:t.cta, contact:t.contact, cooperation:t.cooperation
+      }));
+    } else {
+      candidates=(WEEKLY_CANDIDATES[wd]||[]).map(c=>({
+        rank:0,
+        title:fill(c.title,ctx), hook:fill(c.hook,ctx), outline:fill(c.outline,ctx),
+        keywords:c.kw.map(k=>fill(k,ctx)),
+        script:buildScript(rot, fill(c.title,ctx), fill(c.hook,ctx), fill(c.outline,ctx)),
+        needsDoctor:rot.needDoc.startsWith('是'),
+        cta:ctaFor(rot), contact:'三平台私信 / 到店导航搜「德馨远医馆」', cooperation:'评论区置顶预约方式'
+      }));
+    }
+    // 标记主推/备选
+    candidates.forEach((c,i)=>{ c.rank=i+1; });
+    return {weekday:getWeekday(d), date:dt, wd, direction:rot.direction, doctor:rot.doctor, duration:rot.duration, needDoc:rot.needDoc, isToday, isReview:false, candidates};
+  });
+}
+
+/* ---------- 顶部信息 ---------- */
+function initHeader(){
+  $('current-date').textContent = dateStr + ' ' + getWeekday(today);
+  if(window.DAILY_TOPICS){ $('current-theme').textContent = '主题：'+(window.DAILY_TOPICS.theme||'今日养生'); }
+  renderWeekStrip(); renderPlanBoard();
+}
+
+/* ---------- 每日计划：本周选题条 ---------- */
+function renderWeekStrip(){
+  const dates=weekDates(); const rec=window.DAILY_TOPICS&&window.DAILY_TOPICS.topics&&(window.DAILY_TOPICS.topics[window.DAILY_TOPICS.recommendedIndex||0]);
+  $('weekstrip').innerHTML = dates.map(dt=>{
+    const d=new Date(dt+'T00:00:00'); const wd=d.getDay(); const rot=ROTATION[wd]; const isToday=dt===dateStr; const isSel=dt===currentDay;
+    const title = isToday&&rec ? rec.title : '';
+    return `<div class="wday ${isSel?'today':''}" style="cursor:pointer;${isSel?'':'opacity:.82;'}" onclick="selectDay('${dt}')">
+      <div class="wd">${getWeekday(d)} ${dt.slice(5)}${isToday?' · 今天':''}</div>
+      <div class="wdir">${escapeHtml(rot.direction)}</div>
+      <div class="wdoc">${escapeHtml(rot.doctor)} · ${escapeHtml(rot.duration)}</div>
+      ${title?`<div style="font-size:11px;color:var(--muted);margin-top:4px;">${escapeHtml(title)}</div>`:''}
+      ${rot.needDoc.startsWith('是')?`<div class="need-doc" style="font-size:11px;">${escapeHtml(rot.needDoc)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ---------- 每日计划：Trello 看板 ---------- */
+const KANBAN_TASKS = ['选定主题','写脚本','拍素材','剪辑','设计图片','各平台数据录入','周复盘'];
+let currentDay = dateStr;
+function kanbanKey(){ return 'dxy_kanban_'+currentDay; }
+function getKanban(){ try{ const s=localStorage.getItem(kanbanKey()); if(s) return JSON.parse(s); }catch(e){} return KANBAN_TASKS.map((n,i)=>({id:'t'+i,name:n,status:'待办'})); }
+function saveKanban(arr){ localStorage.setItem(kanbanKey(), JSON.stringify(arr)); scheduleSync(); }
+function selectDay(dt){ currentDay=dt; renderWeekStrip(); renderKanban(); }
+function renderKanban(){
+  const arr=getKanban(); const cols={'待办':[],'进行中':[],'已完成':[]};
+  arr.forEach(t=>{ (cols[t.status]||cols['待办']).push(t); });
+  const d=new Date(currentDay+'T00:00:00');
+  if($('kanban-title')) $('kanban-title').textContent = (currentDay===dateStr?'今日':(currentDay.slice(5)+' '+getWeekday(d)))+' 任务看板';
+  ['待办','进行中','已完成'].forEach(c=>{
+    const list=document.querySelector(`.klist[data-col="${c}"]`);
+    list.innerHTML = cols[c].map(t=>`
+      <div class="kcard ${t.status==='已完成'?'done':''}" draggable="true" data-id="${t.id}">
+        <input class="kname" value="${escapeHtml(t.name)}" onchange="renameTask('${t.id}',this.value)" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()" draggable="false">
+        <div class="kact">
+          ${t.status!=='已完成'?`<button onclick="moveTask('${t.id}','${c==='待办'?'进行中':'已完成'}')">→</button>`:''}
+          ${t.status!=='待办'?`<button class="ghost" onclick="moveTask('${t.id}','待办')">↩</button>`:''}
+        </div>
+      </div>`).join('') || '<div style="font-size:12px;color:var(--muted);padding:8px;">空</div>';
+    $('cnt-'+c).textContent = cols[c].length;
+  });
+  document.querySelectorAll('.kcard').forEach(card=>{
+    card.addEventListener('dragstart',e=>{ e.dataTransfer.setData('id',card.dataset.id); card.classList.add('dragging'); });
+    card.addEventListener('dragend',()=>card.classList.remove('dragging'));
+  });
+  document.querySelectorAll('.klist').forEach(list=>{
+    list.addEventListener('dragover',e=>e.preventDefault());
+    list.addEventListener('drop',e=>{ e.preventDefault(); const id=e.dataTransfer.getData('id'); const col=list.dataset.col; moveTask(id,col); });
+  });
+  const total=arr.length; const done=cols['已完成'].length; const pending=total-done; const rate=total?Math.round(done/total*100):0;
+  $('s-total').textContent=total; $('s-done').textContent=done; $('s-pending').textContent=pending; $('s-rate').textContent=rate+'%';
+  $('s-rate-bar').style.width=rate+'%';
+}
+function moveTask(id,status){ const arr=getKanban(); const t=arr.find(x=>x.id===id); if(t){ t.status=status; saveKanban(arr); renderKanban(); } }
+function renameTask(id,name){ const arr=getKanban(); const t=arr.find(x=>x.id===id); if(t){ t.name=name; saveKanban(arr); } }
+
+/* ---------- 选题灵感 ---------- */
+const CHIPS = {
+  chang:['腹胀','便秘腹泻','脾胃虚弱','宫寒痛经','长短腿','脊柱侧弯','骨盆倾斜','腰椎间盘突出','颈椎病','肩周炎','失眠多梦','神疲乏力'],
+  wang:['脱发','斑秃','脂溢性脱发','产后脱发','少精弱精','前列腺炎','早泄','白癜风','顽固性失眠','慢性胃肠病','更年期综合征'],
+  general:['三伏晒背','三伏贴穴位','中伏祛湿','冬病夏治','八段锦','艾灸','药食同源','节气养生','脾胃调养','气血调理']
+};
+function planKeyFor(dt){ return 'dxy_plan_'+dt; }
+function getPlan(dt){ try{ return JSON.parse(localStorage.getItem(planKeyFor(dt)))||{}; }catch(e){ return {}; } }
+function savePlan(dt,o){ localStorage.setItem(planKeyFor(dt), JSON.stringify(o)); scheduleSync(); }
+function renderPlanBoard(){
+  const dates=weekDates(); const el=$('plan-board'); if(!el) return;
+  el.innerHTML = dates.map(dt=>{
+    const d=new Date(dt+'T00:00:00'); const wd=d.getDay(); const rot=ROTATION[wd]; const isToday=dt===dateStr;
+    const p=getPlan(dt); const dirPh=rot.direction;
+    return `<div class="day-card ${isToday?'today':''}">
+      <div class="dp-head">${getWeekday(d)} · ${dt}${isToday?' <span class="today-badge">今天</span>':''}</div>
+      <div class="field" style="margin-bottom:8px;"><label>内容方向</label><input type="text" data-dt="${dt}" data-f="direction" value="${escapeHtml(p.direction||'')}" placeholder="${escapeHtml(dirPh)}（可自由改）"></div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <div class="field" style="flex:1 1 120px; margin-bottom:8px;"><label>出镜医生</label><input type="text" data-dt="${dt}" data-f="doctor" value="${escapeHtml(p.doctor||'')}" placeholder="常玦明/王东超/无"></div>
+        <div class="field" style="flex:1 1 100px; margin-bottom:8px;"><label>拍摄时长</label><input type="text" data-dt="${dt}" data-f="duration" value="${escapeHtml(p.duration||'')}" placeholder="例：1h"></div>
+      </div>
+      <div class="field" style="margin-bottom:8px;"><label>钩子</label><textarea data-dt="${dt}" data-f="hook" rows="2" placeholder="开头一句话，勾住停留">${escapeHtml(p.hook||'')}</textarea></div>
+      <div class="field" style="margin-bottom:8px;"><label>文案</label><textarea data-dt="${dt}" data-f="copy" rows="3" placeholder="发布配文 / 标题">${escapeHtml(p.copy||'')}</textarea></div>
+      <div class="field" style="margin-bottom:8px;"><label>脚本分镜</label><textarea data-dt="${dt}" data-f="script" rows="4" placeholder="镜头1…镜头2…（点🤖可自动生成）">${escapeHtml(p.script||'')}</textarea></div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="ghost" onclick="genDayPlan('${dt}')">🤖 结合爆款生成</button>
+        <button class="ghost" onclick="copyDayPlan('${dt}')">📎 复制本日</button>
+      </div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('[data-dt]').forEach(inp=>inp.addEventListener('input',e=>{
+    const dt=e.target.dataset.dt, f=e.target.dataset.f; const p=getPlan(dt); p[f]=e.target.value; savePlan(dt,p);
+  }));
+}
+function buildHookFormulas(angle, fang, term){
+  const t=term.split('（')[0];
+  return [
+    `别只盯${t}喝凉茶——「${fang||angle}」这件事，很多海口人做反了。`,
+    `最近全网都在聊${t}「${angle}」，但9成人第一步就错了。`,
+    `${fang? fang.replace(/[。.!！].*$/,'') : angle}——你中了几条？`,
+    `医生说${t}最该做的不是猛补，是把「${angle}」这关先过好。`,
+    `海口这天热到冒油、身体却在喊“虚”？${t}「${angle}」才是解法。`
+  ];
+}
+function genDayPlan(dt, silent){
+  const d=new Date(dt+'T00:00:00'); const wd=d.getDay();
+  const live=window.__HOTSPOTS__;
+  let focus=null, term='中伏', tags='';
+  if(live && live.hotspots && live.hotspots.length){
+    focus=live.hotspots[wd % live.hotspots.length];
+    term=live.term||'中伏';
+    tags=live.hotspots.slice(0,4).map(x=>'#'+x.tag).join(' ');
+  } else {
+    const h=getHotspots(d, wd);
+    focus=h.todayFocus||(h.list.length?h.list[0]:null);
+    term=h.term;
+    tags=h.list.slice(0,4).map(x=>'#'+x.tag).join(' ');
+  }
+  const angle=focus?focus.title:'节气养生';
+  const fang=focus?focus.angle:'';
+  const warn=focus?focus.warn:'';
+  const clinicRel=focus?focus.relatedClinic:'';
+  const rot=ROTATION[wd];
+  const sugDoc=(rot.doctor&&rot.doctor!=='无'&&rot.doctor!=='视情况')?rot.doctor:'常玦明/王东超（按主题定）';
+  const p=getPlan(dt);
+  const termShort=term.split('（')[0];
+  const direction=p.direction||`${termShort}·${angle}｜结合德馨远真实场景`;
+  const formulas=buildHookFormulas(angle, fang, term);
+  const hook=formulas[wd % formulas.length];
+  const copy=`【${termShort}调理】${angle}\n${fang||''}${warn?('\n⚠️'+warn):''}\n📍德馨远医馆·${CLINIC_FACTS.highlights.slice(0,3).join('·')}${clinicRel?('｜'+clinicRel):''}\n🫖免费凉茶/热茶自取，路过就进来坐\n${tags} #德馨远医馆 #中医养生 #海口生活`;
+  const scene1=CLINIC_FACTS.highlights[2]||'原木空间', scene2=CLINIC_FACTS.highlights[3]||'窗景竹林', scene3=CLINIC_FACTS.highlights[0]||'6间独立诊室', scene4=CLINIC_FACTS.highlights[1]||'9张诊疗床';
+  const script=`分镜1（0-3s 钩子）：${hook}\n分镜2（3-15s 空镜）：${scene1}，镜头扫过${scene2}，给清凉/专业感\n分镜3（15-35s 出镜）：${sugDoc}出镜，讲「${angle}」的常见误区与正确做法${clinicRel?('；结合「'+clinicRel+'」'):''}\n分镜4（35-50s 信任）：${scene3}与${scene4}，强调干净/正规/一人一换\n分镜5（结尾CTA）：导航到店「德馨远医馆」，免费凉茶自取`;
+  p.direction=direction; p.doctor=p.doctor||sugDoc; p.duration=p.duration||'口播约1分钟+空镜15s'; p.hook=hook; p.copy=copy; p.script=script; p.generated=true;
+  savePlan(dt,p); renderPlanBoard();
+  if(!silent) toast('已结合爆款生成本日策划：'+dt);
+}
+function genWeekPlan(){
+  let n=0; weekDates().forEach(dt=>{ const p=getPlan(dt); if(!p.generated && !p.hook){ genDayPlan(dt,true); n++; } });
+  toast(n? ('已结合爆款生成 '+n+' 天，其余保留你的填写') : '本周都已生成，单日可点🤖重新生成');
+}
+function copyDayPlan(dt){ const p=getPlan(dt); if(!p.hook&&!p.direction) return; const txt=`【${dt} ${getWeekday(new Date(dt+'T00:00:00'))}】\n内容方向：${p.direction||'—'}\n出镜医生：${p.doctor||'—'}\n拍摄时长：${p.duration||'—'}\n钩子：${p.hook||'—'}\n文案：\n${p.copy||'—'}\n脚本分镜：\n${p.script||'—'}`; copyText(txt); toast('已复制本日策划'); }
+function renderInspireChips(){
+  $('chips-chang').innerHTML='<h5>常玦明 · 整骨/脏腑推拿</h5>'+CHIPS.chang.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
+  $('chips-wang').innerHTML='<h5>王东超 · 脱发/脉诊</h5>'+CHIPS.wang.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
+  $('chips-general').innerHTML='<h5>通用养生</h5>'+CHIPS.general.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
+  const ta=$('inspire-notes'); if(!ta) return; ta.value = localStorage.getItem('dxy_inspire_'+dateStr)||'';
+  if(!ta.dataset.bound){ ta.addEventListener('change',e=>localStorage.setItem('dxy_inspire_'+dateStr,e.target.value)); ta.dataset.bound='1'; }
+}
+function addInspire(c){ const ta=$('inspire-notes'); ta.value += (ta.value?'\n':'')+'· '+c; localStorage.setItem('dxy_inspire_'+dateStr,ta.value); scheduleSync(); toast('已加入备忘：'+c); }
+
+/* ---------- 实时中医热点（爆款热点页 + AI 页共用） ---------- */
+function renderAiHotspot(){
+  const live=window.__HOTSPOTS__;
+  let list, term, todayFocus=null;
+  if(live && live.hotspots && live.hotspots.length){ list=live.hotspots; term=live.term||'实时'; todayFocus=list[today.getDay()%list.length]; }
+  else { const h=getHotspots(today, today.getDay()); list=h.list; term=h.term; todayFocus=h.todayFocus; }
+  if($('hot-meta')) $('hot-meta').textContent = term+' · '+(live?'云端实时':'本地推算');
+  const chips=list.map(x=>`<span class="hot-tag">#${escapeHtml(x.tag||'')}</span>`).join(' ');
+  $('ai-hotspot').innerHTML = `<div class="panel" style="margin-bottom:4px;">
+    <div style="font-size:13px;margin-bottom:8px;">今日实时热点（${escapeHtml(term)}）：</div>
+    <div style="margin-bottom:8px;">${chips}</div>
+    ${todayFocus?`<div class="hot-card" style="margin-top:6px;"><span class="hot-tag">今日重点</span><h4>${escapeHtml(todayFocus.title||'')}</h4><div class="hot-angle">🎬 ${escapeHtml(todayFocus.angle||'')}</div>${todayFocus.why?`<div class="hot-warn" style="color:var(--info)">💡 ${escapeHtml(todayFocus.why)}</div>`:(todayFocus.warn?`<div class="hot-warn">⚠️ ${escapeHtml(todayFocus.warn)}</div>`:'')}</div>`:''}
+  </div>`;
+}
+/* ---------- 实时热点：云端 JSON 拉取（刷新才有意义） ---------- */
+window.__HOTSPOTS__ = null;
+window.__VIRAL__ = null;
+function fmtGenTime(s){ if(!s) return ''; try{ const d=new Date(s); return d.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return s; } }
+/* 从 GitHub 私有仓库直接拉取实时数据（复用 SYNC 的 Token，无 Token 时回退 CloudStudio） */
+async function fetchFromGitHub(path){
+  if(!SYNC.ready()) return null;
+  const url='https://api.github.com/repos/'+SYNC.repo+'/contents/'+encodeURIComponent(path)+'?ref='+SYNC.branch+'&_='+Date.now();
+  try{
+    const r=await fetch(url,{headers:{'Authorization':'Bearer '+SYNC.token,'Accept':'application/vnd.github+json'},cache:'no-store'});
+    if(!r.ok) return null;
+    const j=await r.json();
+    if(!j || !j.content) return null;
+    return JSON.parse(SYNC._deb64(j.content));
+  }catch(e){ return null; }
+}
+async function fetchLiveHotspots(){
+  try{
+    let j = await fetchFromGitHub('hotspot.json');
+    const src = SYNC.ready() ? 'GitHub·实时' : '云端';
+    if(!j){
+      const r=await fetch('./hotspot.json?t='+Date.now(),{cache:'no-store'});
+      if(!r.ok) return;
+      j=await r.json();
+    }
+    window.__HOTSPOTS__=j;
+    if($('hot-meta2')) $('hot-meta2').textContent=(j.term||'实时')+' · '+src+'更新 '+fmtGenTime(j.generatedAt);
+    renderHot();
+  }catch(e){ /* 拉取失败，回退静态推算 */ }
+}
+async function fetchLiveViral(){
+  try{
+    let j = await fetchFromGitHub('viral.json');
+    const src = SYNC.ready() ? 'GitHub·实时' : '云端';
+    if(!j){
+      const r=await fetch('./viral.json?t='+Date.now(),{cache:'no-store'});
+      if(!r.ok) return;
+      j=await r.json();
+    }
+    window.__VIRAL__=j;
+    if($('viral-meta')) $('viral-meta').textContent=src+'更新 '+fmtGenTime(j.generatedAt);
+    renderViral();
+  }catch(e){}
+}
+async function fetchTopics(){
+  try{
+    const j = await fetchFromGitHub('topics.json');
+    if(j && j.topics && j.topics.length){
+      const scriptDate = (window.DAILY_TOPICS&&window.DAILY_TOPICS.date)||'';
+      if(j.date && (!scriptDate || j.date >= scriptDate)){ window.DAILY_TOPICS = j; }
+    }
+    if(window.DAILY_TOPICS){ const ct=$('current-theme'); if(ct) ct.textContent='主题：'+(window.DAILY_TOPICS.theme||'今日养生'); }
+    renderWeek();
+  }catch(e){}
+}
+/* ---------- 爆款链接拆解 ---------- */
+async function ghPutJson(path, obj){
+  if(!SYNC.ready()) return false;
+  const content = SYNC._b64(JSON.stringify(obj,null,2));
+  const existing = await SYNC._api(path,'GET');
+  const body = { message:'decompose '+new Date().toISOString(), content };
+  if(existing.ok && existing.json && existing.json.sha) body.sha = existing.json.sha;
+  const r = await SYNC._api(path,'PUT', JSON.stringify(body));
+  return r.ok;
+}
+function detectPlatform(url){
+  if(/douyin|tiktok/.test(url)) return '抖音';
+  if(/xiaohongshu|xhslink/.test(url)) return '小红书';
+  if(/weixin|channels|视频号/.test(url)) return '视频号';
+  return '未知平台';
+}
+async function submitDecompose(){
+  const url = ($('dec-url').value||'').trim();
+  const caption = ($('dec-caption').value||'').trim();
+  const msg = $('dec-msg');
+  if(!url){ msg.textContent='请先粘贴视频链接'; msg.style.color='var(--danger)'; return; }
+  if(!SYNC.ready()){ msg.textContent='请先在「同步设置」配置 Token（细粒度，Contents 读写）'; msg.style.color='var(--danger)'; return; }
+  msg.textContent='提交中…'; msg.style.color='var(--muted)';
+  const inbox = await fetchFromGitHub('decompose_inbox.json') || { items:[] };
+  inbox.items = inbox.items || [];
+  inbox.items.push({ url, caption, platform:detectPlatform(url), ts:new Date().toISOString(), status:'pending' });
+  const ok = await ghPutJson('decompose_inbox.json', inbox);
+  if(ok){ msg.textContent='已提交，AI 将自动拆解（约30分钟内）'; msg.style.color='var(--info)'; $('dec-url').value=''; $('dec-caption').value=''; loadDecompose(); }
+  else { msg.textContent='提交失败，请检查 Token/仓库权限'; msg.style.color='var(--danger)'; }
+}
+async function loadDecompose(){
+  const done = await fetchFromGitHub('decompose.json');
+  const list = (done && done.items) ? done.items : [];
+  const box = $('dec-list');
+  if(!box) return;
+  if(!list.length){ box.innerHTML = '<div class="no-topics">还没有拆解结果。粘贴一条爆款链接提交试试，AI 会自动拆解文案结构。</div>'; }
+  else { box.innerHTML = list.slice().reverse().map(decoCardHtml).join(''); }
+  const inbox = await fetchFromGitHub('decompose_inbox.json');
+  const queue = (inbox && inbox.items) ? inbox.items.filter(x=>x.status==='pending') : [];
+  const qb = $('dec-queue');
+  if(qb) qb.innerHTML = queue.length ? queue.map(x=>`<div class="dec-queue-item">⏳ ${escapeHtml(x.platform)} · ${escapeHtml(x.url)} <span style="color:var(--info)">拆解中…</span></div>`).join('') : '<div class="no-topics">队列为空。</div>';
+}
+function decoCardHtml(d){
+  const golden = (d.goldenLines||[]).map(g=>`<li>💎 ${escapeHtml(g)}</li>`).join('');
+  const struc = (d.structure||[]).map(s=>`<li>${escapeHtml(s)}</li>`).join('');
+  const shots = (d.dxyAdapt&&d.dxyAdapt.分镜)? (d.dxyAdapt.分镜.map(s=>`<li>${escapeHtml(s)}</li>`).join('')) : '';
+  return `<div class="dec-card">
+    <div class="dec-head"><span class="dec-platform">${escapeHtml(d.platform||'')}</span>${d.url?`<a href="${encodeURI(d.url)}" target="_blank" rel="noopener">🔗 原视频</a>`:''}<span class="dec-title">${escapeHtml(d.title||'(无标题)')}</span></div>
+    ${d.hook?`<div class="dec-row"><b>🔥 钩子：</b>${escapeHtml(d.hook)}</div>`:''}
+    ${d.opening3s?`<div class="dec-row"><b>⏱ 开头3秒：</b>${escapeHtml(d.opening3s)}</div>`:''}
+    ${struc?`<div class="dec-row"><b>🧩 正文结构：</b><ol>${struc}</ol></div>`:''}
+    ${golden?`<div class="dec-row"><b>💎 金句文案：</b><ul>${golden}</ul></div>`:''}
+    ${d.whyHot?`<div class="dec-row"><b>❓ 为什么火：</b>${escapeHtml(d.whyHot)}</div>`:''}
+    ${d.dxyAdapt&&d.dxyAdapt.idea?`<div class="dec-row"><b>🏥 德馨远怎么改拍：</b>${escapeHtml(d.dxyAdapt.idea)}</div>`:''}
+    ${shots?`<div class="dec-row"><b>🎬 改拍分镜：</b><ol>${shots}</ol></div>`:''}
+    ${d.relatedTopic?`<div class="dec-row"><b>🏷 关联话题：</b>${escapeHtml(d.relatedTopic)}</div>`:''}
+  </div>`;
+}
+function renderDecompose(){ loadDecompose(); }
+function renderHot(){
+  const live=window.__HOTSPOTS__;
+  let list, term;
+  if(live && live.hotspots && live.hotspots.length){ list=live.hotspots; term=live.term||'实时'; }
+  else { const h=getHotspots(today, today.getDay()); list=h.list; term=h.term;
+    if($('hot-meta2') && !live) $('hot-meta2').textContent = term+' · '+h.season+'季 · 距'+h.next+h.daysLeft+'天'; }
+  $('hot-list').innerHTML = (list||[]).map(x=>`
+    <div class="hot-card">
+      <span class="hot-tag">${escapeHtml(x.tag||'')}</span>
+      <h4>${escapeHtml(x.title||'')}</h4>
+      <div class="hot-angle">🎬 ${escapeHtml(x.angle||'')}</div>
+      ${x.why?`<div class="hot-warn" style="color:var(--info)">💡 为什么火：${escapeHtml(x.why)}</div>`:(x.warn?`<div class="hot-warn">⚠️ ${escapeHtml(x.warn)}</div>`:'')}
+      ${x.platform?`<div style="font-size:11px;color:var(--muted);margin-top:4px;">📡 ${escapeHtml(x.platform)} · 热度 ${escapeHtml(x.heat||'-')}</div>`:''}
+      ${x.relatedClinic?`<div style="font-size:11px;color:var(--accent);margin-top:2px;">🏥 可结合：${escapeHtml(x.relatedClinic)}</div>`:''}
+    </div>`).join('') || '<div class="no-topics">暂无热点</div>';
+  const ta=$('hot-links'); if(ta){ ta.value = localStorage.getItem('dxy_hotlinks_'+dateStr)||'';
+    if(!ta.dataset.bound){ ta.addEventListener('change',e=>{ localStorage.setItem('dxy_hotlinks_'+dateStr,e.target.value); scheduleSync(); }); ta.dataset.bound='1'; } }
+}
+function renderViral(){
+  const j=window.__VIRAL__; const el=$('viral-list'); if(!el) return;
+  if(!j || !j.items || !j.items.length){ el.innerHTML='<div class="no-topics">爆款数据加载中…（用云链接打开可自动拉取每日 Top10 拆解）</div>'; return; }
+  el.innerHTML = j.items.map(it=>`
+    <div class="viral-card">
+      <div><span class="viral-rank">${it.rank}</span><h4>${escapeHtml(it.title)}</h4><span class="viral-plat">${escapeHtml(it.platform)}</span></div>
+      <div class="viral-heat">🔥 ${escapeHtml(it.heat||'')}</div>
+      <div class="viral-row"><b>钩子：</b>${escapeHtml(it.hook||'')}</div>
+      <div class="viral-row"><b>为什么火：</b>${escapeHtml(it.whyHot||'')}</div>
+      <div class="viral-row"><b>可借鉴：</b>${escapeHtml(it.lessons||'')}</div>
+      <div class="viral-dxy"><b>德馨远适配：</b>${escapeHtml(it.dxyAdapt||'')}</div>
+      <div class="viral-row" style="color:var(--muted);margin-top:4px;">🏷️ 关联：${escapeHtml(it.relatedTopic||'')} · 来源：${escapeHtml(it.creator||'')}</div>
+    </div>`).join('');
+  if($('viral-meta')) $('viral-meta').textContent='云端更新 '+fmtGenTime(j.generatedAt);
+}
+async function refreshViral(){ await fetchLiveViral(); toast('已刷新每日爆款拆解'); }
+
+/* ---------- 内容复盘：数据录入 + 周报 + 数据总结 ---------- */
+let SELECTED_DAY = dateStr;
+function dataKeyFor(dt){ return 'dxy_data_'+dt; }
+function getDataFor(dt){ try{ return JSON.parse(localStorage.getItem(dataKeyFor(dt)))||{}; }catch(e){ return {}; } }
+function saveDataFor(dt,o){ localStorage.setItem(dataKeyFor(dt), JSON.stringify(o)); scheduleSync(); }
+function hasEntry(d){ return !!(d && (d.theme || d.publishedAt || PLATFORMS.some(p=>d[p] && Object.values(d[p]).some(v=>v)))); }
+function renderDayTabs(){
+  const dates=weekDates(); const cont=$('day-tabs'); if(!cont) return;
+  cont.innerHTML = dates.map(dt=>{
+    const d=getDataFor(dt); const wd=getWeekday(new Date(dt+'T00:00:00'));
+    const isToday = dt===dateStr; const isSel = dt===SELECTED_DAY; const filled=hasEntry(d);
+    return `<button class="daytab ${isSel?'sel':''} ${isToday?'today':''}" onclick="selectDay('${dt}')">${wd.slice(1)}${isToday?'·今':''}${filled?'<span class="dot"></span>':''}</button>`;
+  }).join('');
+}
+function selectDay(dt){ SELECTED_DAY=dt; renderDayTabs(); renderDayPanel(); }
+function renderDayPanel(){
+  const dt=SELECTED_DAY; const d=getDataFor(dt);
+  const wd=getWeekday(new Date(dt+'T00:00:00')); const isToday = dt===dateStr;
+  const el=$('day-panel'); if(!el) return;
+  const rows = PLATFORMS.map(p=>{
+    const rec=d[p]||{};
+    const cells=METRICS.map(([k])=>`<td class="data-cell"><input type="number" min="0" data-p="${p}" data-k="${k}" value="${rec[k]!=null?rec[k]:''}" placeholder="0"></td>`).join('');
+    return `<tr><td style="font-weight:600;white-space:nowrap;">${p}</td>${cells}</tr>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="dp-head">${wd} · ${dt} ${isToday?'<span class="today-badge">今天</span>':''}</div>
+    <div class="dp-fields">
+      <div class="field" style="max-width:340px;flex:1 1 280px;"><label>发布主题</label><input type="text" id="dp-theme" placeholder="例：海口38度，推开这扇门的第一秒" value="${escapeHtml(d.theme||'')}"></div>
+      <div class="field" style="max-width:160px;"><label>发布时间</label><input type="text" id="dp-pub" placeholder="例：18:30" value="${escapeHtml(d.publishedAt||'')}"></div>
+    </div>
+    <table id="dp-table"><thead><tr><th>平台</th><th>播放量</th><th>点赞</th><th>收藏</th><th>评论</th><th>私信咨询</th><th>到店预约</th></tr></thead><tbody>${rows}</tbody></table>
+    <div style="margin-top:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <button class="success" onclick="genDayReport()">📋 生成日报</button>
+      <button class="ghost" onclick="copyDayReport()">📎 复制日报</button>
+      <span id="dp-flag" style="font-size:12px;color:var(--accent);font-weight:600;">${d.reported?'✅ 已汇报策划':''}</span>
+    </div>
+    <textarea id="dp-report" class="report-box" style="margin-top:10px;" placeholder="点击「生成日报」自动套用汇报模板">${escapeHtml(d.report||'')}</textarea>
+  `;
+  $('dp-theme').addEventListener('input',e=>{ const dd=getDataFor(dt); dd.theme=e.target.value; saveDataFor(dt,dd); renderDayTabs(); });
+  $('dp-pub').addEventListener('input',e=>{ const dd=getDataFor(dt); dd.publishedAt=e.target.value; saveDataFor(dt,dd); });
+  $('dp-table').querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{
+    const dd=getDataFor(dt); dd[e.target.dataset.p]=dd[e.target.dataset.p]||{}; dd[e.target.dataset.p][e.target.dataset.k]=e.target.value===''?'':Number(e.target.value); saveDataFor(dt,dd); renderDayTabs();
+  }));
+}
+function genDayReport(){
+  const dt=SELECTED_DAY; const d=getDataFor(dt);
+  const wd=getWeekday(new Date(dt+'T00:00:00'));
+  const theme=$('dp-theme')?$('dp-theme').value.trim():'';
+  const pub=$('dp-pub')?$('dp-pub').value.trim():'';
+  let txt=`📊 ${dt} ${wd} 数据汇报\n发布平台：小红书 / 抖音 / 视频号\n发布主题：${theme||'（未填）'}\n发布时间：${pub||'（未填）'}\n—— 各平台 ——\n`;
+  PLATFORMS.forEach(p=>{ const r=d[p]||{}; txt+=`【${p}】播放${r.views||0} 赞${r.likes||0} 藏${r.favs||0} 评${r.comments||0} 私信${r.dms||0} 到店${r.bookings||0}\n`; });
+  const totPlay=PLATFORMS.reduce((a,p)=>a+(Number((d[p]||{}).views)||0),0);
+  const totLike=PLATFORMS.reduce((a,p)=>a+(Number((d[p]||{}).likes)||0),0);
+  const totBook=PLATFORMS.reduce((a,p)=>a+(Number((d[p]||{}).bookings)||0),0);
+  if(totPlay) txt+=`—— 汇总 ——\n总播放 ${totPlay} ｜ 总点赞 ${totLike} ｜ 点赞率 ${(totLike/totPlay*100).toFixed(1)}% ｜ 到店 ${totBook}\n`;
+  $('dp-report').value=txt; const dd=getDataFor(dt); dd.report=txt; saveDataFor(dt,dd); toast('日报已生成');
+}
+function copyDayReport(){ const dt=SELECTED_DAY; if(!$('dp-report')||!$('dp-report').value) return; copyText($('dp-report').value); const dd=getDataFor(dt); dd.reported=true; saveDataFor(dt,dd); const f=$('dp-flag'); if(f) f.textContent='✅ 已汇报策划'; toast('已复制并标记已汇报'); }
+function renderWeek(){
+  const dates=weekDates(); let html=`<table><thead><tr><th>日期</th><th>主题</th><th>平台</th><th>播放</th><th>赞</th><th>藏</th><th>评</th><th>私信</th><th>到店</th></tr></thead><tbody>`;
+  const dayTotals=[];
+  dates.forEach(dt=>{ const d=getDataFor(dt); if(!hasEntry(d)){ html+=`<tr><td>${dt}</td><td colspan="8" style="color:var(--muted);">未录入</td></tr>`; dayTotals.push({dt,total:0,has:false}); return; }
+    let dayTotal=0; const wd=getWeekday(new Date(dt+'T00:00:00')); const theme=d.theme||'—';
+    PLATFORMS.forEach((p,idx)=>{ const r=d[p]||{}; const tot=METRICS.reduce((a,[k])=>a+(Number(r[k])||0),0); dayTotal+=tot; html+=`<tr><td>${idx===0?dt+' '+wd:''}</td><td>${idx===0?escapeHtml(theme):''}</td><td>${p}</td>${METRICS.map(([k])=>`<td>${Number(r[k])||0}</td>`).join('')}</tr>`; }); dayTotals.push({dt,total:dayTotal,has:true}); });
+  html+=`</tbody></table>`;
+  const withData=dayTotals.filter(x=>x.has);
+  if(withData.length){ const best=withData.reduce((a,b)=>b.total>a.total?b:a); const worst=withData.reduce((a,b)=>b.total<a.total?b:a);
+    html+=`<div style="margin-top:10px;font-size:13px;">本周已录入 ${withData.length} 天 ｜ 最佳：<b>${best.dt}</b>（总量 ${best.total}）｜ 最差：<b>${worst.dt}</b>（总量 ${worst.total}）</div>`; }
+  else html+=`<div style="margin-top:10px;font-size:13px;color:var(--muted);">本周尚未录入数据，周日 18:00 AI 会自动出周报（含下周选题与医生预约表）。</div>`;
+  $('week-summary').innerHTML=html;
+}
+function genWeekReport(){
+  const dates=weekDates(); let txt=`📅 德馨远医馆 周报（${dates[0]} ~ ${dates[6]}）\n一、本周内容：\n`;
+  dates.forEach(dt=>{ const d=getDataFor(dt); const wd=getWeekday(new Date(dt+'T00:00:00')); txt+=`· ${dt} ${wd}：${d&&(d.theme||d.publishedAt)?'主题「'+(d.theme||'—')+'」 已录入':'未录入'}\n`; });
+  txt+=`\n二、数据汇总（来自工作台录入）：\n`;
+  const platSum={}; PLATFORMS.forEach(p=>platSum[p]={}); METRICS.forEach(([k])=>PLATFORMS.forEach(p=>platSum[p][k]=0));
+  let any=false; dates.forEach(dt=>{ const d=getDataFor(dt); if(!d) return; any=true; PLATFORMS.forEach(p=>{ const r=d[p]||{}; METRICS.forEach(([k])=>platSum[p][k]+=Number(r[k])||0); }); });
+  if(any) PLATFORMS.forEach(p=>{ txt+=`【${p}】播放${platSum[p].views} 赞${platSum[p].likes} 藏${platSum[p].favs} 评${platSum[p].comments} 私信${platSum[p].dms} 到店${platSum[p].bookings}\n`; });
+  else txt+='（暂无录入数据，周日 18:00 AI 将结合 topic-history 出完整周报）\n';
+  txt+=`\n三、最佳/最差内容：待 AI 周报分析\n四、下周 5 选题：待 AI 周日生成\n五、医生预约表：常玦明/王东超 提前1天约\n`;
+  $('week-report').value=txt; toast('周报已生成');
+}
+function copyWeekReport(){ if($('week-report').value){ copyText($('week-report').value); toast('周报已复制'); } }
+function renderDataSummary(){
+  const dates=weekDates(); const el=$('data-summary'); if(!el) return;
+  const platSum={}; PLATFORMS.forEach(p=>{ platSum[p]={}; METRICS.forEach(([k])=>platSum[p][k]=0); });
+  const dayTotals=[]; let entries=0; const themes=[];
+  dates.forEach(dt=>{ const d=getDataFor(dt); if(!d){ dayTotals.push({dt,total:0,has:false}); return; }
+    let dayTotal=0; PLATFORMS.forEach(p=>{ const r=d[p]||{}; METRICS.forEach(([k])=>platSum[p][k]+=(Number(r[k])||0)); dayTotal+=METRICS.reduce((a,[k])=>a+(Number(r[k])||0),0); });
+    if(d.theme) themes.push({dt, theme:d.theme});
+    const has=hasEntry(d); dayTotals.push({dt,total:dayTotal,has}); if(has) entries++;
+  });
+  const sum=k=>PLATFORMS.reduce((a,p)=>a+platSum[p][k],0);
+  const totPlay=sum('views'), totLikes=sum('likes'), totFavs=sum('favs'), totComments=sum('comments'), totDms=sum('dms'), totBook=sum('bookings');
+  const totAll=totPlay+totLikes+totFavs+totComments+totDms+totBook;
+  const withData=dayTotals.filter(x=>x.has);
+  let best=null,worst=null; if(withData.length){ best=withData.reduce((a,b)=>b.total>a.total?b:a); worst=withData.reduce((a,b)=>b.total<a.total?b:a); }
+  const ctr = totDms? (totBook/totDms*100).toFixed(1):'0';
+  let html=`<div class="sum-grid">`;
+  html+=`<div class="sum-card"><div class="sum-num">${totPlay}</div><div class="sum-lbl">总播放</div></div>`;
+  html+=`<div class="sum-card"><div class="sum-num">${totLikes}</div><div class="sum-lbl">总点赞</div></div>`;
+  html+=`<div class="sum-card"><div class="sum-num">${totFavs}</div><div class="sum-lbl">总收藏</div></div>`;
+  html+=`<div class="sum-card"><div class="sum-num">${totComments}</div><div class="sum-lbl">总评论</div></div>`;
+  html+=`<div class="sum-card"><div class="sum-num">${totDms}</div><div class="sum-lbl">总私信</div></div>`;
+  html+=`<div class="sum-card hl"><div class="sum-num">${totBook}</div><div class="sum-lbl">总到店</div></div>`;
+  html+=`</div>`;
+  html+=`<div class="sum-row">本周已录入 <b>${entries}</b>/7 天 ｜ 互动总量 <b>${totAll}</b> ｜ 私信→到店转化 <b>${ctr}%</b></div>`;
+  if(best&&worst){ html+=`<div class="sum-row">最佳日：<b>${best.dt}</b>（${best.total}）｜ 最差日：<b>${worst.dt}</b>（${worst.total}）</div>`; }
+  html+=`<div class="sum-sub">各平台合计</div><table class="sum-tbl"><thead><tr><th>平台</th><th>播放</th><th>赞</th><th>藏</th><th>评</th><th>私信</th><th>到店</th></tr></thead><tbody>`;
+  PLATFORMS.forEach(p=>{ html+=`<tr><td>${p}</td>${METRICS.map(([k])=>`<td>${platSum[p][k]}</td>`).join('')}</tr>`; });
+  html+=`</tbody></table>`;
+  if(themes.length){ html+=`<div class="sum-sub">本周发布主题</div><div class="theme-list">`; themes.forEach(t=>{ html+=`<div class="theme-chip"><span class="theme-dt">${t.dt.slice(5)}</span>${escapeHtml(t.theme)}</div>`; }); html+=`</div>`; }
+  else html+=`<div class="sum-row" style="color:var(--muted)">本周尚未填写发布主题，去上方「每日数据录入」按天补填即可。</div>`;
+  el.innerHTML=html;
+}
+
+/* ---------- AI推荐选题：本周 7 天分布 ---------- */
+function renderWeeklyTopics(){
+  const c=$('weekly-topics');
+  const days = window.__WEEKLY__ || buildWeeklyTopics();
+  window.__WEEKLY__ = days;
+  c.innerHTML = days.map(day=>{
+    if(day.isReview){
+      return `<div class="day-card review ${day.isToday?'today':''}">
+        <div class="day-head"><span class="day-wd">${day.weekday} · ${day.date.slice(5)}</span>${day.isToday?'<span class="today-badge">今天</span>':''}</div>
+        <div class="day-dir">📊 ${escapeHtml(day.direction)}</div>
+        <div class="day-note">去「内容复盘」页录入本周数据，周日 18:00 AI 自动出周报与下周选题。医生预约表：常玦明/王东超 提前1天约。</div>
+      </div>`;
+    }
+    const plats=['抖音','小红书','视频号'].map(p=>`<span class="plat ${platClass(p)}">${p}</span>`).join('');
+    const needDoc = day.needDoc.startsWith('是')?`<span class="need-doc">需提前1天约 · ${escapeHtml(day.needDoc.replace('是·',''))}</span>`:`<span class="no-need">无需医生</span>`;
+    const cand = day.candidates.map((t,i)=>{
+      const isRec=(i===0);
+      const kw=(t.keywords||[]).map(k=>`<span class="hot-tag" style="background:#eef3fa;color:#3c5b86;">#${escapeHtml(k)}</span>`).join(' ');
+      return `<div class="cand ${isRec?'rec':''}">
+        <div class="cand-rank">${isRec?'★ 主推':'备选'+(i+1)}</div>
+        <div class="cand-title">${escapeHtml(t.title)}</div>
+        ${t.hook?`<div class="cand-hook">💡 ${escapeHtml(t.hook)}</div>`:''}
+        <details class="cand-detail"><summary>脚本 / 大纲 / 文案</summary>
+          ${t.outline?`<div class="cand-outline">大纲：${escapeHtml(t.outline)}</div>`:''}
+          ${t.script?`<div class="script-box">${escapeHtml(t.script)}</div>`:''}
+          ${kw?`<div style="margin-top:6px;">${kw}</div>`:''}
+          ${t.cta?`<div class="coop"><strong>CTA：</strong>${escapeHtml(t.cta)}<br><strong>对接：</strong>${escapeHtml(t.contact||'')}</div>`:''}
+        </details>
+      </div>`;
+    }).join('');
+    return `<div class="day-card ${day.isToday?'today':''}">
+      <div class="day-head"><span class="day-wd">${day.weekday} · ${day.date.slice(5)}</span>${day.isToday?'<span class="today-badge">今天</span>':''}</div>
+      <div class="day-dir">${escapeHtml(day.direction)}</div>
+      <div class="day-meta">👤 ${escapeHtml(day.doctor)} · ⏱ ${escapeHtml(day.duration)} · ${plats} · ${needDoc}</div>
+      <div class="cands">${cand}</div>
+    </div>`;
+  }).join('');
+}
+function refreshAll(){
+  window.__WEEKLY__ = buildWeeklyTopics();
+  renderAiHotspot(); renderWeeklyTopics(); renderDesignNeeds(); renderHot();
+  fetchLiveHotspots(); fetchLiveViral();
+  const now=new Date();
+  const ts = now.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  if($('ai-time')) $('ai-time').textContent='更新于 '+ts;
+  toast('已刷新实时热点与本周选题');
+}
+async function refreshHot(){
+  await fetchLiveHotspots();
+  const now=new Date();
+  const ts = now.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const src = window.__HOTSPOTS__ ? '（云端实时·'+fmtGenTime(window.__HOTSPOTS__.generatedAt)+'）' : '（本地推算·未连云端）';
+  if($('hot-time')) $('hot-time').textContent='已刷新 '+ts+' '+src;
+  toast('已刷新实时热点');
+}
+
+/* ---------- 我的选题 ---------- */
+function buildScriptPrompt(t){ return `请为德馨远医馆写一条短视频脚本。\n内容方向：${t.direction||'（未填）'}\n出镜医生：${t.doctor||'无'}\n拍摄时长：${t.duration||'不限'}\n备注/重点：${t.note||'无'}\n要求：\n1）标题+开场钩子；\n2）完整口播+分镜脚本（开场/正文/结尾CTA）；\n3）同步适配抖音/小红书/视频号；\n4）口语化、有网感，禁用「治愈/根治/百分百」等绝对化医疗词。`; }
+function genScriptPrompt(){ const t={direction:$('mt-direction').value.trim(),doctor:$('mt-doctor').value,duration:$('mt-duration').value.trim(),note:$('mt-note').value.trim()}; if(!t.direction){ toast('先填「内容方向/主题」'); return; } const p=buildScriptPrompt(t); $('mt-prompt').value=p; copyText(p); toast('提示词已生成并复制，发给我即可'); }
+function myTopicsKey(){ return 'dxy_mytopics_'+dateStr; }
+function getMyTopics(){ try{ return JSON.parse(localStorage.getItem(myTopicsKey()))||[]; }catch(e){ return []; } }
+function saveMyTopics(arr){ localStorage.setItem(myTopicsKey(), JSON.stringify(arr)); scheduleSync(); }
+function addMyTopic(){ const t={direction:$('mt-direction').value.trim(),doctor:$('mt-doctor').value,duration:$('mt-duration').value.trim(),note:$('mt-note').value.trim()}; if(!t.direction){ toast('先填「内容方向/主题」'); return; } const arr=getMyTopics(); arr.push({id:Date.now(),...t,script:'',createdAt:new Date().toISOString()}); saveMyTopics(arr); $('mt-direction').value='';$('mt-duration').value='';$('mt-note').value='';$('mt-prompt').value=''; renderMyTopics(); toast('已保存到「我的选题」'); }
+function renderMyTopics(){ const arr=getMyTopics(); const box=$('mytopics-list'); if(!arr.length){ box.innerHTML='<div class="no-topics" style="padding:14px;">还没有我的选题，填上方表单后点「保存到我的选题」。</div>'; return; }
+  box.innerHTML=arr.map(t=>`<div class="topic-card" style="margin-bottom:12px;">
+    <div class="meta-row"><span>方向：${escapeHtml(t.direction)}</span><span>医生：${escapeHtml(t.doctor)}</span><span>拍摄：${escapeHtml(t.duration||'不限')}</span></div>
+    <div class="field" style="margin:6px 0;"><label>AI 写好的脚本（粘贴回来）</label><textarea data-id="${t.id}" class="mt-script" placeholder="把 AI 返回的脚本粘到这里">${escapeHtml(t.script)}</textarea></div>
+    <div style="display:flex;gap:10px;"><button class="ghost" onclick="saveScript('${t.id}')">💾 保存脚本</button><button class="ghost" onclick="delMyTopic('${t.id}')">🗑️ 删除</button></div>
+  </div>`).join('');
+  box.querySelectorAll('.mt-script').forEach(el=>el.addEventListener('change',e=>saveScript(e.target.dataset.id)));
+}
+function saveScript(id){ const arr=getMyTopics(); const t=arr.find(x=>String(x.id)===String(id)); if(!t) return; t.script=document.querySelector(`.mt-script[data-id="${id}"]`).value; saveMyTopics(arr); toast('脚本已保存'); }
+function delMyTopic(id){ if(!confirm('删除这条我的选题？')) return; saveMyTopics(getMyTopics().filter(x=>String(x.id)!==String(id))); renderMyTopics(); }
+
+/* ---------- 右侧三栏：中医小知识 / 宣传图片库 / 今日所需设计图 ---------- */
+const TCM_KNOWLEDGE = [
+  {tag:'节气·大暑',title:'大暑祛湿先养脾',body:'大暑湿热最伤脾胃。山药薏米粥、少贪凉、睡前热水泡脚，是普通人能做的祛湿三件事。'},
+  {tag:'药食同源',title:'三豆饮消暑湿',body:'绿豆+赤小豆+黑豆煮水，平和祛湿不寒凉，中伏大暑日常饮用正合适。'},
+  {tag:'穴位保健',title:'按揉足三里健脾胃',body:'膝盖下四指、胫骨外侧一横指即足三里，每日按揉3分钟，调脾胃、扶正气。'},
+  {tag:'冬病夏治',title:'三伏是调寒最佳窗',body:'宫寒、鼻炎、关节冷痛，趁三伏阳气最盛时调理，顺天时事半功倍。'},
+  {tag:'作息',title:'夏养心宜午休',body:'暑热扰神，午后小憩15-20分钟养心神，比硬扛更提效率。'},
+  {tag:'体质·湿热',title:'湿热体质看这几点',body:'脸油、身沉、大便黏、口苦苔黄腻——多是湿热，少甜少酒少熬夜。'},
+  {tag:'体质·阳虚',title:'阳虚怕冷先温阳',body:'手脚凉、喜热饮、易腹泻，多为阳虚，艾灸关元、晒背、避生冷。'},
+  {tag:'节气·立秋',title:'立秋润燥先养肺',body:'立秋后燥气起，梨+银耳+少辛，养肺阴防秋燥。'},
+  {tag:'穴位·安神',title:'内关穴安神助眠',body:'腕横纹上两寸两筋间即内关，心烦失眠时按揉，宁心安神。'},
+  {tag:'食疗',title:'山药薏米健脾祛湿',body:'山药平补脾胃、薏米利湿，搭粥常食，适合脾虚湿重人群。'},
+  {tag:'药食同源',title:'陈皮理气化痰',body:'陈皮煮水/入膳，理气健脾、燥湿化痰，胸闷痰多可常备。'},
+  {tag:'运动',title:'八段锦两手托天理三焦',body:'每日5分钟八段锦，舒展气机、和畅气血，办公族居家就能练。'},
+  {tag:'起居',title:'空调房护好颈腰膝',body:'久吹空调易进寒湿，护好颈、腰、膝，姜茶/艾灸驱寒。'},
+  {tag:'情志',title:'疏情少怒养肝',body:'情绪郁结最伤肝，遇事少怒、多舒展，是便宜的养生方。'},
+  {tag:'穴位·止痛',title:'合谷穴止痛万能键',body:'虎口处合谷穴，头痛牙痛痛经时按揉，是随身止痛开关。'},
+  {tag:'节气',title:'三伏晒背补阳气',body:'上午9-10点背对阳光15-20分钟「天灸」，阳虚人群顺时补阳。'}
+];
+const PROMO_IMAGES = [
+  {cat:'环境实拍', file:'环境/门口1.jpg', cap:'德馨远门头·锦旗'},
+  {cat:'环境实拍', file:'环境/外头门头1.jpg', cap:'医馆外立面·专家海报'},
+  {cat:'环境实拍', file:'环境/外面门头2.jpg', cap:'医馆外立面·侧拍'},
+  {cat:'环境实拍', file:'环境/候诊区.jpg', cap:'候诊区·原木桌椅'},
+  {cat:'环境实拍', file:'环境/接待区.jpg', cap:'接待区·藤编屏风'},
+  {cat:'环境实拍', file:'环境/接待，抓药区.jpg', cap:'整面中药柜墙'},
+  {cat:'环境实拍', file:'环境/热茶区.jpg', cap:'热茶/凉茶区·草本茶饮'},
+  {cat:'环境实拍', file:'环境/诊室1.jpg', cap:'诊室·理疗床与采光'},
+  {cat:'环境实拍', file:'环境/诊室2.jpg', cap:'诊室·竹景与锦旗'},
+  {cat:'医生宣传', file:'外面磁吸66×88常和王_画板 1.png', cap:'常+王 医生磁吸'},
+  {cat:'医生宣传', file:'凯文/1.png', cap:'凯文医生'},
+  {cat:'医生宣传', file:'常/1.png', cap:'常医生'},
+  {cat:'节气养生', file:'九种体质门口宣传/湿热体质1.png', cap:'湿热体质科普'},
+  {cat:'节气养生', file:'九种体质门口宣传/阳虚体质1.png', cap:'阳虚体质科普'},
+  {cat:'节气养生', file:'三伏天宣传-01.jpg', cap:'三伏天养生'},
+  {cat:'节气养生', file:'草木药食同源18×21（医生诊室摆放）.jpg', cap:'药食同源'},
+  {cat:'医馆海报', file:'60×80海报图片/60x80海报定稿gai2-02.png', cap:'60×80 海报'},
+  {cat:'医馆海报', file:'朋友圈/中式整骨.png', cap:'中式整骨'},
+  {cat:'医馆海报', file:'朋友圈/古法生发.png', cap:'古法生发'},
+  {cat:'医馆海报', file:'德馨远二维码.png', cap:'到店二维码'}
+];
+let tcmOffset = 0;
+function dayOfYear(d){ const start=new Date(d.getFullYear(),0,0); return Math.floor((d-start)/86400000); }
+function renderTCM(){
+  const arr=TCM_KNOWLEDGE; const base=(dayOfYear(today)+tcmOffset)%arr.length;
+  const feat=arr[base];
+  $('tcm-featured').innerHTML=`<div class="tcm-card"><div class="tcm-tag">${escapeHtml(feat.tag)}</div><div class="tcm-title">${escapeHtml(feat.title)}</div><div class="tcm-body">${escapeHtml(feat.body)}</div></div>`;
+  let more='<div style="border-top:1px dashed var(--border);padding-top:8px;">更多：</div>';
+  for(let i=1;i<=4;i++){ const t=arr[(base+i)%arr.length]; more+=`<div style="margin-top:6px;">· <b>${escapeHtml(t.title)}</b> <span style="color:var(--muted);">（${escapeHtml(t.tag)}）</span></div>`; }
+  $('tcm-more').innerHTML=more;
+}
+function rotateTCM(){ tcmOffset=(tcmOffset+1)%TCM_KNOWLEDGE.length; renderKnowledgePage(); toast('已换一条中医小知识'); }
+function renderPromoGallery(){
+  $('promo-gallery').innerHTML = PROMO_IMAGES.map(im=>`<figure><img src="${encodeURI(im.file)}" alt="${escapeHtml(im.cap)}" loading="lazy" onerror="this.style.display='none';this.closest('figure').style.display='none';" onclick="if(this.src)window.open(this.src)"><figcaption>${escapeHtml(im.cap)}</figcaption></figure>`).join('');
+}
+function buildDesignNeeds(){
+  const wk = window.__WEEKLY__ || buildWeeklyTopics();
+  const day = wk.find(d=>d.isToday) || wk[0];
+  const wd = new Date(day.date+'T00:00:00').getDay();
+  const rot = ROTATION[wd] || {doctor:'无', direction:''};
+  const st = getSolarTerm(today);
+  const isDoc = day.doctor && day.doctor!=='无' && day.doctor!=='视情况';
+  const isEnv = day.direction && day.direction.indexOf('环境') !== -1;
+  const list = [];
+  if(isDoc){
+    list.push({name:day.doctor+' IP 竖版海报', spec:'66×88 / 60×80 · 医生形象+主题大字', why:day.direction+' 主视觉', pri:'P0'});
+    list.push({name:day.doctor+' 金句卡', spec:'1080×1080 · 医生语录+头像', why:'评论区/朋友圈转发', pri:'P1'});
+  }
+  list.push({name:'视频封面图', spec:'1080×1920 竖版 · 大字标题+医生', why:'三平台封面统一', pri:'P0'});
+  if(isEnv){
+    list.push({name:'馆内空间导览图', spec:'1080×1080 · 6间诊室/9张床/凉茶区/药柜墙', why:'用真实空间建立信任', pri:'P1'});
+    list.push({name:'5个细节盘点长图', spec:'1080×1440 · 床品/消毒/热茶/药柜/诊室', why:'小红书图文主力', pri:'P0'});
+    list.push({name:'真实环境场景卡×3', spec:'1080×1080 · 候诊区/热茶区/诊室', why:'朋友圈/小红书场景图', pri:'P1'});
+  }
+  list.push({name:'节气养生图（'+st.cur+'）', spec:'1080×1080 / 九宫格 · 养生要点', why:st.cur+' 顺时养生内容', pri:'P1'});
+  list.push({name:'字幕 / 花字贴纸', spec:'PNG 透明 · 手法/穴位标注', why:'视频内重点标注', pri:'P1'});
+  list.push({name:'结尾 CTA 引导卡', spec:'1080×1080 · 到店导航+私信', why:'转化引流', pri:'P1'});
+  list.push({name:'三平台标题卡', spec:'竖版 · 带 #话题', why:'发布配套', pri:'P2'});
+  const target = day.isReview ? '周日复盘' : ((isDoc?day.doctor+' · ':'')+day.direction);
+  return {target, list};
+}
+function renderDesignNeeds(){
+  const dn=buildDesignNeeds();
+  if($('design-target')) $('design-target').textContent = dn.target;
+  $('design-list').innerHTML = dn.list.map(it=>`<div class="design-item"><div class="di-name"><span class="di-pri pri-${it.pri}">${it.pri}</span>${escapeHtml(it.name)}</div><div class="di-spec">📐 ${escapeHtml(it.spec)}</div><div class="di-why">💡 ${escapeHtml(it.why)}</div></div>`).join('');
+}
+function renderRightbar(){ renderTodayBrief(); }
+function renderTodayBrief(){
+  const wk = window.__WEEKLY__ || buildWeeklyTopics();
+  const day = wk.find(d=>d.isToday) || wk[0];
+  const wd = new Date(day.date+'T00:00:00').getDay();
+  const rot = ROTATION[wd] || {doctor:'无', direction:''};
+  const st = getSolarTerm(today);
+  const el=$('today-brief');
+  if(!el) return;
+  const cf=CLINIC_FACTS;
+  el.innerHTML = `
+    <div style="font-size:13px;margin-bottom:6px;"><b>📅 ${dateStr} ${getWeekday(today)}</b></div>
+    <div style="font-size:13px;margin-bottom:6px;">🌡️ 节气：<b>${escapeHtml(st.cur)}</b>（距${escapeHtml(st.next)} ${st.daysLeft}天）</div>
+    <div style="font-size:13px;margin-bottom:6px;">🎯 今日方向：<b>${escapeHtml(day.direction)}</b></div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">${ day.doctor&&day.doctor!=='无'&&day.doctor!=='视情况' ? '👨‍⚕️ 拍摄：'+escapeHtml(day.doctor) : '📝 无需医生配合' }</div>
+    <div style="font-size:12px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px;">🏥 医馆规模：${cf.rooms}间诊室 · ${cf.beds}张床 · ${cf.doctors_internal+cf.therapists+cf.beauty_doctor}位医师 · ${cf.pharmacists}位药师</div>`;
+}
+function renderKnowledgePage(){
+  const feat=document.getElementById('tcm-featured-page');
+  if(feat) renderTCMInto(feat);
+  const all=document.getElementById('tcm-all');
+  if(all) all.innerHTML = TCM_KNOWLEDGE.map(k=>`<div class="tcm-card"><div class="tcm-tag">${escapeHtml(k.tag)}</div><div class="tcm-title">${escapeHtml(k.title)}</div><div class="tcm-body">${escapeHtml(k.body)}</div></div>`).join('');
+}
+function renderTCMInto(el){
+  const arr=TCM_KNOWLEDGE; const base=(dayOfYear(today)+tcmOffset)%arr.length;
+  const feat=arr[base];
+  el.innerHTML=`<div class="tcm-card" style="border:1px solid var(--accent);"><div class="tcm-tag">${escapeHtml(feat.tag)} · 今日推荐</div><div class="tcm-title">${escapeHtml(feat.title)}</div><div class="tcm-body">${escapeHtml(feat.body)}</div></div>`;
+}
+function renderGalleryPage(){
+  const el=document.getElementById('gallery-page');
+  if(!el) return;
+  el.innerHTML = PROMO_IMAGES.map(im=>`<figure><img src="${encodeURI(im.file)}" alt="${escapeHtml(im.cap)}" loading="lazy" onerror="this.style.display='none';this.closest('figure').style.display='none';" onclick="if(this.src)window.open(this.src)"><figcaption>${escapeHtml(im.cap)}</figcaption></figure>`).join('');
+}
+function renderInspirations(){
+  const wrap=document.getElementById('insp-wrap'); if(!wrap) return;
+  const data=window.DAILY_INSPIRATIONS;
+  if(!data){ wrap.innerHTML='<div style="color:var(--muted)">灵感参考加载中…（需 https 云链接）</div>'; return; }
+  const up=document.getElementById('insp-updated'); if(up) up.textContent='更新于 '+data.updated;
+  const note=document.getElementById('insp-note'); if(note) note.textContent=data.note;
+  wrap.innerHTML = data.categories.map(c=>`
+    <div class="insp-cat">
+      <div class="insp-cat-h">${escapeHtml(c.name)}</div>
+      <div class="insp-grid">
+        ${c.items.map(it=>`<a class="insp-card ${it.cc0?'cc0':''}" href="${encodeURI(it.src)}" target="_blank" rel="noopener">
+          <div class="insp-card-t">${escapeHtml(it.t)}</div>
+          <div class="insp-card-tip">${escapeHtml(it.tip)}</div>
+          ${it.cc0?'<span class="insp-badge">CC0 可商用</span>':'<span class="insp-badge ref">借鉴参考</span>'}
+        </a>`).join('')}
+      </div>
+    </div>`).join('');
+}
+const CLINIC_FACTS = {
+  rooms: 6, beds: 9,
+  doctors_internal: 2, therapists: 3, beauty_doctor: 1, pharmacists: 2, marketing: 4,
+  highlights: ['6间独立诊室','9张诊疗床','原木＋藤编＋整面中药柜墙','窗景竹林','免费凉茶/热茶','一人一换床品']
+};
+const DXY_BRAND_STYLE = '德馨远医馆新中式品牌风格，温润原木空间，主色调咖啡棕与米白，点缀朱红锦旗与草本绿竹影，藤编卷帘、整面中药柜墙、木质茶几与小凳、通透采光，留白雅致，画面干净高级，书法标题，棉麻与木质纹理，东方医养生活美学';
+
+function buildDesignConcepts(){
+  const wk = window.__WEEKLY__ || buildWeeklyTopics();
+  const day = wk.find(d=>d.isToday) || wk[0];
+  const st = getSolarTerm(today);
+  const dir = day.direction || '中医养生';
+  const doc = (day.doctor && day.doctor!=='无' && day.doctor!=='视情况') ? day.doctor : '';
+  const topics = (window.DAILY_TOPICS && window.DAILY_TOPICS.topics) ? window.DAILY_TOPICS.topics : [];
+  const t1 = topics[0] || {}, t2 = topics[1] || {}, t3 = topics[2] || {};
+  const isEnv = dir.indexOf('环境') !== -1;
+  const isService = dir.indexOf('服务') !== -1;
+  const isMed = dir.indexOf('药好') !== -1 || dir.indexOf('药材') !== -1;
+  const concepts = [];
+  const B = DXY_BRAND_STYLE;
+
+  if(isEnv){
+    concepts.push(
+      {id:1, pri:'P0', name:'视频封面·推门转场', size:'1080×1920', usage:'抖音/小红书/视频号 视频封面（今日Top1选题）',
+       creative:'用真实门头画面：医馆外立面暖棕木质招牌「德馨远」＋朱红锦旗，上半叠加热浪/烈日街景，下半是门内清凉原木空间，中间一只手正推开玻璃门，形成强烈冷暖对比。',
+       hook:(t1.hook||'海口38度，推开这扇门的第一秒——'), copy:(t1.title||'海口38度，推开这扇门的第一秒，值了')+'｜6间诊室·9张床·路过就进来吹会儿空调',
+       prompt:`德馨远中医馆真实门头，暖棕木质招牌与朱红锦旗，夏日海口街景热浪与清凉医馆内部的强烈对比，一只手正推开玻璃门，门内可见整面中药柜墙、原木茶几与小凳、藤编屏风，门外暖橙阳光，门内柔和自然光，${B}，竖版构图 9:16，电影感，高级质感，无人物面部`,
+       colors:'暖橙→清凉蓝绿，咖啡棕标题，朱红锦旗'},
+      {id:2, pri:'P1', name:'九宫格首图·馆内空间导览', size:'1080×1080', usage:'小红书九宫格首图 / 朋友圈首图',
+       creative:'手绘新中式医馆空间导览图，平面布局标注6间独立诊室、9张诊疗床、候诊区、热茶/凉茶区、整面中药柜墙，让读者一眼看懂空间规模。',
+       hook:'中伏天，海口这家店把「凉」字写进了屋里', copy:'6间诊室·9张床｜你最喜欢馆里哪一角？｜德馨远医馆',
+       prompt:`手绘新中式医馆空间导览图，平面布局标注6间独立诊室、9张诊疗床、候诊区、热茶区、整面中药柜墙，米白背景，咖啡棕线条，竹影与绿植点缀，${B}，方形构图 1:1，信息图表风格，温暖治愈，无复杂人物`,
+       colors:'米白底、咖啡棕线、草本绿点缀、朱红标题'},
+      {id:3, pri:'P0', name:'小红书长图·5个细节盘点', size:'1080×1440', usage:'小红书图文 / 抖音图文',
+       creative:'竖版5宫格信息长图，每个细节配真实场景小图：①9张床一人一换 ②器具消毒 ③热茶/凉茶自取 ④整面药柜可见 ⑤6间独立诊室隐私好。',
+       hook:(t2.hook||'判断一家中医馆用不用心，别看装修，看这5个地方'), copy:'①9张床一人一换 ②器具敢消毒给你看 ③热茶凉茶自取 ④药柜不关门 ⑤6间独立诊室',
+       prompt:`新中式竖版信息长图，5个模块展示中医馆细节：亚麻床品、消毒柜、热茶凉茶台、整面中药柜、独立诊室门帘，每个模块配小图标与短标题，米白与咖啡棕配色，${B}，竖版构图 3:4，清晰易读`,
+       colors:'米白、咖啡棕、朱红数字标、草本绿图标'},
+      {id:4, pri:'P1', name:'对比图·刻板印象破解', size:'1080×1920', usage:'抖音/视频号 反差视频封面',
+       creative:'上下分屏：上半是「昏暗小屋、一股药味」的刻板印象（低饱和暗棕），下半是真实德馨远明亮空间——窗景竹林、原木桌椅、整面药柜墙、暖光自然光。',
+       hook:(t3.hook||'我妈说中医馆不都是昏暗小屋、一股药味吗？'), copy:'直到她跟我来了一趟｜6间诊室·窗景竹林·老手艺新体验',
+       prompt:`上下分屏对比图，上半为昏暗老旧中医馆刻板印象（低饱和暗棕），下半为明亮现代德馨远医馆（窗景竹林、原木桌椅、整面中药柜墙、自然光），${B}，竖版构图 9:16，强烈视觉反差，无人物面部`,
+       colors:'上半暗棕灰→下半米白绿，咖啡棕大字，朱红锦旗'},
+      {id:5, pri:'P1', name:'特写卡·整面中药柜墙', size:'1080×1080', usage:'小红书细节图 / 朋友圈配图',
+       creative:'用真实抓药区画面：整面墙的中药柜，小抽屉整齐排列，「德馨远」三个书法大字嵌在柜墙中央，暖光从顶部洒下，传递「药好不好，眼睛会告诉你」。',
+       hook:'药房不关门，抓什么药你看得见', copy:'药好不好，眼睛会告诉你｜德馨远医馆',
+       prompt:`整面墙的中药柜，小抽屉整齐排列，黄铜拉手，柜墙中央嵌有德馨远书法大字，暖光从顶部洒下，柜前有原木接待台与绿植，${B}，方形构图 1:1，质感高级，trustful atmosphere`,
+       colors:'深木棕、黄铜金、米白标签、暖黄灯光'},
+      {id:6, pri:'P1', name:'场景卡·热茶/凉茶区', size:'1080×1080', usage:'小红书场景图 / 抖音图文',
+       creative:'用真实热茶区画面：木质吧台上摆放青瓷壶、透明玻璃茶罐、草本茶饮包装，上方挂着「药食同源」「百草精萃」等书法灯箱，传递「门口就是凉茶，自己倒，不要钱」。',
+       hook:'门口就是凉茶，自己倒，不要钱', copy:'中伏天｜进门先喝杯凉茶｜不看诊也欢迎',
+       prompt:`新中式医馆热茶凉茶区，木质吧台，青瓷壶与透明玻璃茶罐，草本茶饮包装，上方悬挂书法灯箱「药食同源」「百草精萃」，背景是整面中药柜墙，${B}，方形构图 1:1，清凉治愈，夏日氛围`,
+       colors:'青瓷绿、竹编棕、米白、草本绿'},
+      {id:7, pri:'P1', name:'场景卡·候诊区原木桌椅', size:'1080×1080', usage:'小红书场景图 / 朋友圈',
+       creative:'用真实候诊区画面：浅灰色大理石地面、原木小圆桌与四脚凳、背景是中药柜与热茶台，整体安静不拥挤，传递「等候也能舒服地坐一会儿」。',
+       hook:'候诊不扎堆，这里能安静地坐一会儿', copy:'原木桌椅·免费凉茶·6间诊室分流｜德馨远',
+       prompt:`新中式医馆候诊区，浅灰大理石地面，原木小圆桌与四脚凳，背景是整面中药柜墙与热茶台，自然光柔和，空间宽敞不拥挤，${B}，方形构图 1:1，安静舒适，生活美学`,
+       colors:'浅灰、原木色、咖啡棕、草本绿'},
+      {id:8, pri:'P1', name:'场景卡·诊室竹景与锦旗', size:'1080×1080', usage:'小红书场景图 / 朋友圈',
+       creative:'用真实诊室画面：窗外竹林绿意、室内原木诊桌、理疗床、墙上挂着患者送的朱红锦旗「妙手回春」，传递「一人一诊室，窗外就是竹景」。',
+       hook:'一人一诊室，窗外就是竹景', copy:'6间独立诊室·窗景竹林·隐私有保障｜德馨远',
+       prompt:`新中式医馆诊室，窗外竹林绿意盎然，室内原木诊桌与黑色理疗床，墙上悬挂朱红锦旗「妙手回春」，自然光充足，${B}，方形构图 1:1，专业可信，东方医养氛围`,
+       colors:'原木色、米白、竹影绿、朱红锦旗'},
+      {id:9, pri:'P1', name:'邀请卡·中伏避暑', size:'1080×1920', usage:'抖音/小红书/视频号 引流海报',
+       creative:'用真实候诊区/热茶区合成：空调出风口旁绿植叶子轻动，阳光透过藤编卷帘，原木茶几上放着一杯凉茶，大字标题区留白。',
+       hook:'不看诊也没关系，路过热了进来吹会儿空调', copy:'德馨远｜中伏天的一处清凉｜喝茶·纳凉·问诊',
+       prompt:`医馆室内清凉场景，空调出风口旁绿植叶子轻动，阳光透过藤编卷帘洒在原木茶几上，茶几放着一杯凉茶，背景隐约可见整面中药柜墙，大字标题区域留白，${B}，竖版构图 9:16，静谧清凉，高级质感`,
+       colors:'清凉蓝绿、米白、咖啡棕、朱红印章'},
+      {id:10, pri:'P1', name:'结尾CTA·导航到店卡', size:'1080×1080', usage:'视频结尾 / 朋友圈 / 私信发送',
+       creative:'用真实门头外观：暖棕木质招牌「德馨远」与「东方｜医养｜生活｜美学」字样，朱红锦旗与专家海报立牌，画面下方留白放地址与二维码。',
+       hook:'找不到？看这个', copy:'海口滨海大道桃李路紫荆百货101｜德馨远医馆',
+       prompt:`德馨远医馆真实门头外观，暖棕木质招牌写有「德馨远」与「东方｜医养｜生活｜美学」，朱红锦旗与专家海报立牌，门前有绿植，画面下方留白放地址与二维码，${B}，方形构图 1:1，清晰明亮，日间自然光`,
+       colors:'咖啡棕、米白、朱红锦旗、绿植'}
+    );
+  } else {
+    concepts.push(
+      {id:1, pri:'P0', name:'视频封面·今日主题', size:'1080×1920', usage:'抖音/小红书/视频号 视频封面',
+       creative:'竖版大字标题居中，背景融入今日主题元素与节气意象，底部留白或医生剪影。',
+       hook:(t1.hook||dir+'，看这一条就够了'), copy:(t1.title||dir)+'｜德馨远医馆',
+       prompt:`中国传统中医馆宣传海报，竖版封面，醒目书法大字「${dir}」，背景融入${st.cur}节气元素、草本植物与竹影，${B}，竖版构图 9:16，高级质感`,
+       colors:'咖啡棕、米白、朱红印章、草本绿'},
+      {id:2, pri:doc?'P0':'P1', name:(doc?doc+' IP 竖版海报':'主题概念海报'), size:'1080×1920 / 60×80', usage:'医馆展板 / 朋友圈 / 小红书',
+       creative:doc?'医生正面半身形象，背景融入节气元素与草本植物，主视觉大字主题。':'以今日主题为核心的新中式概念海报，突出核心卖点。',
+       hook:doc?doc+'医生｜'+dir:dir+'｜德馨远', copy:doc?doc+'｜'+dir+'｜德馨远医馆':dir+'｜德馨远医馆',
+       prompt:doc?`${B}。画面：${doc}医生正面半身形象，身着中式立领白褂，背景融入${st.cur}节气元素与草本植物，主视觉大字「${dir}」。竖构图，高级感。`:`${B}。画面：${dir}主题新中式概念海报，草本植物、竹影、节气元素点缀，主视觉大字「${dir}」。竖构图，高级感。`,
+       colors:'咖啡棕、米白、朱红印章、草本绿'},
+      {id:3, pri:'P1', name:'节气养生图', size:'1080×1080', usage:'小红书九宫格 / 朋友圈科普',
+       creative:`${st.cur}主题养生单图，草本/穴位/食养意象，清爽知识感。`,
+       hook:`${st.cur}到，养生先看这一条`, copy:`${st.cur}｜顺时养生｜德馨远医馆`,
+       prompt:`${st.cur}主题养生单图，草本、穴位、食养意象，清爽知识感，${B}，方形构图 1:1，适合科普九宫格`,
+       colors:'米白、咖啡棕、草本绿、朱红点缀'},
+      {id:4, pri:'P1', name:'痛点钩子对比图', size:'1080×1920', usage:'抖音/视频号 反差封面',
+       creative:'上下分屏：上半表现痛点（疲惫/不适），下半表现调理后的轻松状态，中间用箭头/转场连接。',
+       hook:'你是不是也这样？', copy:'调理前 VS 调理后｜德馨远',
+       prompt:`新中式养生对比海报，上半为疲惫不适状态（暗调），下半为轻松舒适状态（明亮），中间有竹影分隔，${B}，竖版构图 9:16，强烈对比`,
+       colors:'暗棕→米白绿，咖啡棕标题，朱红印章'},
+      {id:5, pri:'P1', name:'过程步骤图', size:'1080×1440', usage:'小红书图文 / 抖音图文',
+       creative:'3-4步流程图，展示今日主题的调理/操作步骤，每步配小图标。',
+       hook:'3步看懂'+dir, copy:'第一步...第二步...第三步...｜德馨远',
+       prompt:`新中式竖版步骤流程图，3-4个步骤模块，每个模块配小图标与短说明，米白与咖啡棕配色，${B}，竖版构图 3:4，清晰易读`,
+       colors:'米白、咖啡棕、朱红数字、草本绿'},
+      {id:6, pri:'P2', name:'金句卡', size:'1080×1080', usage:'朋友圈 / 评论区配图',
+       creative:'以今日主题为核心的养生金句，米白背景配竹影，适合朋友圈转发。',
+       hook:'今天这句话，适合发给熬夜的人', copy:'中医讲：...｜德馨远',
+       prompt:`新中式金句卡片，米白背景，竹影点缀，书法大字一句养生金句，下方小字德馨远医馆，${B}，方形构图 1:1，朋友圈转发风格`,
+       colors:'米白、咖啡棕、草本绿、朱红印章'},
+      {id:7, pri:'P2', name:'细节/道具特写', size:'1080×1080', usage:'小红书细节图 / 朋友圈',
+       creative:'今日主题相关的道具特写，如脉枕、艾条、药材、推拿手法等，突出质感。',
+       hook:'老手艺，藏在这些细节里', copy:dir+'｜德馨远',
+       prompt:`新中式中医道具特写，脉枕、药材、艾条或推拿手法等元素，暖光，质感高级，${B}，方形构图 1:1`,
+       colors:'深木棕、米白、黄铜、草本绿'},
+      {id:8, pri:'P2', name:'客户证言卡', size:'1080×1080', usage:'朋友圈 / 私信转化',
+       creative:'客户真实反馈样式（不露脸），配合今日主题效果，增强信任。',
+       hook:'她说，调理完最大的变化是...', copy:'真实反馈｜'+dir+'｜德馨远',
+       prompt:`新中式客户证言卡设计，米白纸张质感背景，手写体文字区域，竹影点缀，${B}，方形构图 1:1，温馨可信`,
+       colors:'米白、咖啡棕、朱红印章、淡绿'},
+      {id:9, pri:'P1', name:'知识科普九宫格', size:'1080×1080 ×9', usage:'小红书九宫格',
+       creative:'围绕今日主题做9张知识卡片，每张一个知识点。',
+       hook:'关于'+dir+'，一次性说明白', copy:'9张图看懂'+dir+'｜德馨远',
+       prompt:`新中式知识科普卡片，${dir}主题，单张一个知识点，草本植物与竹影装饰，${B}，方形构图 1:1，信息图表风格`,
+       colors:'米白、咖啡棕、草本绿、朱红点缀'},
+      {id:10, pri:'P1', name:'CTA到店引导卡', size:'1080×1080', usage:'视频结尾 / 朋友圈',
+       creative:'医馆门头或品牌标识，配地址、电话、二维码预留位。',
+       hook:'找不到？看这个', copy:'海口滨海大道桃李路紫荆百货101｜德馨远医馆',
+       prompt:`德馨远医馆门头外观，中式简约招牌，暖棕木质门框，门前有绿植，画面下方留白放地址与二维码，${B}，方形构图 1:1，清晰明亮`,
+       colors:'咖啡棕、米白、朱红印章、绿植'}
+    );
+  }
+  return {target: day.isReview?'周日复盘':((doc?doc+' · ':'')+dir), direction: dir, list:concepts};
+}
+
+function renderDesignsPage(){
+  const dn=buildDesignConcepts();
+  const t=document.getElementById('design-target-page'); if(t) t.textContent=dn.target;
+  const d=document.getElementById('design-direction-page'); if(d) d.textContent=dn.direction;
+  const el=document.getElementById('designs-page');
+  if(!el) return;
+  el.innerHTML = dn.list.map((it,i)=>{
+    const pid='dpc-'+i;
+    return `<div class="concept-card">
+      <div class="cc-head">
+        <span class="cc-num">${i+1}</span>
+        <span class="cc-name">${escapeHtml(it.name)}</span>
+        <span class="di-pri pri-${it.pri}">${it.pri}</span>
+        <span class="cc-size">${escapeHtml(it.size)}</span>
+      </div>
+      <div class="cc-usage">📱 ${escapeHtml(it.usage)}</div>
+      <div class="cc-section"><span class="cc-label">创意</span>${escapeHtml(it.creative)}</div>
+      <div class="cc-section"><span class="cc-label">钩子</span>${escapeHtml(it.hook)}</div>
+      <div class="cc-section"><span class="cc-label">文案</span><span class="cc-copy">${escapeHtml(it.copy)}</span></div>
+      <div class="cc-colors">🎨 配色参考：${escapeHtml(it.colors)}</div>
+      <div class="cc-prompt-box">
+        <div class="cc-prompt">${escapeHtml(it.prompt)}</div>
+        <div class="cc-actions">
+          <button class="ghost" onclick="copyText(document.getElementById('${pid}').textContent)">📋 复制提示词</button>
+          <span class="lb-tip">粘贴到即梦/可灵/Midjourney 等 AI 生图工具</span>
+        </div>
+        <div id="${pid}" style="display:none">${escapeHtml(it.prompt)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function buildImagePrompts(){
+  const wk = window.__WEEKLY__ || buildWeeklyTopics();
+  const day = wk.find(d=>d.isToday) || wk[0];
+  const st = getSolarTerm(today);
+  const dir = day.direction || '中医养生';
+  const doc = (day.doctor && day.doctor!=='无' && day.doctor!=='视情况') ? day.doctor : '';
+  const theme = st.cur;
+  const base = DXY_BRAND_STYLE + '，仅少量书法标题或无字';
+  const ps = [];
+  if(doc){
+    ps.push({t:doc+' IP 竖版海报（66×88）', p:`${base}。画面：${doc}医生正面半身形象，身着中式立领白褂，背景融入${theme}节气元素与草本植物，主视觉大字「${dir}」。竖构图，高级感。`});
+    ps.push({t:doc+' 金句卡（1080×1080）', p:`${base}。画面：${doc}医生侧身自然光特写，旁留白一句话养生金句，柔和温暖，适合朋友圈转发。`});
+  }
+  ps.push({t:'视频封面（1080×1920）', p:`${base}。画面：竖版封面，醒目大字标题「${dir}」，左下角${doc||'医生'}形象剪影，${theme}元素点缀，有点击欲。`});
+  ps.push({t:theme+' 节气养生图（1080×1080）', p:`${base}。画面：${theme}主题养生单图，草本／穴位／食养意象，清爽知识感，适合科普九宫格。`});
+  return ps;
+}
+function renderDailyImg(){
+  const wrap=document.getElementById('dailyimg-prompts');
+  if(wrap){
+    wrap.innerHTML = buildImagePrompts().map((x,i)=>`<div class="prompt-card"><div class="pc-title"><span class="pc-idx">${i+1}</span>${escapeHtml(x.t)}</div><div class="pc-body">${escapeHtml(x.p)}</div><button class="ghost" onclick="copyText(document.getElementById('dp-${i}').textContent)">📋 复制提示词</button><div id="dp-${i}" style="display:none">${escapeHtml(x.p)}</div></div>`).join('');
+  }
+  const gal=document.getElementById('dailyimg-page');
+  if(gal) gal.innerHTML = PROMO_IMAGES.map(im=>`<figure><img src="${encodeURI(im.file)}" alt="${escapeHtml(im.cap)}" loading="lazy" onerror="this.style.display='none';this.closest('figure').style.display='none';" onclick="if(this.src)window.open(this.src)"><figcaption>${escapeHtml(im.cap)}</figcaption></figure>`).join('');
+}
+
+/* ---------- 数据同步（GitHub 私有仓库） ---------- */
+const SYNC = {
+  token:'', repo:'', branch:'main', dataFile:'store.json', topicsFile:'topics.json', timer:null,
+  init(){
+    this.token = localStorage.getItem('dxy_sync_token')||'';
+    this.repo  = localStorage.getItem('dxy_sync_repo')||'';
+    const el=document.getElementById('sync-status');
+    if(el){
+      if(!this.token||!this.repo) el.textContent='未启用';
+      else if(this.token.indexOf('github_pat_')===0) el.textContent='已启用(细粒度令牌：需已授权该仓库 Contents 读写)';
+      else el.textContent='已启用 · 待同步';
+    }
+    const fw=document.getElementById('sync-filewarn');
+    if(fw) fw.style.display = (location.protocol==='file:')?'block':'none';
+  },
+  ready(){ return !!(this.token && this.repo); },
+  _api(path, method, body){
+    if(!this.ready()) return Promise.resolve({ok:false,status:0,json:null});
+    const url='https://api.github.com/repos/'+this.repo+'/contents/'+encodeURIComponent(path)+'?ref='+this.branch;
+    const h={'Authorization':'Bearer '+this.token,'Accept':'application/vnd.github+json'};
+    const opt={method,headers:h};
+    if(body){ h['Content-Type']='application/json'; opt.body=body; }
+    return fetch(url,opt).then(async r=>({ok:r.ok,status:r.status,json:r.ok?await r.json():null})).catch(e=>({ok:false,status:-1,json:null,err:e}));
+  },
+  async _detectBranch(){
+    if(!this.ready()) return;
+    const url='https://api.github.com/repos/'+this.repo;
+    const r=await fetch(url,{headers:{'Authorization':'Bearer '+this.token,'Accept':'application/vnd.github+json'}}).then(async r=>r.ok?{ok:true,json:await r.json()}:{ok:false,status:r.status}).catch(()=>({ok:false}));
+    if(r.ok && r.json && r.json.default_branch){ this.branch=r.json.default_branch; }
+  },
+  _b64(s){ return btoa(unescape(encodeURIComponent(s))); },
+  _deb64(s){ return decodeURIComponent(escape(atob(s))); },
+  collect(){
+    const o={}; const prefix=['dxy_kanban_','dxy_inspire_','dxy_hotlinks_','dxy_data_','dxy_mytopics_'];
+    for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(prefix.some(p=>k.indexOf(p)===0)){ try{o[k]=JSON.parse(localStorage.getItem(k));}catch(e){o[k]=localStorage.getItem(k);} } }
+    o['dxy_daily_topics'] = window.DAILY_TOPICS || null;
+    o.__savedAt = Date.now();
+    localStorage.setItem('dxy_sync_localts', String(o.__savedAt));
+    return o;
+  },
+  async push(){
+    if(!this.ready()) return {ok:false,msg:'未配置'};
+    await this._detectBranch();
+    const blob=this.collect();
+    const content=this._b64(JSON.stringify(blob,null,2));
+    const existing=await this._api(this.dataFile,'GET');
+    const body={message:'sync '+new Date().toISOString(),content};
+    if(existing.ok && existing.json && existing.json.sha) body.sha=existing.json.sha;
+    const st=document.getElementById('sync-status');
+    const r=await this._api(this.dataFile,'PUT',JSON.stringify(body));
+    if(!r.ok){
+      let msg='';
+      if(r.status===401) msg='Token 无效/无权限（细粒度令牌需在 GitHub 对该仓库授权 Contents 读写，或换经典令牌勾 repo）';
+      else if(r.status===404) msg='仓库名错误或 Token 无该库权限（确认是 Corrupt-77/Dxy-Sync），或该分支无文件';
+      else if(r.status===403) msg='Token 权限不足或 API 速率受限（ classic 令牌勾 repo 最稳）';
+      else if(r.status===422) msg='分支 '+this.branch+' 不存在或仓库为空。请在 GitHub 仓库里先创建任意一个文件（如 README.md），或确认默认分支名';
+      else if(r.status===-1) msg='跨域被拦，请用 https 云链接打开，勿用 file://';
+      else msg='HTTP '+r.status;
+      if(st) st.textContent='同步失败：'+msg;
+      return {ok:false,msg};
+    }
+    if(st) st.textContent='已同步 '+new Date().toLocaleTimeString('zh-CN');
+    return {ok:true,msg:'已同步'};
+  },
+  schedulePush(){ clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(),900); },
+  async pull(){
+    if(!this.ready()) return;
+    const j=await this._api(this.dataFile,'GET'); if(!j.ok || !j.json || !j.json.content) return;
+    let blob; try{blob=JSON.parse(this._deb64(j.json.content));}catch(e){return;}
+    const localTs=parseInt(localStorage.getItem('dxy_sync_localts')||'0',10);
+    if(blob.__savedAt && blob.__savedAt <= localTs) return;
+    for(const k in blob){ if(k==='__savedAt') continue; localStorage.setItem(k, typeof blob[k]==='string'?blob[k]:JSON.stringify(blob[k])); }
+    if(blob['dxy_daily_topics']){ window.DAILY_TOPICS = blob['dxy_daily_topics']; }
+    const st=document.getElementById('sync-status'); if(st) st.textContent='已从云端同步 '+new Date().toLocaleTimeString('zh-CN');
+    if(document.getElementById('page-daily').classList.contains('active')) renderKanban();
+    renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary(); renderMyTopics(); renderPlanBoard(); renderInspireChips();
+  },
+  publishTopics(){
+    if(!this.ready()) return;
+    const dt=(window.DAILY_TOPICS&&window.DAILY_TOPICS.date)||'';
+    const last=localStorage.getItem('dxy_published_topic_date')||'';
+    if(dt && dt!==last){ this.push().then(()=>{ localStorage.setItem('dxy_published_topic_date', dt); }); }
+  }
+};
+function scheduleSync(){ SYNC.schedulePush(); }
+function bindSyncUI(){
+  const repo=$('sync-repo'), tok=$('sync-token');
+  if(repo) repo.value=localStorage.getItem('dxy_sync_repo')||'';
+  if(tok) tok.value=localStorage.getItem('dxy_sync_token')||'';
+  if($('sync-save')) $('sync-save').onclick=()=>{
+    const r=$('sync-repo').value.trim(), t=$('sync-token').value.trim();
+    if(!r && !t){ toast('请填写仓库和 Token'); return; }
+    if(!r){ toast('请填写 GitHub 仓库（格式 owner/repo）'); return; }
+    if(!t){ toast('请填写 Personal Access Token'); return; }
+    localStorage.setItem('dxy_sync_repo',r);
+    localStorage.setItem('dxy_sync_token',t);
+    SYNC.token=t; SYNC.repo=r;
+    SYNC.push().then(res=>{
+      toast(res.ok ? '同步已启用' : '同步失败：'+res.msg);
+    });
+  };
+  if($('sync-now')) $('sync-now').onclick=()=>{ if(!SYNC.ready()){toast('请先保存仓库和 Token');return;} SYNC.push(); };
+  if($('sync-disable')) $('sync-disable').onclick=()=>{ localStorage.removeItem('dxy_sync_repo'); localStorage.removeItem('dxy_sync_token'); SYNC.token=''; SYNC.repo=''; $('sync-status').textContent='已停用'; toast('已停用同步'); };
+}
+
+/* ---------- 启动 ---------- */
+document.addEventListener('DOMContentLoaded', function(){
+  SYNC.init();
+  SYNC.pull().then(()=>{
+    initHeader(); renderKanban(); renderHot(); renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary();
+    renderAiHotspot(); renderWeeklyTopics(); renderMyTopics(); renderRightbar();
+    fetchLiveHotspots(); fetchLiveViral(); fetchTopics();
+    SYNC.publishTopics();
+    const now=new Date();
+    const ts = now.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    if($('ai-time')) $('ai-time').textContent='更新于 '+ts;
+    if($('hot-time')) $('hot-time').textContent='更新于 '+ts;
+  });
+  bindSyncUI();
+  if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
+});
+</script>
+</body>
+</html>
