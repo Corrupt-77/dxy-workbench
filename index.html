@@ -281,7 +281,7 @@
   <aside class="sidebar">
     <div class="brand"><div class="logo">德</div><div><b>德馨远</b><small>短视频运营工作台</small></div></div>
     <nav id="nav">
-      <a data-page="daily" class="active"><span class="ico">🗓️</span>每日计划</a>
+      <a data-page="daily"><span class="ico">🗓️</span>每日计划</a>
       <a data-page="inspire"><span class="ico">💡</span>选题灵感</a>
       <a data-page="hot"><span class="ico">🔥</span>爆款热点</a>
       <a data-page="decompose"><span class="ico">🔗</span>爆款链接拆解</a>
@@ -290,7 +290,7 @@
       <a data-page="mine"><span class="ico">✍️</span>我的选题</a>
       <div class="nav-group" style="font-size:11px;color:var(--muted);padding:12px 18px 4px;letter-spacing:.5px;">素材与参考</div>
       <a data-page="knowledge"><span class="ico">🌿</span>中医小知识</a>
-      <a data-page="gallery"><span class="ico">🖼️</span>宣传图片库</a>
+      <a data-page="insp" class="active"><span class="ico">💡</span>每日灵感</a>
       <a data-page="designs"><span class="ico">🎨</span>今日所需设计图</a>
       <a data-page="dailyimg"><span class="ico">✨</span>每日自动任务</a>
       <a data-page="sync"><span class="ico">☁️</span>同步设置</a>
@@ -312,7 +312,7 @@
     </div>
 
     <!-- 页面：每日计划 -->
-    <section class="page active" id="page-daily">
+    <section class="page" id="page-daily">
       <div class="stats">
         <div class="stat"><div class="num" id="s-total">0</div><div class="lbl">今日任务总数</div></div>
         <div class="stat done"><div class="num" id="s-done">0</div><div class="lbl">已完成</div></div>
@@ -489,14 +489,18 @@
       </div>
     </section>
 
-    <!-- 页面：宣传图片库 -->
+    <!-- 页面：宣传图片库（已从导航隐藏，保留兼容） -->
     <section class="page" id="page-gallery">
       <div class="section-title">🖼️ 宣传图片库 <span class="tag">医生·节气·医馆海报</span></div>
       <div class="panel">
         <div class="lb-tip">点击放大 · 取自本机素材库，可直接取用（未上传云端的图在手机端会隐藏）</div>
         <div class="gallery" id="gallery-page" style="margin-top:10px;"></div>
       </div>
-      <div class="section-title" style="margin-top:18px;">🌐 每日灵感参考 <span class="tag" id="insp-updated">每日更新</span></div>
+    </section>
+
+    <!-- 页面：每日灵感 -->
+    <section class="page active" id="page-insp">
+      <div class="section-title">💡 每日灵感参考 <span class="tag" id="insp-updated">每日更新</span></div>
       <div class="panel">
         <div class="lb-tip" id="insp-note"></div>
         <div id="insp-wrap" style="margin-top:8px;"></div>
@@ -556,7 +560,7 @@ function copyText(t){ if(!t) return; if(navigator.clipboard&&navigator.clipboard
 function fallbackCopy(t){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
 
 /* ---------- 导航 ---------- */
-const PAGE_TITLES = { daily:'每日计划', inspire:'选题灵感', hot:'爆款热点', decompose:'爆款链接拆解', review:'内容复盘', ai:'AI推荐选题', mine:'我的选题', knowledge:'中医小知识', gallery:'宣传图片库', designs:'今日所需设计图', dailyimg:'每日自动任务', sync:'同步设置' };
+const PAGE_TITLES = { daily:'每日计划', inspire:'选题灵感', hot:'爆款热点', decompose:'爆款链接拆解', review:'内容复盘', ai:'AI推荐选题', mine:'我的选题', knowledge:'中医小知识', insp:'每日灵感', designs:'今日所需设计图', dailyimg:'每日自动任务', sync:'同步设置' };
 document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>{ switchPage(a.dataset.page); toggleSidebar(false); }));
 function toggleSidebar(open){ const sb=document.querySelector('.sidebar'); const ov=$('overlay'); const show=open===undefined?!sb.classList.contains('open'):open; sb.classList.toggle('open',show); ov.classList.toggle('show',show); }
 function switchPage(p){
@@ -565,7 +569,8 @@ function switchPage(p){
   $('page-title').textContent = PAGE_TITLES[p]||'';
   if(p==='daily') renderKanban();
   if(p==='knowledge') renderKnowledgePage();
-  if(p==='gallery'){ renderGalleryPage(); renderInspirations(); }
+  if(p==='gallery'){ renderGalleryPage(); }
+  if(p==='insp'){ renderInspirations(); }
   if(p==='designs') renderDesignsPage();
   if(p==='dailyimg') renderDailyImg();
   if(p==='review'){ renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary(); }
@@ -1358,14 +1363,26 @@ function renderGalleryPage(){
   if(!el) return;
   el.innerHTML = PROMO_IMAGES.map(im=>`<figure><img src="${encodeURI(im.file)}" alt="${escapeHtml(im.cap)}" loading="lazy" onerror="this.style.display='none';this.closest('figure').style.display='none';" onclick="if(this.src)window.open(this.src)"><figcaption>${escapeHtml(im.cap)}</figcaption></figure>`).join('');
 }
-function renderInspirations(retries=5){
+function renderInspirations(retries){
+  retries = (retries===undefined)?8:retries;
   const wrap=document.getElementById('insp-wrap'); if(!wrap) return;
   const data=window.DAILY_INSPIRATIONS;
   if(!data){
-    if(retries>0){ setTimeout(()=>renderInspirations(retries-1), 400); return; }
-    wrap.innerHTML='<div style="color:var(--muted)">灵感参考加载中…（若超过3秒仍空白，请刷新或检查网络）</div>';
+    if(retries>0){ setTimeout(()=>renderInspirations(retries-1), 300); return; }
+    // 重试耗尽仍未加载：尝试动态补拉 inspirations.js（解决脚本未执行/被拦截）
+    if(!window.__inspInjected){
+      window.__inspInjected=true;
+      const s=document.createElement('script');
+      s.src='inspirations.js?t='+Date.now();
+      s.onload=()=>renderInspirations(3);
+      s.onerror=()=>{ wrap.innerHTML='<div style="color:var(--muted)">灵感参考加载失败，请刷新页面重试</div>'; };
+      document.head.appendChild(s);
+    } else {
+      wrap.innerHTML='<div style="color:var(--muted)">灵感参考加载失败，请刷新页面重试</div>';
+    }
     return;
   }
+  window.__inspInjected=false;
   const up=document.getElementById('insp-updated'); if(up) up.textContent='更新于 '+data.updated;
   const note=document.getElementById('insp-note'); if(note) note.textContent=data.note;
   wrap.innerHTML = data.categories.map(c=>`
