@@ -1,0 +1,12 @@
+{
+  "name": "德馨远短视频运营工作台",
+  "short_name": "德馨远运营",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#faf8f4",
+  "theme_color": "#8b6f47",
+  "description": "德馨远中医馆抖音/小红书/视频号三平台短视频运营工作台",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
