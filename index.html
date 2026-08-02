@@ -1339,20 +1339,23 @@ function delMyTopic(id){ if(!confirm('删除这条我的选题？')) return; sav
 function saveHotToMine(kind, idx){
   const item = (kind==='hot') ? (window.__HOT_LIST__&&window.__HOT_LIST__[idx]) : (window.__VIRAL_LIST__&&window.__VIRAL_LIST__[idx]);
   if(!item) return;
-  let direction, hook='', copy='', note='';
+  let direction, hook='', shoot='', copy='', note='';
   if(kind==='hot'){
     direction = '['+(item.tag||'热点')+'] '+(item.title||'');
-    note = ['角度：'+(item.angle||''), '为什么火：'+(item.why||item.warn||''), '可结合：'+(item.relatedClinic||'')].filter(s=>s.split('：')[1]).join('\n');
+    shoot = item.angle||'';
+    const c=[]; if(item.why||item.warn) c.push('为什么火：'+(item.why||item.warn)); if(item.relatedClinic) c.push('德馨远适配：'+item.relatedClinic); copy=c.join('\n');
+    const n=[]; if(item.relatedClinic) n.push('关联：'+item.relatedClinic); if(item.platform) n.push('来源：'+item.platform); note=n.join('\n');
   } else {
-    direction = item.title||'';
+    direction = '['+(item.platform||'爆款')+'] '+(item.title||'');
     hook = item.hook||'';
-    copy = ['为什么火：'+(item.whyHot||''), '德馨远适配：'+(item.dxyAdapt||'')].filter(s=>s.split('：')[1]).join('\n');
-    note = ['可借鉴：'+(item.lessons||''), '关联：'+(item.relatedTopic||'')].filter(s=>s.split('：')[1]).join('\n');
+    shoot = item.title||'';
+    const c=[]; if(item.whyHot) c.push('为什么火：'+item.whyHot); if(item.dxyAdapt) c.push('德馨远适配：'+item.dxyAdapt); copy=c.join('\n');
+    const n=[]; if(item.lessons) n.push('可借鉴：'+item.lessons); if(item.relatedTopic) n.push('关联：'+item.relatedTopic); if(item.creator) n.push('来源：'+item.creator); note=n.join('\n');
   }
   if(!direction.trim()){ toast('该热点信息不完整，无法保存'); return; }
   const arr=getMyTopics();
   if(arr.some(t=>t.direction===direction)){ toast('「我的选题」已有该选题'); return; }
-  arr.push({id:Date.now(), direction, doctor:'', shoot:'', hook, copy, note, shot:false, fromHot:true, createdAt:new Date().toISOString()});
+  arr.push({id:Date.now(), direction, doctor:'', shoot, hook, copy, note, shot:false, fromHot:true, createdAt:new Date().toISOString()});
   saveMyTopics(arr);
   toast('已保存到「我的选题」');
 }
