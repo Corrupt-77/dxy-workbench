@@ -1339,9 +1339,37 @@ async function refreshHot(){
 }
 
 /* ---------- 我的选题 ---------- */
-function myTopicsKey(){ return 'dxy_mytopics_'+dateStr; }
+function myTopicsKey(){ return 'dxy_mytopics'; } // 全局 key，不再按日期分片
 function getMyTopics(){ try{ return JSON.parse(localStorage.getItem(myTopicsKey()))||[]; }catch(e){ return []; } }
 function saveMyTopics(arr){ localStorage.setItem(myTopicsKey(), JSON.stringify(arr)); scheduleSync(); }
+function migrateMyTopics(){
+  // 旧版按 dxy_mytopics_YYYY-MM-DD 分片，跨天后会"丢失"。启动时合并为全局 key。
+  const all=[]; const seen=new Set();
+  const existing=JSON.parse(localStorage.getItem('dxy_mytopics')||'[]')||[];
+  existing.forEach(t=>{ if(t.id) seen.add(String(t.id)); });
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(!k || k==='dxy_mytopics' || !k.startsWith('dxy_mytopics_')) continue;
+    try{
+      const arr=JSON.parse(localStorage.getItem(k)||'[]');
+      if(Array.isArray(arr)){
+        arr.forEach(t=>{
+          if(t && t.id && !seen.has(String(t.id))){ seen.add(String(t.id)); all.push(t); }
+          else if(t && !t.id){ all.push(t); }
+        });
+      }
+    }catch(e){}
+  }
+  if(all.length){
+    const merged=[...existing, ...all];
+    localStorage.setItem('dxy_mytopics', JSON.stringify(merged));
+    // 删除旧分片 key
+    for(let i=localStorage.length-1;i>=0;i--){
+      const k=localStorage.key(i);
+      if(k && k.startsWith('dxy_mytopics_') && k!=='dxy_mytopics') localStorage.removeItem(k);
+    }
+  }
+}
 function addMyTopic(){ const t={direction:$('mt-direction').value.trim(),doctor:$('mt-doctor').value,shoot:$('mt-shoot').value.trim(),hook:$('mt-hook').value.trim(),copy:$('mt-copy').value.trim(),note:$('mt-note').value.trim()}; if(!t.direction){ toast('先填「内容方向/主题」'); return; } const arr=getMyTopics(); arr.push({id:Date.now(),...t,shot:false,createdAt:new Date().toISOString()}); saveMyTopics(arr); $('mt-direction').value='';$('mt-shoot').value='';$('mt-hook').value='';$('mt-copy').value='';$('mt-note').value=''; renderMyTopics(); toast('已保存到「我的选题」'); }
 function renderMyTopics(){ const arr=getMyTopics(); const box=$('mytopics-list'); if(!arr.length){ box.innerHTML='<div class="no-topics" style="padding:14px;">还没有我的选题，填上方表单后点「保存到我的选题」。</div>'; return; }
   box.innerHTML=arr.map(t=>`<div class="topic-card ${t.shot?'done':''}" style="margin-bottom:12px;" data-id="${t.id}">
@@ -1753,7 +1781,7 @@ const SYNC = {
   _b64(s){ return btoa(unescape(encodeURIComponent(s))); },
   _deb64(s){ return decodeURIComponent(escape(atob(s))); },
   collect(){
-    const o={}; const prefix=['dxy_kanban_','dxy_inspire_','dxy_hotlinks_','dxy_data_','dxy_mytopics_'];
+    const o={}; const prefix=['dxy_kanban_','dxy_inspire_','dxy_hotlinks_','dxy_data_','dxy_mytopics'];
     for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(prefix.some(p=>k.indexOf(p)===0)){ try{o[k]=JSON.parse(localStorage.getItem(k));}catch(e){o[k]=localStorage.getItem(k);} } }
     o['dxy_daily_topics'] = window.DAILY_TOPICS || null;
     o.__savedAt = Date.now();
@@ -1897,6 +1925,7 @@ function bindSyncUI(){
 /* ---------- 启动 ---------- */
 document.addEventListener('DOMContentLoaded', function(){
   migratePlanInspiration(); // 清理旧版自动填充进「我的灵感」的文案
+  migrateMyTopics();        // 把按日期分片的旧「我的选题」合并为全局 key
   SYNC.init();
   lbReflect();
   // 先用本地数据立即渲染，避免白等；云端拉取后再刷新
