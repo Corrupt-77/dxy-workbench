@@ -428,23 +428,22 @@
 
     <!-- 页面：我的选题 -->
     <section class="page" id="page-mine">
-      <div class="section-title">我的选题 <span class="tag">我定方向 · AI 写脚本文案</span></div>
+      <div class="section-title">我的选题 <span class="tag">我定方向 · 自由填写</span></div>
       <div class="panel">
         <div class="grid-2">
           <div>
             <div class="field"><label>内容方向 / 主题</label><input type="text" id="mt-direction" placeholder="例：三伏天小孩积食怎么调"></div>
             <div class="field"><label>出镜医生</label>
               <select id="mt-doctor"><option value="常玦明">常玦明（整骨/脏腑推拿）</option><option value="王东超">王东超（脱发/脉诊）</option><option value="其他医生">其他医生（自填）</option><option value="无">无（图文/口播）</option></select></div>
-            <div class="field"><label>拍摄时长</label><input type="text" id="mt-duration" placeholder="例：1h / 图文无需拍摄"></div>
+            <div class="field"><label>拍摄内容</label><input type="text" id="mt-shoot" placeholder="例：医生讲解+空镜+患者反馈 / 图文无需拍摄"></div>
           </div>
           <div>
-            <div class="field"><label>备注 / 重点</label><textarea id="mt-note" placeholder="想突出的卖点、禁忌、参考热点等"></textarea></div>
+            <div class="field"><label>钩子</label><input type="text" id="mt-hook" placeholder="开头一句话，勾住停留"></div>
+            <div class="field"><label>文案</label><textarea id="mt-copy" rows="2" placeholder="发布配文 / 标题 / 正文"></textarea></div>
+            <div class="field"><label>备注 / 重点</label><textarea id="mt-note" rows="2" placeholder="想突出的卖点、禁忌、参考热点等"></textarea></div>
             <div style="display:flex; gap:10px;">
-              <button class="info" onclick="genScriptPrompt()">📝 让AI写脚本</button>
               <button class="ghost" onclick="addMyTopic()">➕ 保存到我的选题</button>
             </div>
-            <div class="field" style="margin-top:10px;"><label>已生成的提示词（复制发给我）</label>
-              <textarea id="mt-prompt" style="min-height:90px;background:#fbfaf7;"></textarea></div>
           </div>
         </div>
       </div>
@@ -542,7 +541,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="daily-topics.js"></script>
-<script src="inspirations.js?v=12"></script>
+<script src="inspirations.js?v=13"></script>
 <script>
 /* ---------- 基础工具 ---------- */
 const today = new Date();
@@ -1193,21 +1192,29 @@ async function refreshHot(){
 }
 
 /* ---------- 我的选题 ---------- */
-function buildScriptPrompt(t){ return `请为德馨远医馆写一条短视频脚本。\n内容方向：${t.direction||'（未填）'}\n出镜医生：${t.doctor||'无'}\n拍摄时长：${t.duration||'不限'}\n备注/重点：${t.note||'无'}\n要求：\n1）标题+开场钩子；\n2）完整口播+分镜脚本（开场/正文/结尾CTA）；\n3）同步适配抖音/小红书/视频号；\n4）口语化、有网感，禁用「治愈/根治/百分百」等绝对化医疗词。`; }
-function genScriptPrompt(){ const t={direction:$('mt-direction').value.trim(),doctor:$('mt-doctor').value,duration:$('mt-duration').value.trim(),note:$('mt-note').value.trim()}; if(!t.direction){ toast('先填「内容方向/主题」'); return; } const p=buildScriptPrompt(t); $('mt-prompt').value=p; copyText(p); toast('提示词已生成并复制，发给我即可'); }
 function myTopicsKey(){ return 'dxy_mytopics_'+dateStr; }
 function getMyTopics(){ try{ return JSON.parse(localStorage.getItem(myTopicsKey()))||[]; }catch(e){ return []; } }
 function saveMyTopics(arr){ localStorage.setItem(myTopicsKey(), JSON.stringify(arr)); scheduleSync(); }
-function addMyTopic(){ const t={direction:$('mt-direction').value.trim(),doctor:$('mt-doctor').value,duration:$('mt-duration').value.trim(),note:$('mt-note').value.trim()}; if(!t.direction){ toast('先填「内容方向/主题」'); return; } const arr=getMyTopics(); arr.push({id:Date.now(),...t,script:'',createdAt:new Date().toISOString()}); saveMyTopics(arr); $('mt-direction').value='';$('mt-duration').value='';$('mt-note').value='';$('mt-prompt').value=''; renderMyTopics(); toast('已保存到「我的选题」'); }
+function addMyTopic(){ const t={direction:$('mt-direction').value.trim(),doctor:$('mt-doctor').value,shoot:$('mt-shoot').value.trim(),hook:$('mt-hook').value.trim(),copy:$('mt-copy').value.trim(),note:$('mt-note').value.trim()}; if(!t.direction){ toast('先填「内容方向/主题」'); return; } const arr=getMyTopics(); arr.push({id:Date.now(),...t,shot:false,createdAt:new Date().toISOString()}); saveMyTopics(arr); $('mt-direction').value='';$('mt-shoot').value='';$('mt-hook').value='';$('mt-copy').value='';$('mt-note').value=''; renderMyTopics(); toast('已保存到「我的选题」'); }
 function renderMyTopics(){ const arr=getMyTopics(); const box=$('mytopics-list'); if(!arr.length){ box.innerHTML='<div class="no-topics" style="padding:14px;">还没有我的选题，填上方表单后点「保存到我的选题」。</div>'; return; }
-  box.innerHTML=arr.map(t=>`<div class="topic-card" style="margin-bottom:12px;">
-    <div class="meta-row"><span>方向：${escapeHtml(t.direction)}</span><span>医生：${escapeHtml(t.doctor)}</span><span>拍摄：${escapeHtml(t.duration||'不限')}</span></div>
-    <div class="field" style="margin:6px 0;"><label>AI 写好的脚本（粘贴回来）</label><textarea data-id="${t.id}" class="mt-script" placeholder="把 AI 返回的脚本粘到这里">${escapeHtml(t.script)}</textarea></div>
-    <div style="display:flex;gap:10px;"><button class="ghost" onclick="saveScript('${t.id}')">💾 保存脚本</button><button class="ghost" onclick="delMyTopic('${t.id}')">🗑️ 删除</button></div>
+  box.innerHTML=arr.map(t=>`<div class="topic-card ${t.shot?'done':''}" style="margin-bottom:12px;" data-id="${t.id}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
+      <div class="meta-row"><span>方向：${escapeHtml(t.direction)}</span><span>医生：${escapeHtml(t.doctor)}</span><span>拍摄：${escapeHtml(t.shoot||'—')}</span>${t.shot?'<span style="background:var(--accent);color:#fff;">已拍摄</span>':''}</div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;white-space:nowrap;"><input type="checkbox" class="mt-shot" data-id="${t.id}" ${t.shot?'checked':''}> 已拍摄</label>
+    </div>
+    <div class="field" style="margin:6px 0;"><label>钩子</label><input type="text" class="mt-hook" data-id="${t.id}" value="${escapeHtml(t.hook||'')}" placeholder="开头一句话"></div>
+    <div class="field" style="margin:6px 0;"><label>文案</label><textarea class="mt-copy" data-id="${t.id}" rows="2" placeholder="发布配文 / 标题 / 正文">${escapeHtml(t.copy||'')}</textarea></div>
+    <div class="field" style="margin:6px 0;"><label>备注 / 重点</label><textarea class="mt-note" data-id="${t.id}" rows="2" placeholder="卖点、禁忌、参考热点等">${escapeHtml(t.note||'')}</textarea></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <button class="ghost" onclick="saveMyTopicCard('${t.id}')">💾 保存</button>
+      <button class="ghost" onclick="delMyTopic('${t.id}')">🗑️ 删除</button>
+      <span class="save-status" id="mtsave-${t.id}" style="font-size:12px;color:var(--muted);opacity:0;transition:opacity .3s;">已保存</span>
+    </div>
   </div>`).join('');
-  box.querySelectorAll('.mt-script').forEach(el=>el.addEventListener('change',e=>saveScript(e.target.dataset.id)));
+  box.querySelectorAll('.mt-shot').forEach(el=>el.addEventListener('change',e=>toggleShot(e.target.dataset.id,e.target.checked)));
 }
-function saveScript(id){ const arr=getMyTopics(); const t=arr.find(x=>String(x.id)===String(id)); if(!t) return; t.script=document.querySelector(`.mt-script[data-id="${id}"]`).value; saveMyTopics(arr); toast('脚本已保存'); }
+function toggleShot(id, checked){ const arr=getMyTopics(); const t=arr.find(x=>String(x.id)===String(id)); if(!t) return; t.shot=!!checked; saveMyTopics(arr); renderMyTopics(); toast(checked?'标记为已拍摄':'取消已拍摄标记'); }
+function saveMyTopicCard(id){ const card=document.querySelector(`.topic-card[data-id="${id}"]`); if(!card) return; const arr=getMyTopics(); const t=arr.find(x=>String(x.id)===String(id)); if(!t) return; t.hook=card.querySelector('.mt-hook').value; t.copy=card.querySelector('.mt-copy').value; t.note=card.querySelector('.mt-note').value; saveMyTopics(arr); const st=document.getElementById('mtsave-'+id); if(st){ st.style.opacity='1'; clearTimeout(st._t); st._t=setTimeout(()=>st.style.opacity='0',1500); } toast('选题已保存'); }
 function delMyTopic(id){ if(!confirm('删除这条我的选题？')) return; saveMyTopics(getMyTopics().filter(x=>String(x.id)!==String(id))); renderMyTopics(); }
 
 /* ---------- 右侧三栏：中医小知识 / 宣传图片库 / 今日所需设计图 ---------- */
