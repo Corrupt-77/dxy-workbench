@@ -333,11 +333,10 @@
 
     <!-- 页面：选题灵感 -->
     <section class="page" id="page-inspire">
-      <div class="section-title">周排期总览 <span class="tag">可编辑 · 灵活排期 · 结合爆款</span></div>
+      <div class="section-title">周排期总览 <span class="tag">自由填写 · 我的灵感 · 自动保存</span></div>
       <div class="panel">
         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
-          <button class="primary" onclick="genWeekPlan()">🤖 一键结合爆款生成本周</button>
-          <span class="lb-tip" style="margin:0;">每天可自由填写「内容方向 / 钩子 / 文案 / 脚本分镜」，出镜医生与拍摄时长可改；不再硬性绑定周排期。点单日 🤖 可结合当前爆款 + 医馆实景生成。</span>
+          <span class="lb-tip" style="margin:0;">每天自由填写「内容方向 / 出镜医生 / 拍摄时长 / 我的灵感」，看到好的爆款文案、金句、创意随时贴进来，点保存即可自动存到云端。</span>
         </div>
         <div class="week-grid" id="plan-board"></div>
       </div>
@@ -543,7 +542,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="daily-topics.js"></script>
-<script src="inspirations.js?v=11"></script>
+<script src="inspirations.js?v=12"></script>
 <script>
 /* ---------- 基础工具 ---------- */
 const today = new Date();
@@ -822,66 +821,33 @@ function renderPlanBoard(){
         <div class="field" style="flex:1 1 120px; margin-bottom:8px;"><label>出镜医生</label><input type="text" data-dt="${dt}" data-f="doctor" value="${escapeHtml(p.doctor||'')}" placeholder="常玦明/王东超/无"></div>
         <div class="field" style="flex:1 1 100px; margin-bottom:8px;"><label>拍摄时长</label><input type="text" data-dt="${dt}" data-f="duration" value="${escapeHtml(p.duration||'')}" placeholder="例：1h"></div>
       </div>
-      <div class="field" style="margin-bottom:8px;"><label>钩子</label><textarea data-dt="${dt}" data-f="hook" rows="2" placeholder="开头一句话，勾住停留">${escapeHtml(p.hook||'')}</textarea></div>
-      <div class="field" style="margin-bottom:8px;"><label>文案</label><textarea data-dt="${dt}" data-f="copy" rows="3" placeholder="发布配文 / 标题">${escapeHtml(p.copy||'')}</textarea></div>
-      <div class="field" style="margin-bottom:8px;"><label>脚本分镜</label><textarea data-dt="${dt}" data-f="script" rows="4" placeholder="镜头1…镜头2…（点🤖可自动生成）">${escapeHtml(p.script||'')}</textarea></div>
-      <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button class="ghost" onclick="genDayPlan('${dt}')">🤖 结合爆款生成</button>
+      <div class="field" style="margin-bottom:8px;"><label>我的灵感</label><textarea data-dt="${dt}" data-f="inspiration" rows="5" placeholder="看到好的爆款文案、金句、创意，随手贴进来；也可写自己的灵感">${escapeHtml(p.inspiration || (p.hook||'') + (p.copy?('\n\n'+p.copy):'') || '')}</textarea></div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <button class="ghost" onclick="savePlanCard('${dt}',this)">💾 保存</button>
         <button class="ghost" onclick="copyDayPlan('${dt}')">📎 复制本日</button>
+        <span class="save-status" id="save-${dt}" style="font-size:12px;color:var(--muted);opacity:0;transition:opacity .3s;">已自动保存</span>
       </div>
     </div>`;
   }).join('');
   el.querySelectorAll('[data-dt]').forEach(inp=>inp.addEventListener('input',e=>{
     const dt=e.target.dataset.dt, f=e.target.dataset.f; const p=getPlan(dt); p[f]=e.target.value; savePlan(dt,p);
+    showSaveStatus(dt, '已自动保存');
   }));
 }
-function buildHookFormulas(angle, fang, term){
-  const t=term.split('（')[0];
-  return [
-    `别只盯${t}喝凉茶——「${fang||angle}」这件事，很多海口人做反了。`,
-    `最近全网都在聊${t}「${angle}」，但9成人第一步就错了。`,
-    `${fang? fang.replace(/[。.!！].*$/,'') : angle}——你中了几条？`,
-    `医生说${t}最该做的不是猛补，是把「${angle}」这关先过好。`,
-    `海口这天热到冒油、身体却在喊“虚”？${t}「${angle}」才是解法。`
-  ];
+function showSaveStatus(dt, text){
+  const st=document.getElementById('save-'+dt); if(!st) return;
+  st.textContent=text; st.style.opacity='1';
+  clearTimeout(st._t); st._t=setTimeout(()=>st.style.opacity='0', 1500);
 }
-function genDayPlan(dt, silent){
-  const d=new Date(dt+'T00:00:00'); const wd=d.getDay();
-  const live=window.__HOTSPOTS__;
-  let focus=null, term='中伏', tags='';
-  if(live && live.hotspots && live.hotspots.length){
-    focus=live.hotspots[wd % live.hotspots.length];
-    term=live.term||'中伏';
-    tags=live.hotspots.slice(0,4).map(x=>'#'+x.tag).join(' ');
-  } else {
-    const h=getHotspots(d, wd);
-    focus=h.todayFocus||(h.list.length?h.list[0]:null);
-    term=h.term;
-    tags=h.list.slice(0,4).map(x=>'#'+x.tag).join(' ');
-  }
-  const angle=focus?focus.title:'节气养生';
-  const fang=focus?focus.angle:'';
-  const warn=focus?focus.warn:'';
-  const clinicRel=focus?focus.relatedClinic:'';
-  const rot=ROTATION[wd];
-  const sugDoc=(rot.doctor&&rot.doctor!=='无'&&rot.doctor!=='视情况')?rot.doctor:'常玦明/王东超（按主题定）';
-  const p=getPlan(dt);
-  const termShort=term.split('（')[0];
-  const direction=p.direction||`${termShort}·${angle}｜结合德馨远真实场景`;
-  const formulas=buildHookFormulas(angle, fang, term);
-  const hook=formulas[wd % formulas.length];
-  const copy=`【${termShort}调理】${angle}\n${fang||''}${warn?('\n⚠️'+warn):''}\n📍德馨远医馆·${CLINIC_FACTS.highlights.slice(0,3).join('·')}${clinicRel?('｜'+clinicRel):''}\n🫖免费凉茶/热茶自取，路过就进来坐\n${tags} #德馨远医馆 #中医养生 #海口生活`;
-  const scene1=CLINIC_FACTS.highlights[2]||'原木空间', scene2=CLINIC_FACTS.highlights[3]||'窗景竹林', scene3=CLINIC_FACTS.highlights[0]||'6间独立诊室', scene4=CLINIC_FACTS.highlights[1]||'9张诊疗床';
-  const script=`分镜1（0-3s 钩子）：${hook}\n分镜2（3-15s 空镜）：${scene1}，镜头扫过${scene2}，给清凉/专业感\n分镜3（15-35s 出镜）：${sugDoc}出镜，讲「${angle}」的常见误区与正确做法${clinicRel?('；结合「'+clinicRel+'」'):''}\n分镜4（35-50s 信任）：${scene3}与${scene4}，强调干净/正规/一人一换\n分镜5（结尾CTA）：导航到店「德馨远医馆」，免费凉茶自取`;
-  p.direction=direction; p.doctor=p.doctor||sugDoc; p.duration=p.duration||'口播约1分钟+空镜15s'; p.hook=hook; p.copy=copy; p.script=script; p.generated=true;
-  savePlan(dt,p); renderPlanBoard();
-  if(!silent) toast('已结合爆款生成本日策划：'+dt);
+function savePlanCard(dt, btn){
+  const card=btn.closest('.day-card'); if(!card) return;
+  card.querySelectorAll('[data-dt]').forEach(inp=>{
+    const f=inp.dataset.f; const p=getPlan(dt); p[f]=inp.value; savePlan(dt,p);
+  });
+  showSaveStatus(dt, '已保存');
+  toast('已保存 '+dt+' 的排期');
 }
-function genWeekPlan(){
-  let n=0; weekDates().forEach(dt=>{ const p=getPlan(dt); if(!p.generated && !p.hook){ genDayPlan(dt,true); n++; } });
-  toast(n? ('已结合爆款生成 '+n+' 天，其余保留你的填写') : '本周都已生成，单日可点🤖重新生成');
-}
-function copyDayPlan(dt){ const p=getPlan(dt); if(!p.hook&&!p.direction) return; const txt=`【${dt} ${getWeekday(new Date(dt+'T00:00:00'))}】\n内容方向：${p.direction||'—'}\n出镜医生：${p.doctor||'—'}\n拍摄时长：${p.duration||'—'}\n钩子：${p.hook||'—'}\n文案：\n${p.copy||'—'}\n脚本分镜：\n${p.script||'—'}`; copyText(txt); toast('已复制本日策划'); }
+function copyDayPlan(dt){ const p=getPlan(dt); if(!p.inspiration&&!p.direction) return; const txt=`【${dt} ${getWeekday(new Date(dt+'T00:00:00'))}】\n内容方向：${p.direction||'—'}\n出镜医生：${p.doctor||'—'}\n拍摄时长：${p.duration||'—'}\n我的灵感：\n${p.inspiration||'—'}`; copyText(txt); toast('已复制本日策划'); }
 function renderInspireChips(){
   $('chips-chang').innerHTML='<h5>常玦明 · 整骨/脏腑推拿</h5>'+CHIPS.chang.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
   $('chips-wang').innerHTML='<h5>王东超 · 脱发/脉诊</h5>'+CHIPS.wang.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
