@@ -310,7 +310,7 @@
   <aside class="sidebar">
     <div class="brand"><div class="logo">德</div><div><b>德馨远</b><small>短视频运营工作台</small></div></div>
     <nav id="nav">
-      <a data-page="daily"><span class="ico">🗓️</span>每日计划</a>
+      <a data-page="daily" class="active"><span class="ico">🗓️</span>每日计划</a>
       <a data-page="inspire"><span class="ico">☑️</span>待办事项</a>
       <a data-page="hot"><span class="ico">🔥</span>爆款热点</a>
       <a data-page="decompose"><span class="ico">🔗</span>爆款链接拆解</a>
@@ -319,7 +319,6 @@
       <a data-page="mine"><span class="ico">✍️</span>我的选题</a>
       <div class="nav-group" style="font-size:11px;color:var(--muted);padding:12px 18px 4px;letter-spacing:.5px;">素材与参考</div>
       <a data-page="knowledge"><span class="ico">🌿</span>中医小知识</a>
-      <a data-page="insp" class="active"><span class="ico">💡</span>每日灵感</a>
       <a data-page="designs"><span class="ico">🎨</span>今日所需设计图</a>
       <a data-page="dailyimg"><span class="ico">✨</span>每日自动任务</a>
       <a data-page="sync"><span class="ico">☁️</span>同步设置</a>
@@ -459,9 +458,9 @@
       </div>
       <div id="ai-hotspot" class="hotbar"></div>
 
-      <div class="section-title">本周 AI 推荐选题 <span class="tag">按周一~周日排期 · 每日随日期滚动生成</span></div>
+      <div class="section-title">AI 推荐选题 · 下周排期 <span class="tag" id="ai-weekrange">--</span></div>
       <div class="panel" style="margin-bottom:14px;font-size:13px;color:var(--muted);">
-        选题按硬性周排期（周一整骨 / 周二脱发 / 周三脏腑推拿 / 周四非遗脉诊 / 周五三大准则 / 周六随机养生 / 周日复盘）自动生成，<b>每天 3 个候选、主推第 1 条</b>；今日的脚本优先复用 <code>daily-topics.js</code>（08:30 AI 自动产出）。热点按当前<b>节气 / 季节 / 星期</b>实时推算，点「刷新」即时更新。
+        选题按硬性周排期（周一整骨 / 周二脱发 / 周三脏腑推拿 / 周四非遗脉诊 / 周五三大准则 / 周六随机养生 / 周日复盘）生成，<b>每天 3 个候选、主推第 1 条</b>。<b>每周日 18:30 自动依据实时热点重写下周排期</b>（覆盖本页，无需手动），平时点「刷新」即时更新热点。若未启用云端同步，则按节气/季节/星期本地推算。
       </div>
       <div id="weekly-topics" class="week-grid"></div>
       <div class="refresh-time" id="ai-time" style="margin-top:8px;"></div>
@@ -555,15 +554,6 @@
       </div>
     </section>
 
-    <!-- 页面：每日灵感 -->
-    <section class="page active" id="page-insp">
-      <div class="section-title">💡 每日灵感参考 <span class="tag" id="insp-updated">每日更新</span></div>
-      <div class="panel">
-        <div class="lb-tip" id="insp-note"></div>
-        <div id="insp-wrap" style="margin-top:8px;"></div>
-      </div>
-    </section>
-
     <!-- 页面：今日所需设计图 -->
     <section class="page" id="page-designs">
       <div class="section-title">🎨 今日所需设计图 <span class="rb-tag" id="design-target-page">--</span></div>
@@ -600,7 +590,6 @@
 <div class="toast" id="toast"></div>
 
 <script src="daily-topics.js"></script>
-<script src="inspirations.js?v=18"></script>
 <script>
 /* ---------- 基础工具 ---------- */
 const today = new Date();
@@ -617,7 +606,7 @@ function copyText(t){ if(!t) return; if(navigator.clipboard&&navigator.clipboard
 function fallbackCopy(t){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
 
 /* ---------- 导航 ---------- */
-const PAGE_TITLES = { daily:'每日计划', inspire:'待办事项', hot:'爆款热点', decompose:'爆款链接拆解', review:'内容复盘', ai:'AI推荐选题', mine:'我的选题', knowledge:'中医小知识', insp:'每日灵感', designs:'今日所需设计图', dailyimg:'每日自动任务', sync:'同步设置' };
+const PAGE_TITLES = { daily:'每日计划', inspire:'待办事项', hot:'爆款热点', decompose:'爆款链接拆解', review:'内容复盘', ai:'AI推荐选题', mine:'我的选题', knowledge:'中医小知识', designs:'今日所需设计图', dailyimg:'每日自动任务', sync:'同步设置' };
 document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>{ switchPage(a.dataset.page); toggleSidebar(false); }));
 function toggleSidebar(open){ const sb=document.querySelector('.sidebar'); const ov=$('overlay'); const show=open===undefined?!sb.classList.contains('open'):open; sb.classList.toggle('open',show); ov.classList.toggle('show',show); }
 function switchPage(p){
@@ -627,12 +616,12 @@ function switchPage(p){
   if(p==='daily'){ renderKanban(); renderPlanBoard(); }
   if(p==='knowledge') renderKnowledgePage();
   if(p==='gallery'){ renderGalleryPage(); }
-  if(p==='insp'){ renderInspirations(); }
   if(p==='designs') renderDesignsPage();
   if(p==='dailyimg') renderDailyImg();
   if(p==='review'){ renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary(); }
   if(p==='inspire'){ renderTodos(); }
   if(p==='mine'){ renderMyTopics(); renderInspireChips(); }
+  if(p==='ai'){ fetchAITopics().then(()=>renderWeeklyTopics()); }
   if(p==='hot'){ renderHot(); renderViral(); fetchLiveHotspots(); fetchLiveViral(); fetchTopics(); }
   if(p==='decompose'){ renderDecompose(); }
 }
@@ -872,10 +861,10 @@ function renderPlanBoard(){
   const dates=weekDates(); const el=$('plan-board'); if(!el) return;
   el.innerHTML = dates.map(dt=>{
     const d=new Date(dt+'T00:00:00'); const wd=d.getDay(); const rot=ROTATION[wd]; const isToday=dt===dateStr;
-    const p=getPlan(dt); const dirPh=rot.direction;
+    const p=getPlan(dt);
     return `<div class="day-card ${isToday?'today':''}">
       <div class="dp-head">${getWeekday(d)} · ${dt}${isToday?' <span class="today-badge">今天</span>':''}</div>
-      <div class="field" style="margin-bottom:8px;"><label>内容方向</label><input type="text" data-dt="${dt}" data-f="direction" value="${escapeHtml(p.direction||'')}" placeholder="${escapeHtml(dirPh)}（可自由改）"></div>
+      <div class="field" style="margin-bottom:8px;"><label>内容方向</label><input type="text" data-dt="${dt}" data-f="direction" value="${escapeHtml(p.direction||'')}" placeholder="填写本日内容方向（自由填写，不代写）"></div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
         <div class="field" style="flex:1 1 120px; margin-bottom:8px;"><label>出镜医生</label><input type="text" data-dt="${dt}" data-f="doctor" value="${escapeHtml(p.doctor||'')}" placeholder="常玦明/王东超/无"></div>
         <div class="field" style="flex:1 1 100px; margin-bottom:8px;"><label>拍摄时长</label><input type="text" data-dt="${dt}" data-f="duration" value="${escapeHtml(p.duration||'')}" placeholder="例：1h"></div>
@@ -1050,6 +1039,17 @@ async function fetchTopics(){
     if(window.DAILY_TOPICS){ const ct=$('current-theme'); if(ct) ct.textContent='主题：'+(window.DAILY_TOPICS.theme||'今日养生'); }
     renderWeek();
   }catch(e){}
+}
+async function fetchAITopics(){
+  try{
+    const j = await fetchFromGitHub('ai-topics.json');
+    if(j && Array.isArray(j.weekly) && j.weekly.length){
+      window.__WEEKLY__ = j.weekly;
+      window.__AI_META__ = j;
+      return true;
+    }
+  }catch(e){}
+  return false;
 }
 /* ---------- 爆款链接拆解 ---------- */
 async function ghPutJson(path, obj){
@@ -1268,6 +1268,8 @@ function renderDataSummary(){
 /* ---------- AI推荐选题：本周 7 天分布 ---------- */
 function renderWeeklyTopics(){
   const c=$('weekly-topics');
+  const rng=$('ai-weekrange');
+  if(rng){ if(window.__AI_META__&&window.__AI_META__.weekStart){ rng.textContent='排期 '+window.__AI_META__.weekStart+' ~ '+window.__AI_META__.weekEnd+' · 每周日18:30自动更新'; } else { rng.textContent='本地推算 · 每周日18:30自动更新'; } }
   const days = window.__WEEKLY__ || buildWeeklyTopics();
   window.__WEEKLY__ = days;
   c.innerHTML = days.map(day=>{
@@ -1303,14 +1305,15 @@ function renderWeeklyTopics(){
     </div>`;
   }).join('');
 }
-function refreshAll(){
-  window.__WEEKLY__ = buildWeeklyTopics();
+async function refreshAll(){
+  await fetchLiveHotspots();
+  await fetchAITopics().then(ok=>{ if(!ok) window.__WEEKLY__ = buildWeeklyTopics(); });
   renderAiHotspot(); renderWeeklyTopics(); renderDesignNeeds(); renderHot();
-  fetchLiveHotspots(); fetchLiveViral();
+  fetchLiveViral();
   const now=new Date();
   const ts = now.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
   if($('ai-time')) $('ai-time').textContent='更新于 '+ts;
-  toast('已刷新实时热点与本周选题');
+  toast('已刷新实时热点与 AI 推荐选题');
 }
 async function refreshHot(){
   await fetchLiveHotspots();
@@ -1488,40 +1491,6 @@ function renderGalleryPage(){
   const el=document.getElementById('gallery-page');
   if(!el) return;
   el.innerHTML = PROMO_IMAGES.map(im=>`<figure><img src="${encodeURI(im.file)}" alt="${escapeHtml(im.cap)}" loading="lazy" onerror="this.style.display='none';this.closest('figure').style.display='none';" onclick="if(this.src)window.open(this.src)"><figcaption>${escapeHtml(im.cap)}</figcaption></figure>`).join('');
-}
-function renderInspirations(retries){
-  retries = (retries===undefined)?8:retries;
-  const wrap=document.getElementById('insp-wrap'); if(!wrap) return;
-  const data=window.DAILY_INSPIRATIONS;
-  if(!data){
-    if(retries>0){ setTimeout(()=>renderInspirations(retries-1), 300); return; }
-    // 重试耗尽仍未加载：尝试动态补拉 inspirations.js（解决脚本未执行/被拦截）
-    if(!window.__inspInjected){
-      window.__inspInjected=true;
-      const s=document.createElement('script');
-      s.src='inspirations.js?t='+Date.now();
-      s.onload=()=>renderInspirations(3);
-      s.onerror=()=>{ wrap.innerHTML='<div style="color:var(--muted)">灵感参考加载失败，请刷新页面重试</div>'; };
-      document.head.appendChild(s);
-    } else {
-      wrap.innerHTML='<div style="color:var(--muted)">灵感参考加载失败，请刷新页面重试</div>';
-    }
-    return;
-  }
-  window.__inspInjected=false;
-  const up=document.getElementById('insp-updated'); if(up) up.textContent='更新于 '+data.updated;
-  const note=document.getElementById('insp-note'); if(note) note.textContent=data.note;
-  wrap.innerHTML = data.categories.map(c=>`
-    <div class="insp-cat">
-      <div class="insp-cat-h">${escapeHtml(c.name)}</div>
-      <div class="insp-grid">
-        ${c.items.map(it=>`<a class="insp-card ${it.cc0?'cc0':''}" href="${encodeURI(it.src)}" target="_blank" rel="noopener">
-          <div class="insp-card-t">${escapeHtml(it.t)}</div>
-          <div class="insp-card-tip">${escapeHtml(it.tip)}</div>
-          ${it.cc0?'<span class="insp-badge">CC0 可商用</span>':'<span class="insp-badge ref">借鉴参考</span>'}
-        </a>`).join('')}
-      </div>
-    </div>`).join('');
 }
 const CLINIC_FACTS = {
   rooms: 6, beds: 9,
@@ -1917,7 +1886,8 @@ document.addEventListener('DOMContentLoaded', function(){
   lbReflect();
   SYNC.pull().then(()=>{
     initHeader(); renderKanban(); renderHot(); renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary();
-    renderAiHotspot(); renderWeeklyTopics(); renderMyTopics(); renderRightbar();
+    renderAiHotspot(); renderMyTopics(); renderRightbar();
+    fetchAITopics().then(()=>renderWeeklyTopics());
     fetchLiveHotspots(); fetchLiveViral(); fetchTopics();
     SYNC.publishTopics();
     const now=new Date();
@@ -1926,7 +1896,6 @@ document.addEventListener('DOMContentLoaded', function(){
     if($('hot-time')) $('hot-time').textContent='更新于 '+ts;
   });
   bindSyncUI();
-  renderInspirations();
   if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   }
