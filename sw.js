@@ -1,4 +1,4 @@
-const CACHE = 'dxy-workbench-v12';
+const CACHE = 'dxy-workbench-v13';
 const ASSETS = ['./', './index.html', './daily-topics.js', './inspirations.js', './manifest.webmanifest', './icon.svg', './德馨远二维码.png', './三伏天宣传-01.jpg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(() => {})).then(() => self.skipWaiting()));
