@@ -521,6 +521,16 @@
         <div id="sync-filewarn" style="display:none;margin-top:8px;padding:8px 10px;border-radius:8px;background:#fff4e5;color:#a85a00;font-size:12px;">⚠️ 你正在用 <b>file://</b> 打开，浏览器可能拦截 GitHub 同步（CORS）。请改用手机/电脑通用的云链接打开本工作台，同步才稳定。</div>
         <div class="lb-tip">首次使用三步：① 连接 GitHub ② 新建一个<strong>私有</strong>仓库 ③ 生成 Token（经典令牌勾 <code>repo</code> 权限最省事）。详细步骤见随附《数据互通使用说明》。停用后仅本机保存。</div>
       </div>
+      <div class="section-title">💾 本地 D 盘备份 <span class="tag">每次保存自动落盘 · 双重保险</span></div>
+      <div class="panel">
+        <p style="color:var(--muted);font-size:13px;margin-top:0;">设置后，你每次在网页里点保存/同步，会自动多写一份 <code>store.json</code> 到本机文件夹，和上方 GitHub 备份相互独立、互为兜底。需<b>电脑版 Chrome / Edge</b> 打开云链接才支持；手机端直接用 GitHub 那份即可。</p>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <button class="ghost" id="lb-pick" onclick="lbPickDir()">📁 选择本地备份文件夹</button>
+          <button class="ghost" id="lb-now" onclick="doLocalBackupNow()">💾 立即备份一次</button>
+          <span id="lb-dir" style="font-size:12px;color:var(--muted);">未设置（点「选择本地备份文件夹」）</span>
+        </div>
+        <div class="lb-tip">建议选择 <b>D:\workbuddy\德馨远数据备份</b>（小时级计划任务也会备份到这里，本功能会把 <code>store.json</code> 写进其中的 <code>latest\</code> 子目录，完全合并）。首次选择即授权，之后保存自动写入，无需再点。</div>
+      </div>
     </section>
 
     <!-- 页面：中医小知识 -->
@@ -590,7 +600,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="daily-topics.js"></script>
-<script src="inspirations.js?v=16"></script>
+<script src="inspirations.js?v=18"></script>
 <script>
 /* ---------- 基础工具 ---------- */
 const today = new Date();
@@ -1807,6 +1817,7 @@ const SYNC = {
       return {ok:false,msg};
     }
     if(st) st.textContent='已同步 '+new Date().toLocaleTimeString('zh-CN');
+    try{ await lbWrite(blob); }catch(e){ console.warn('local backup skipped', e); }
     return {ok:true,msg:'已同步'};
   },
   schedulePush(){ clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(),900); },
@@ -1829,6 +1840,56 @@ const SYNC = {
     if(dt && dt!==last){ this.push().then(()=>{ localStorage.setItem('dxy_published_topic_date', dt); }); }
   }
 };
+/* ---------- 本地 D 盘自动备份（File System Access API） ---------- */
+function lbDB(){ return new Promise((res,rej)=>{ const r=indexedDB.open('dxy_backup_db',1); r.onupgradeneeded=()=>{ if(!r.result.objectStoreNames.contains('handles')) r.result.createObjectStore('handles'); }; r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+async function lbSaveHandle(h){ const db=await lbDB(); return new Promise((res,rej)=>{ const tx=db.transaction('handles','readwrite'); tx.objectStore('handles').put(h,'dir'); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error); }); }
+async function lbLoadHandle(){ try{ const db=await lbDB(); return await new Promise((res,rej)=>{ const tx=db.transaction('handles','readonly'); const g=tx.objectStore('handles').get('dir'); g.onsuccess=()=>res(g.result||null); g.onerror=()=>rej(g.error); }); }catch(e){ return null; } }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function lbSupported(){ return typeof window!=='undefined' && !!window.showDirectoryPicker; }
+async function lbPickDir(){
+  if(!lbSupported()){ toast('当前浏览器不支持本地文件夹写入，请用电脑版 Chrome / Edge 打开云链接'); return; }
+  try{
+    const handle=await window.showDirectoryPicker({mode:'readwrite'});
+    await lbSaveHandle(handle);
+    const perm=await handle.requestPermission({mode:'readwrite'});
+    if(perm!=='granted'){ toast('未授权写入，本地备份未启用'); return; }
+    const info=document.getElementById('lb-dir'); if(info) info.textContent='已绑定：'+handle.name+'（每次保存自动写入）';
+    toast('本地备份目录已设置：'+handle.name);
+    doLocalBackupNow();
+  }catch(e){ if(e && e.name!=='AbortError'){ console.warn(e); toast('选择失败：'+e.message); } }
+}
+async function lbWrite(blob){
+  const handle=await lbLoadHandle(); if(!handle) return false;
+  try{
+    let perm='?'; try{ perm=await handle.queryPermission({mode:'readwrite'}); }catch(e){}
+    if(perm!=='granted') return false;
+    const text=JSON.stringify(blob,null,2);
+    const lh=await handle.getDirectoryHandle('latest',{create:true});
+    const fh=await lh.getFileHandle('store.json',{create:true});
+    const w=await fh.createWritable(); await w.write(text); await w.close();
+    // 时间戳归档快照
+    const d=new Date(); const ts=d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate())+'-'+pad2(d.getHours())+pad2(d.getMinutes())+pad2(d.getSeconds());
+    try{
+      const ah=await handle.getDirectoryHandle('archive',{create:true});
+      const dayh=await ah.getDirectoryHandle(ts.slice(0,10),{create:true});
+      const snap=await dayh.getFileHandle('store-'+ts.slice(11)+'.json',{create:true});
+      const sw=await snap.createWritable(); await sw.write(text); await sw.close();
+    }catch(e){ console.warn('local backup archive skipped', e); }
+    return true;
+  }catch(e){ console.warn('local backup write failed', e); return false; }
+}
+async function doLocalBackupNow(){
+  if(!lbSupported()){ toast('当前环境不支持，请用电脑版 Chrome / Edge 打开云链接'); return; }
+  const handle=await lbLoadHandle();
+  if(!handle){ toast('请先点「选择本地备份文件夹」'); return; }
+  const ok=await lbWrite(SYNC.collect());
+  toast(ok?'已写入本地备份（latest/store.json）':'本地备份写入失败，检查文件夹权限或重新选择'); }
+async function lbReflect(){
+  const info=document.getElementById('lb-dir'); if(!info) return;
+  const h=await lbLoadHandle(); if(!h){ info.textContent='未设置（点「选择本地备份文件夹」）'; return; }
+  let perm='?'; try{ perm=await h.queryPermission({mode:'readwrite'}); }catch(e){}
+  info.textContent = perm==='granted' ? ('已绑定：'+h.name+'（每次保存自动写入）') : '已记录但未授权，点「立即备份一次」重新授权';
+}
 function scheduleSync(){ SYNC.schedulePush(); }
 function bindSyncUI(){
   const repo=$('sync-repo'), tok=$('sync-token');
@@ -1853,6 +1914,7 @@ function bindSyncUI(){
 /* ---------- 启动 ---------- */
 document.addEventListener('DOMContentLoaded', function(){
   SYNC.init();
+  lbReflect();
   SYNC.pull().then(()=>{
     initHeader(); renderKanban(); renderHot(); renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary();
     renderAiHotspot(); renderWeeklyTopics(); renderMyTopics(); renderRightbar();
