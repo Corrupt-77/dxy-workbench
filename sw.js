@@ -1,5 +1,5 @@
-const CACHE = 'dxy-workbench-v18';
-const ASSETS = ['./', './index.html', './daily-topics.js', './inspirations.js', './manifest.webmanifest', './icon.svg', './德馨远二维码.png', './三伏天宣传-01.jpg'];
+const CACHE = 'dxy-workbench-v19';
+const ASSETS = ['./', './index.html', './daily-topics.js', './manifest.webmanifest', './icon.svg', './德馨远二维码.png', './三伏天宣传-01.jpg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(() => {})).then(() => self.skipWaiting()));
 });
@@ -10,8 +10,8 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   const path = url.pathname;
-  // HTML / daily-topics.js / inspirations.js 用 network-first，确保实时内容最新
-  if (path.endsWith('.html') || path === '/' || path.endsWith('/') || path.endsWith('/daily-topics.js') || path.endsWith('/inspirations.js')) {
+  // HTML / daily-topics.js 用 network-first，确保实时内容最新
+  if (path.endsWith('.html') || path === '/' || path.endsWith('/') || path.endsWith('/daily-topics.js')) {
     e.respondWith(
       fetch(e.request).then(resp => {
         const cp = resp.clone();
