@@ -267,6 +267,35 @@
     .dec-row { font-size:13.5px; line-height:1.7; margin:6px 0; }
     .dec-row b { color:var(--primary); }
     .dec-queue-item { font-size:13px; color:var(--muted); padding:8px 10px; border:1px dashed var(--border); border-radius:8px; margin-bottom:8px; word-break:break-all; }
+    /* 待办事项 */
+    .todo-cols { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    @media(max-width:900px){ .todo-cols{ grid-template-columns:1fr; } }
+    .todo-col { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:14px; min-height:320px; }
+    .todo-col.done { opacity:.92; }
+    .todo-col h4 { margin:0 0 12px; font-size:15px; display:flex; justify-content:space-between; align-items:center; }
+    .todo-col h4 .cnt { font-size:12px; color:var(--muted); font-weight:500; background:var(--card); border:1px solid var(--border); padding:1px 8px; border-radius:10px; }
+    .todo-item { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:10px; box-shadow:var(--shadow); display:flex; gap:12px; align-items:flex-start; cursor:grab; }
+    .todo-item.done { opacity:.65; background:#f9f9f7; }
+    .todo-item.dragging { opacity:.4; }
+    .todo-item input[type=checkbox] { width:20px; height:20px; margin-top:3px; flex:0 0 auto; cursor:pointer; }
+    .todo-item .todo-body { flex:1; min-width:0; }
+    .todo-item .todo-text { width:100%; border:1px solid transparent; background:transparent; font-size:15px; line-height:1.6; padding:6px 8px; border-radius:6px; resize:vertical; min-height:54px; color:var(--text); font-family:inherit; }
+    .todo-item .todo-text:focus { outline:none; background:#fff; border-color:var(--primary); }
+    .todo-item .todo-text.done { text-decoration:line-through; color:var(--muted); }
+    .todo-item .todo-meta { display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; }
+    .todo-item .todo-date { font-size:12px; color:var(--muted); }
+    .todo-item .todo-actions { display:flex; gap:8px; }
+    .todo-item .todo-actions button { padding:4px 10px; font-size:12px; }
+    /* 编辑区整体放大 */
+    .day-card { padding:18px; }
+    .day-card textarea { min-height:60px; font-size:14.5px; }
+    .day-card input[type=text] { font-size:14.5px; padding:8px; }
+    .topic-card { padding:18px; }
+    .topic-card input[type=text], .topic-card textarea { font-size:14.5px; padding:8px; }
+    .topic-card .meta-row { font-size:13.5px; }
+    .field label { font-size:13.5px; margin-bottom:6px; }
+    textarea { min-height:54px; font-size:14.5px; padding:8px; }
+    input[type=text], select { font-size:14.5px; padding:8px; }
   </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes">
@@ -282,7 +311,7 @@
     <div class="brand"><div class="logo">德</div><div><b>德馨远</b><small>短视频运营工作台</small></div></div>
     <nav id="nav">
       <a data-page="daily"><span class="ico">🗓️</span>每日计划</a>
-      <a data-page="inspire"><span class="ico">💡</span>选题灵感</a>
+      <a data-page="inspire"><span class="ico">☑️</span>待办事项</a>
       <a data-page="hot"><span class="ico">🔥</span>爆款热点</a>
       <a data-page="decompose"><span class="ico">🔗</span>爆款链接拆解</a>
       <a data-page="review"><span class="ico">📊</span>内容复盘</a>
@@ -329,10 +358,7 @@
         <div class="kcol doing" data-col="进行中"><h4>🔨 进行中 <span class="cnt" id="cnt-进行中"></span></h4><div class="klist" data-col="进行中"></div></div>
         <div class="kcol done" data-col="已完成"><h4>✅ 已完成 <span class="cnt" id="cnt-已完成"></span></h4><div class="klist" data-col="已完成"></div></div>
       </div>
-    </section>
 
-    <!-- 页面：选题灵感 -->
-    <section class="page" id="page-inspire">
       <div class="section-title">周排期总览 <span class="tag">自由填写 · 我的灵感 · 自动保存</span></div>
       <div class="panel">
         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
@@ -340,13 +366,28 @@
         </div>
         <div class="week-grid" id="plan-board"></div>
       </div>
-      <div class="section-title">选题灵感芯片 <span class="tag">点击加入下方备忘</span></div>
+    </section>
+
+    <!-- 页面：待办事项 -->
+    <section class="page" id="page-inspire">
+      <div class="section-title">待办事项 <span class="tag">未完成 · 已完成 · 拖动排序</span></div>
       <div class="panel">
-        <div class="chipgrp" id="chips-chang"></div>
-        <div class="chipgrp" id="chips-wang"></div>
-        <div class="chipgrp" id="chips-general"></div>
-        <div class="field" style="margin-top:10px;"><label>选题灵感备忘（自动保存）</label>
-          <textarea id="inspire-notes" style="min-height:120px;" placeholder="随时记下想到的点子、患者反馈、灵感…"></textarea></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;">
+          <div class="field" style="flex:1 1 300px;margin-bottom:0;">
+            <input type="text" id="todo-input" placeholder="添加一件待办：如「拍摄周三整骨视频」「剪辑周日复盘」…" onkeydown="if(event.key==='Enter')addTodo()">
+          </div>
+          <button class="primary" onclick="addTodo()">➕ 添加</button>
+        </div>
+        <div class="todo-cols">
+          <div class="todo-col">
+            <h4>⏳ 未完成 <span class="cnt" id="cnt-todo-pending">0</span></h4>
+            <div class="todo-list" id="todo-pending"></div>
+          </div>
+          <div class="todo-col done">
+            <h4>✅ 已完成 <span class="cnt" id="cnt-todo-done">0</span></h4>
+            <div class="todo-list" id="todo-done"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -448,6 +489,14 @@
         </div>
       </div>
       <div id="mytopics-list" style="margin-top:14px;"></div>
+      <div class="section-title">选题灵感芯片 <span class="tag">点击加入下方备忘</span></div>
+      <div class="panel">
+        <div class="chipgrp" id="chips-chang"></div>
+        <div class="chipgrp" id="chips-wang"></div>
+        <div class="chipgrp" id="chips-general"></div>
+        <div class="field" style="margin-top:10px;"><label>选题灵感备忘（自动保存）</label>
+          <textarea id="inspire-notes" style="min-height:120px;" placeholder="随时记下想到的点子、患者反馈、灵感…"></textarea></div>
+      </div>
     </section>
 
     <!-- 页面：同步设置 -->
@@ -541,7 +590,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="daily-topics.js"></script>
-<script src="inspirations.js?v=13"></script>
+<script src="inspirations.js?v=14"></script>
 <script>
 /* ---------- 基础工具 ---------- */
 const today = new Date();
@@ -558,21 +607,22 @@ function copyText(t){ if(!t) return; if(navigator.clipboard&&navigator.clipboard
 function fallbackCopy(t){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
 
 /* ---------- 导航 ---------- */
-const PAGE_TITLES = { daily:'每日计划', inspire:'选题灵感', hot:'爆款热点', decompose:'爆款链接拆解', review:'内容复盘', ai:'AI推荐选题', mine:'我的选题', knowledge:'中医小知识', insp:'每日灵感', designs:'今日所需设计图', dailyimg:'每日自动任务', sync:'同步设置' };
+const PAGE_TITLES = { daily:'每日计划', inspire:'待办事项', hot:'爆款热点', decompose:'爆款链接拆解', review:'内容复盘', ai:'AI推荐选题', mine:'我的选题', knowledge:'中医小知识', insp:'每日灵感', designs:'今日所需设计图', dailyimg:'每日自动任务', sync:'同步设置' };
 document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>{ switchPage(a.dataset.page); toggleSidebar(false); }));
 function toggleSidebar(open){ const sb=document.querySelector('.sidebar'); const ov=$('overlay'); const show=open===undefined?!sb.classList.contains('open'):open; sb.classList.toggle('open',show); ov.classList.toggle('show',show); }
 function switchPage(p){
   document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active', a.dataset.page===p));
   document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active', s.id==='page-'+p));
   $('page-title').textContent = PAGE_TITLES[p]||'';
-  if(p==='daily') renderKanban();
+  if(p==='daily'){ renderKanban(); renderPlanBoard(); }
   if(p==='knowledge') renderKnowledgePage();
   if(p==='gallery'){ renderGalleryPage(); }
   if(p==='insp'){ renderInspirations(); }
   if(p==='designs') renderDesignsPage();
   if(p==='dailyimg') renderDailyImg();
   if(p==='review'){ renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary(); }
-  if(p==='inspire'){ renderPlanBoard(); renderInspireChips(); }
+  if(p==='inspire'){ renderTodos(); }
+  if(p==='mine'){ renderMyTopics(); renderInspireChips(); }
   if(p==='hot'){ renderHot(); renderViral(); fetchLiveHotspots(); fetchLiveViral(); fetchTopics(); }
   if(p==='decompose'){ renderDecompose(); }
 }
@@ -847,6 +897,72 @@ function savePlanCard(dt, btn){
   toast('已保存 '+dt+' 的排期');
 }
 function copyDayPlan(dt){ const p=getPlan(dt); if(!p.inspiration&&!p.direction) return; const txt=`【${dt} ${getWeekday(new Date(dt+'T00:00:00'))}】\n内容方向：${p.direction||'—'}\n出镜医生：${p.doctor||'—'}\n拍摄时长：${p.duration||'—'}\n我的灵感：\n${p.inspiration||'—'}`; copyText(txt); toast('已复制本日策划'); }
+
+/* ---------- 待办事项 ---------- */
+function todoKey(){ return 'dxy_todos_'+dateStr; }
+function getTodos(){ try{ return JSON.parse(localStorage.getItem(todoKey()))||[]; }catch(e){ return []; } }
+function saveTodos(arr){ localStorage.setItem(todoKey(), JSON.stringify(arr)); scheduleSync(); }
+function renderTodos(){
+  const arr=getTodos();
+  const pending=arr.filter(t=>!t.done); const done=arr.filter(t=>t.done);
+  $('cnt-todo-pending').textContent=pending.length; $('cnt-todo-done').textContent=done.length;
+  const render=(list,isDone)=>list.map((t,i)=>`<div class="todo-item ${t.done?'done':''}" draggable="true" data-id="${t.id}">
+    <input type="checkbox" ${t.done?'checked':''} onchange="toggleTodo(${t.id})">
+    <div class="todo-body">
+      <textarea class="todo-text ${t.done?'done':''}" data-id="${t.id}" rows="2" onchange="updateTodoText(${t.id})">${escapeHtml(t.text||'')}</textarea>
+      <div class="todo-meta">
+        <span class="todo-date">${new Date(t.createdAt).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
+        <div class="todo-actions">
+          <button class="ghost" onclick="saveTodoText(${t.id})">💾 保存</button>
+          <button class="ghost" onclick="delTodo(${t.id})">🗑️ 删除</button>
+        </div>
+      </div>
+    </div>
+  </div>`).join('') || '<div style="color:var(--muted);font-size:13px;padding:8px;">暂无'+(isDone?'已完成的':'未完成的')+'事项</div>';
+  $('todo-pending').innerHTML=render(pending,false);
+  $('todo-done').innerHTML=render(done,true);
+  initTodoDrag();
+}
+function initTodoDrag(){
+  let srcId=null;
+  document.querySelectorAll('.todo-item').forEach(item=>{
+    item.addEventListener('dragstart',e=>{ srcId=String(item.dataset.id); item.classList.add('dragging'); });
+    item.addEventListener('dragend',()=>{ item.classList.remove('dragging'); srcId=null; });
+  });
+  document.querySelectorAll('.todo-list').forEach(list=>{
+    list.addEventListener('dragover',e=>{
+      e.preventDefault();
+      const after=getDragAfterEl(list,e.clientY);
+      const dragging=document.querySelector('.todo-item.dragging');
+      if(!dragging) return;
+      if(after) list.insertBefore(dragging,after); else list.appendChild(dragging);
+    });
+    list.addEventListener('drop',e=>{
+      e.preventDefault();
+      const arr=getTodos(); const map=new Map(arr.map(t=>[String(t.id),t]));
+      const newOrder=[];
+      document.querySelectorAll('.todo-item').forEach(el=>{ const t=map.get(String(el.dataset.id)); if(t) newOrder.push(t); });
+      saveTodos(newOrder); renderTodos();
+    });
+  });
+}
+function getDragAfterEl(container,y){
+  const els=[...container.querySelectorAll('.todo-item:not(.dragging)')];
+  return els.reduce((closest,el)=>{
+    const box=el.getBoundingClientRect(); const offset=y-box.top-box.height/2;
+    if(offset<0 && offset>closest.offset) return {offset, el}; return closest;
+  },{offset:-Infinity}).el;
+}
+function addTodo(){
+  const inp=$('todo-input'); const text=inp.value.trim(); if(!text){ toast('先输入待办内容'); return; }
+  const arr=getTodos(); arr.unshift({id:Date.now(),text,done:false,createdAt:new Date().toISOString()});
+  saveTodos(arr); inp.value=''; renderTodos(); toast('已添加待办');
+}
+function toggleTodo(id){ const arr=getTodos(); const t=arr.find(x=>x.id===id); if(t){ t.done=!t.done; saveTodos(arr); renderTodos(); toast(t.done?'标记为已完成':'标记为未完成'); } }
+function updateTodoText(id){ saveTodoText(id); }
+function saveTodoText(id){ const arr=getTodos(); const t=arr.find(x=>x.id===id); if(!t) return; const el=document.querySelector(`.todo-text[data-id="${id}"]`); if(!el) return; t.text=el.value; saveTodos(arr); toast('待办已保存'); }
+function delTodo(id){ if(!confirm('删除这条待办？')) return; saveTodos(getTodos().filter(x=>x.id!==id)); renderTodos(); }
+
 function renderInspireChips(){
   $('chips-chang').innerHTML='<h5>常玦明 · 整骨/脏腑推拿</h5>'+CHIPS.chang.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
   $('chips-wang').innerHTML='<h5>王东超 · 脱发/脉诊</h5>'+CHIPS.wang.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
