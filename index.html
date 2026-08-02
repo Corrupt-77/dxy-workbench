@@ -857,6 +857,20 @@ const CHIPS = {
 function planKeyFor(dt){ return 'dxy_plan_'+dt; }
 function getPlan(dt){ try{ return JSON.parse(localStorage.getItem(planKeyFor(dt)))||{}; }catch(e){ return {}; } }
 function savePlan(dt,o){ localStorage.setItem(planKeyFor(dt), JSON.stringify(o)); scheduleSync(); }
+function migratePlanInspiration(){
+  // 一次性清理：旧版自动把 hook/copy 填进「我的灵感」并保存，导致每次打开都有字。
+  const autoMarkers=['最近全网都在聊','微博单日话题','小红书','德馨远适配','为什么火','可借鉴'];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i); if(!k||!k.startsWith('dxy_plan_')) continue;
+    try{
+      const p=JSON.parse(localStorage.getItem(k)||'{}');
+      if(!p.inspiration) continue;
+      if(autoMarkers.some(m=>String(p.inspiration).includes(m))){
+        delete p.inspiration; localStorage.setItem(k, JSON.stringify(p));
+      }
+    }catch(e){}
+  }
+}
 function renderPlanBoard(){
   const dates=weekDates(); const el=$('plan-board'); if(!el) return;
   el.innerHTML = dates.map(dt=>{
@@ -869,7 +883,7 @@ function renderPlanBoard(){
         <div class="field" style="flex:1 1 120px; margin-bottom:8px;"><label>出镜医生</label><input type="text" data-dt="${dt}" data-f="doctor" value="${escapeHtml(p.doctor||'')}" placeholder="常玦明/王东超/无"></div>
         <div class="field" style="flex:1 1 100px; margin-bottom:8px;"><label>拍摄时长</label><input type="text" data-dt="${dt}" data-f="duration" value="${escapeHtml(p.duration||'')}" placeholder="例：1h"></div>
       </div>
-      <div class="field" style="margin-bottom:8px;"><label>我的灵感</label><textarea data-dt="${dt}" data-f="inspiration" rows="5" placeholder="看到好的爆款文案、金句、创意，随手贴进来；也可写自己的灵感">${escapeHtml(p.inspiration || (p.hook||'') + (p.copy?('\n\n'+p.copy):'') || '')}</textarea></div>
+      <div class="field" style="margin-bottom:8px;"><label>我的灵感</label><textarea data-dt="${dt}" data-f="inspiration" rows="5" placeholder="看到好的爆款文案、金句、创意，随手贴进来；也可写自己的灵感">${escapeHtml(p.inspiration||'')}</textarea></div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
         <button class="ghost" onclick="savePlanCard('${dt}',this)">💾 保存</button>
         <button class="ghost" onclick="copyDayPlan('${dt}')">📎 复制本日</button>
@@ -1882,22 +1896,32 @@ function bindSyncUI(){
 
 /* ---------- 启动 ---------- */
 document.addEventListener('DOMContentLoaded', function(){
+  migratePlanInspiration(); // 清理旧版自动填充进「我的灵感」的文案
   SYNC.init();
   lbReflect();
+  // 先用本地数据立即渲染，避免白等；云端拉取后再刷新
+  initHeader(); renderKanban(); renderHot(); renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary();
+  renderAiHotspot(); renderMyTopics(); renderRightbar();
+  renderWeeklyTopics();
+  fetchLiveHotspots(); fetchLiveViral(); fetchTopics();
   SYNC.pull().then(()=>{
     initHeader(); renderKanban(); renderHot(); renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary();
     renderAiHotspot(); renderMyTopics(); renderRightbar();
-    fetchAITopics().then(()=>renderWeeklyTopics());
-    fetchLiveHotspots(); fetchLiveViral(); fetchTopics();
     SYNC.publishTopics();
-    const now=new Date();
-    const ts = now.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-    if($('ai-time')) $('ai-time').textContent='更新于 '+ts;
-    if($('hot-time')) $('hot-time').textContent='更新于 '+ts;
   });
+  fetchAITopics().then(()=>renderWeeklyTopics());
   bindSyncUI();
   if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      reg.addEventListener('updatefound',()=>{
+        const w=reg.installing;
+        w.addEventListener('statechange',()=>{
+          if(w.state==='installed' && navigator.serviceWorker.controller){
+            toast('检测到工作台新版本，刷新页面即可生效');
+          }
+        });
+      });
+    }).catch(()=>{});
   }
 });
 </script>
