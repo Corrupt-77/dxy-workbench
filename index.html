@@ -590,7 +590,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="daily-topics.js"></script>
-<script src="inspirations.js?v=15"></script>
+<script src="inspirations.js?v=16"></script>
 <script>
 /* ---------- 基础工具 ---------- */
 const today = new Date();
@@ -1106,7 +1106,8 @@ function renderHot(){
   if(live && live.hotspots && live.hotspots.length){ list=live.hotspots; term=live.term||'实时'; }
   else { const h=getHotspots(today, today.getDay()); list=h.list; term=h.term;
     if($('hot-meta2') && !live) $('hot-meta2').textContent = term+' · '+h.season+'季 · 距'+h.next+h.daysLeft+'天'; }
-  $('hot-list').innerHTML = (list||[]).map(x=>`
+  window.__HOT_LIST__ = list||[];
+  $('hot-list').innerHTML = (list||[]).map((x,i)=>`
     <div class="hot-card">
       <span class="hot-tag">${escapeHtml(x.tag||'')}</span>
       <h4>${escapeHtml(x.title||'')}</h4>
@@ -1114,6 +1115,7 @@ function renderHot(){
       ${x.why?`<div class="hot-warn" style="color:var(--info)">💡 为什么火：${escapeHtml(x.why)}</div>`:(x.warn?`<div class="hot-warn">⚠️ ${escapeHtml(x.warn)}</div>`:'')}
       ${x.platform?`<div style="font-size:11px;color:var(--muted);margin-top:4px;">📡 ${escapeHtml(x.platform)} · 热度 ${escapeHtml(x.heat||'-')}</div>`:''}
       ${x.relatedClinic?`<div style="font-size:11px;color:var(--accent);margin-top:2px;">🏥 可结合：${escapeHtml(x.relatedClinic)}</div>`:''}
+      <button class="ghost" style="margin-top:8px;" onclick="saveHotToMine('hot',${i})">➕ 存到我的选题</button>
     </div>`).join('') || '<div class="no-topics">暂无热点</div>';
   const ta=$('hot-links'); if(ta){ ta.value = localStorage.getItem('dxy_hotlinks_'+dateStr)||'';
     if(!ta.dataset.bound){ ta.addEventListener('change',e=>{ localStorage.setItem('dxy_hotlinks_'+dateStr,e.target.value); scheduleSync(); }); ta.dataset.bound='1'; } }
@@ -1121,7 +1123,8 @@ function renderHot(){
 function renderViral(){
   const j=window.__VIRAL__; const el=$('viral-list'); if(!el) return;
   if(!j || !j.items || !j.items.length){ el.innerHTML='<div class="no-topics">爆款数据加载中…（用云链接打开可自动拉取每日 Top10 拆解）</div>'; return; }
-  el.innerHTML = j.items.map(it=>`
+  window.__VIRAL_LIST__ = j.items;
+  el.innerHTML = j.items.map((it,i)=>`
     <div class="viral-card">
       <div><span class="viral-rank">${it.rank}</span><h4>${escapeHtml(it.title)}</h4><span class="viral-plat">${escapeHtml(it.platform)}</span></div>
       <div class="viral-heat">🔥 ${escapeHtml(it.heat||'')}</div>
@@ -1130,6 +1133,7 @@ function renderViral(){
       <div class="viral-row"><b>可借鉴：</b>${escapeHtml(it.lessons||'')}</div>
       <div class="viral-dxy"><b>德馨远适配：</b>${escapeHtml(it.dxyAdapt||'')}</div>
       <div class="viral-row" style="color:var(--muted);margin-top:4px;">🏷️ 关联：${escapeHtml(it.relatedTopic||'')} · 来源：${escapeHtml(it.creator||'')}</div>
+      <button class="ghost" style="margin-top:8px;" onclick="saveHotToMine('viral',${i})">➕ 存到我的选题</button>
     </div>`).join('');
   if($('viral-meta')) $('viral-meta').textContent='云端更新 '+fmtGenTime(j.generatedAt);
 }
@@ -1332,6 +1336,26 @@ function renderMyTopics(){ const arr=getMyTopics(); const box=$('mytopics-list')
 function toggleShot(id, checked){ const arr=getMyTopics(); const t=arr.find(x=>String(x.id)===String(id)); if(!t) return; t.shot=!!checked; saveMyTopics(arr); renderMyTopics(); toast(checked?'标记为已拍摄':'取消已拍摄标记'); }
 function saveMyTopicCard(id){ const card=document.querySelector(`.topic-card[data-id="${id}"]`); if(!card) return; const arr=getMyTopics(); const t=arr.find(x=>String(x.id)===String(id)); if(!t) return; t.hook=card.querySelector('.mt-hook').value; t.copy=card.querySelector('.mt-copy').value; t.note=card.querySelector('.mt-note').value; saveMyTopics(arr); const st=document.getElementById('mtsave-'+id); if(st){ st.style.opacity='1'; clearTimeout(st._t); st._t=setTimeout(()=>st.style.opacity='0',1500); } toast('选题已保存'); }
 function delMyTopic(id){ if(!confirm('删除这条我的选题？')) return; saveMyTopics(getMyTopics().filter(x=>String(x.id)!==String(id))); renderMyTopics(); }
+function saveHotToMine(kind, idx){
+  const item = (kind==='hot') ? (window.__HOT_LIST__&&window.__HOT_LIST__[idx]) : (window.__VIRAL_LIST__&&window.__VIRAL_LIST__[idx]);
+  if(!item) return;
+  let direction, hook='', copy='', note='';
+  if(kind==='hot'){
+    direction = '['+(item.tag||'热点')+'] '+(item.title||'');
+    note = ['角度：'+(item.angle||''), '为什么火：'+(item.why||item.warn||''), '可结合：'+(item.relatedClinic||'')].filter(s=>s.split('：')[1]).join('\n');
+  } else {
+    direction = item.title||'';
+    hook = item.hook||'';
+    copy = ['为什么火：'+(item.whyHot||''), '德馨远适配：'+(item.dxyAdapt||'')].filter(s=>s.split('：')[1]).join('\n');
+    note = ['可借鉴：'+(item.lessons||''), '关联：'+(item.relatedTopic||'')].filter(s=>s.split('：')[1]).join('\n');
+  }
+  if(!direction.trim()){ toast('该热点信息不完整，无法保存'); return; }
+  const arr=getMyTopics();
+  if(arr.some(t=>t.direction===direction)){ toast('「我的选题」已有该选题'); return; }
+  arr.push({id:Date.now(), direction, doctor:'', shoot:'', hook, copy, note, shot:false, fromHot:true, createdAt:new Date().toISOString()});
+  saveMyTopics(arr);
+  toast('已保存到「我的选题」');
+}
 
 /* ---------- 右侧三栏：中医小知识 / 宣传图片库 / 今日所需设计图 ---------- */
 const TCM_KNOWLEDGE = [
