@@ -1819,13 +1819,34 @@ const SYNC = {
   },
   async _pushCore(retries=5){
     await this._detectBranch();
-    const blob=this.collect();
-    const content=this._b64(JSON.stringify(blob,null,2));
+    const local=this.collect();
     const st=document.getElementById('sync-status');
+    // 安全合并：云端的「我的选题/待办」按 id 取并集，避免本机少就反向覆盖云端（空状态覆盖）
+    const MERGE_KEYS=['dxy_mytopics','dxy_todos'];
+    const mergeWithCloud=async ()=>{
+      const ex=await this._api(this.dataFile,'GET');
+      if(!(ex.ok && ex.json && ex.json.content)) return {blob:local, sha:null};
+      let cloud; try{ cloud=JSON.parse(this._deb64(ex.json.content)); }catch(e){ return {blob:local, sha:ex.json.sha}; }
+      const o=Object.assign({}, local);
+      for(const key of MERGE_KEYS){
+        const l=Array.isArray(local[key])?local[key]:[];
+        const c=Array.isArray(cloud[key])?cloud[key]:[];
+        const seen=new Set(); const merged=[];
+        for(const it of l.concat(c)){
+          if(it && it.id!=null){ const id=String(it.id); if(seen.has(id)) continue; seen.add(id); merged.push(it); }
+          else if(it) merged.push(it);
+        }
+        o[key]=merged;
+      }
+      o.__savedAt=Math.max(local.__savedAt||0, cloud.__savedAt||0, Date.now());
+      return {blob:o, sha:ex.json.sha};
+    };
+    let m=await mergeWithCloud();
+    let blob=m.blob;
     const tryPut=async ()=>{
-      const existing=await this._api(this.dataFile,'GET');
+      const content=this._b64(JSON.stringify(blob,null,2));
       const body={message:'sync '+new Date().toISOString(),content};
-      if(existing.ok && existing.json && existing.json.sha) body.sha=existing.json.sha;
+      if(m.sha) body.sha=m.sha;
       return this._api(this.dataFile,'PUT',JSON.stringify(body));
     };
     let r=await tryPut();
@@ -1834,6 +1855,7 @@ const SYNC = {
       attempt++;
       if(st) st.textContent='检测到云端有更新，第'+attempt+'次重试…';
       await new Promise(res=>setTimeout(res, 400*Math.pow(2,attempt)));
+      m=await mergeWithCloud(); blob=m.blob;
       r=await tryPut();
     }
     if(!r.ok){
