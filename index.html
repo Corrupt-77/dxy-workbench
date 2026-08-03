@@ -513,10 +513,12 @@
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px;">
           <button class="primary" id="sync-save">💾 保存并启用</button>
-          <button class="ghost" id="sync-now">🔄 立即同步</button>
+          <button class="ghost" id="sync-now">☁️ 保存到云端</button>
+          <button class="ghost" id="sync-pull">📥 从云端拉取</button>
           <button class="ghost" id="sync-disable">⏸ 停用</button>
           <span id="sync-status" style="font-size:12px;color:var(--muted);"></span>
         </div>
+        <div class="lb-tip" style="margin-top:8px;">保存后自动上云（每次点「确认保存」都会同步）；换设备前点「保存到云端」，新设备打开本网址会自动用云端最新版覆盖本机。手机/电脑通用。</div>
         <div id="sync-filewarn" style="display:none;margin-top:8px;padding:8px 10px;border-radius:8px;background:#fff4e5;color:#a85a00;font-size:12px;">⚠️ 你正在用 <b>file://</b> 打开，浏览器可能拦截 GitHub 同步（CORS）。请改用手机/电脑通用的云链接打开本工作台，同步才稳定。</div>
         <div class="lb-tip">首次使用三步：① 连接 GitHub ② 新建一个<strong>私有</strong>仓库 ③ 生成 Token（经典令牌勾 <code>repo</code> 权限最省事）。详细步骤见随附《数据互通使用说明》。停用后仅本机保存。</div>
       </div>
@@ -1874,18 +1876,34 @@ const SYNC = {
     try{ await lbWrite(blob); }catch(e){ console.warn('local backup skipped', e); }
     return {ok:true,msg:'已同步'};
   },
-  schedulePush(){ clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(),900); },
+  schedulePush(){ const st=document.getElementById('sync-status'); if(st) st.textContent='已保存本地，同步中…'; clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(),900); },
   async pull(){
     if(!this.ready()) return;
     const j=await this._api(this.dataFile,'GET'); if(!j.ok || !j.json || !j.json.content) return;
     let blob; try{blob=JSON.parse(this._deb64(j.json.content));}catch(e){return;}
-    const localTs=parseInt(localStorage.getItem('dxy_sync_localts')||'0',10);
-    if(blob.__savedAt && blob.__savedAt <= localTs) return;
-    for(const k in blob){ if(k==='__savedAt') continue; localStorage.setItem(k, typeof blob[k]==='string'?blob[k]:JSON.stringify(blob[k])); }
+    // 打开即拉云覆盖本机：我的选题/待办按 id 并集（宁多勿丢），其余板块直接以云端为准
+    const MERGE_KEYS=['dxy_mytopics','dxy_todos'];
+    for(const k in blob){
+      if(k==='__savedAt') continue;
+      const val=blob[k];
+      if(MERGE_KEYS.indexOf(k)>=0 && Array.isArray(val)){
+        let local=[]; try{ local=JSON.parse(localStorage.getItem(k)||'[]'); }catch(e){ local=[]; }
+        const seen=new Set(); const merged=[];
+        for(const it of val.concat(local)){
+          if(it && it.id!=null){ const id=String(it.id); if(seen.has(id)) continue; seen.add(id); merged.push(it); }
+          else if(it) merged.push(it);
+        }
+        localStorage.setItem(k, JSON.stringify(merged));
+      } else {
+        localStorage.setItem(k, typeof val==='string'?val:JSON.stringify(val));
+      }
+    }
+    localStorage.setItem('dxy_sync_localts', String(blob.__savedAt||Date.now()));
     if(blob['dxy_daily_topics']){ window.DAILY_TOPICS = blob['dxy_daily_topics']; }
     const st=document.getElementById('sync-status'); if(st) st.textContent='已从云端同步 '+new Date().toLocaleTimeString('zh-CN');
-    if(document.getElementById('page-daily').classList.contains('active')) renderKanban();
-    renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary(); renderMyTopics(); renderPlanBoard(); renderInspireChips();
+    renderAllData();
+    // 把本机可能独有的离线编辑（我的选题/待办）并回云端，保证两端一致
+    this.push();
   },
   publishTopics(){
     if(!this.ready()) return;
@@ -1961,10 +1979,15 @@ function bindSyncUI(){
       toast(res.ok ? '同步已启用' : '同步失败：'+res.msg);
     });
   };
-  if($('sync-now')) $('sync-now').onclick=()=>{ if(!SYNC.ready()){toast('请先保存仓库和 Token');return;} SYNC.push(); };
+  if($('sync-now')) $('sync-now').onclick=()=>{ if(!SYNC.ready()){toast('请先保存仓库和 Token');return;} SYNC.push().then(r=>toast(r.ok?'已保存到云端 ✓':'同步失败：'+(r.msg||''))); };
+  if($('sync-pull')) $('sync-pull').onclick=()=>{ if(!SYNC.ready()){toast('请先保存仓库和 Token');return;} SYNC.pull().then(()=>toast('已从云端拉取最新 ✓')); };
   if($('sync-disable')) $('sync-disable').onclick=()=>{ localStorage.removeItem('dxy_sync_repo'); localStorage.removeItem('dxy_sync_token'); SYNC.token=''; SYNC.repo=''; $('sync-status').textContent='已停用'; toast('已停用同步'); };
 }
 
+function renderAllData(){
+  initHeader(); renderKanban(); renderHot(); renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary();
+  renderAiHotspot(); renderMyTopics(); renderRightbar(); renderInspireChips(); renderPlanBoard();
+}
 /* ---------- 启动 ---------- */
 document.addEventListener('DOMContentLoaded', function(){
   migratePlanInspiration(); // 清理旧版自动填充进「我的灵感」的文案
@@ -1978,8 +2001,6 @@ document.addEventListener('DOMContentLoaded', function(){
   renderWeeklyTopics();
   fetchLiveHotspots(); fetchLiveViral(); fetchTopics();
   SYNC.pull().then(()=>{
-    initHeader(); renderKanban(); renderHot(); renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary();
-    renderAiHotspot(); renderMyTopics(); renderRightbar();
     SYNC.publishTopics();
   });
   fetchAITopics().then(()=>renderWeeklyTopics());
