@@ -912,8 +912,23 @@ function savePlanCard(dt, btn){
 function copyDayPlan(dt){ const p=getPlan(dt); if(!p.inspiration&&!p.direction) return; const txt=`【${dt} ${getWeekday(new Date(dt+'T00:00:00'))}】\n内容方向：${p.direction||'—'}\n出镜医生：${p.doctor||'—'}\n拍摄时长：${p.duration||'—'}\n我的灵感：\n${p.inspiration||'—'}`; copyText(txt); toast('已复制本日策划'); }
 
 /* ---------- 待办事项 ---------- */
-function todoKey(){ return 'dxy_todos_'+dateStr; }
+function todoKey(){ return 'dxy_todos'; }
 function getTodos(){ try{ return JSON.parse(localStorage.getItem(todoKey()))||[]; }catch(e){ return []; } }
+function migrateTodos(){
+  try{
+    const merged=[]; const seen=new Set();
+    for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i);
+      if(k && k.indexOf('dxy_todos_')===0 && k!=='dxy_todos'){
+        try{ const arr=JSON.parse(localStorage.getItem(k))||[];
+          arr.forEach(t=>{ if(t&&t.id&&!seen.has(t.id)){ seen.add(t.id); merged.push(t); } else if(t&&!t.id){ merged.push(t); } });
+          localStorage.removeItem(k);
+        }catch(e){}
+      }
+    }
+    if(merged.length){ const cur=getTodos(); const cs=new Set(cur.filter(t=>t&&t.id).map(t=>t.id));
+      merged.forEach(t=>{ if(!(t&&t.id&&cs.has(t.id))) cur.push(t); }); saveTodos(cur); }
+  }catch(e){}
+}
 function saveTodos(arr){ localStorage.setItem(todoKey(), JSON.stringify(arr)); scheduleSync(); }
 function renderTodos(){
   const arr=getTodos();
@@ -1518,16 +1533,22 @@ function renderTodayBrief(){
     <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">${ day.doctor&&day.doctor!=='无'&&day.doctor!=='视情况' ? '👨‍⚕️ 拍摄：'+escapeHtml(day.doctor) : '📝 无需医生配合' }</div>
     <div style="font-size:12px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px;">🏥 医馆规模：${cf.rooms}间诊室 · ${cf.beds}张床 · ${cf.doctors_internal+cf.therapists+cf.beauty_doctor}位医师 · ${cf.pharmacists}位药师</div>`;
 }
-function renderKnowledgePage(){
+async function renderKnowledgePage(){
+  let featK=null;
+  if(SYNC.ready()){
+    try{ const j=await SYNC._api('knowledge.json','GET');
+      if(j.ok && j.json && j.json.content){ featK=JSON.parse(SYNC._deb64(j.json.content)); }
+    }catch(e){}
+  }
+  if(!featK){ const arr=TCM_KNOWLEDGE; featK=arr[dayOfYear(today)%arr.length]; }
   const feat=document.getElementById('tcm-featured-page');
-  if(feat) renderTCMInto(feat);
+  if(feat) renderTCMInto(feat, featK);
   const all=document.getElementById('tcm-all');
   if(all) all.innerHTML = TCM_KNOWLEDGE.map(k=>`<div class="tcm-card"><div class="tcm-tag">${escapeHtml(k.tag)}</div><div class="tcm-title">${escapeHtml(k.title)}</div><div class="tcm-body">${escapeHtml(k.body)}</div></div>`).join('');
 }
-function renderTCMInto(el){
-  const arr=TCM_KNOWLEDGE; const base=(dayOfYear(today)+tcmOffset)%arr.length;
-  const feat=arr[base];
-  el.innerHTML=`<div class="tcm-card" style="border:1px solid var(--accent);"><div class="tcm-tag">${escapeHtml(feat.tag)} · 今日推荐</div><div class="tcm-title">${escapeHtml(feat.title)}</div><div class="tcm-body">${escapeHtml(feat.body)}</div></div>`;
+function renderTCMInto(el, k){
+  if(!k){ const arr=TCM_KNOWLEDGE; k=arr[(dayOfYear(today)+tcmOffset)%arr.length]; }
+  el.innerHTML=`<div class="tcm-card" style="border:1px solid var(--accent);"><div class="tcm-tag">${escapeHtml(k.tag)} · 今日推荐</div><div class="tcm-title">${escapeHtml(k.title)}</div><div class="tcm-body">${escapeHtml(k.body)}</div></div>`;
 }
 function renderGalleryPage(){
   const el=document.getElementById('gallery-page');
@@ -1781,7 +1802,7 @@ const SYNC = {
   _b64(s){ return btoa(unescape(encodeURIComponent(s))); },
   _deb64(s){ return decodeURIComponent(escape(atob(s))); },
   collect(){
-    const o={}; const prefix=['dxy_kanban_','dxy_inspire_','dxy_hotlinks_','dxy_data_','dxy_mytopics'];
+    const o={}; const prefix=['dxy_kanban_','dxy_inspire_','dxy_hotlinks_','dxy_data_','dxy_mytopics','dxy_todos'];
     for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(prefix.some(p=>k.indexOf(p)===0)){ try{o[k]=JSON.parse(localStorage.getItem(k));}catch(e){o[k]=localStorage.getItem(k);} } }
     o['dxy_daily_topics'] = window.DAILY_TOPICS || null;
     o.__savedAt = Date.now();
@@ -1926,6 +1947,7 @@ function bindSyncUI(){
 document.addEventListener('DOMContentLoaded', function(){
   migratePlanInspiration(); // 清理旧版自动填充进「我的灵感」的文案
   migrateMyTopics();        // 把按日期分片的旧「我的选题」合并为全局 key
+  migrateTodos();           // 把按日期分片的旧「待办事项」合并为全局 key 并纳入同步
   SYNC.init();
   lbReflect();
   // 先用本地数据立即渲染，避免白等；云端拉取后再刷新
