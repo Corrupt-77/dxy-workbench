@@ -313,6 +313,7 @@
       <a data-page="daily" class="active"><span class="ico">🗓️</span>每日计划</a>
       <a data-page="inspire"><span class="ico">☑️</span>待办事项</a>
       <a data-page="hot"><span class="ico">🔥</span>爆款热点</a>
+      <a data-page="hainan"><span class="ico">🌴</span>海南中医热点</a>
       <a data-page="decompose"><span class="ico">🔗</span>爆款链接拆解</a>
       <a data-page="review"><span class="ico">📊</span>内容复盘</a>
       <a data-page="ai"><span class="ico">🤖</span>AI推荐选题</a>
@@ -403,6 +404,15 @@
       <div class="section-title">我刷到的爆款 <span class="tag">贴链接/描述，存下来慢慢拆</span></div>
       <div class="panel"><textarea id="hot-links" style="min-height:120px;" placeholder="把抖音/小红书刷到的爆款视频链接或描述贴这里…"></textarea></div>
       <div class="refresh-time" id="hot-time" style="margin-top:8px;"></div>
+    </section>
+
+    <!-- 页面：海南中医实时热点 -->
+    <section class="page" id="page-hainan">
+      <div class="section-title">🌴 海南中医实时热点 <span class="tag" id="hainan-meta2">每小时自动刷新</span>
+        <button class="ghost" onclick="refreshHainan()">🔄 刷新海南热点</button>
+      </div>
+      <div id="hainan-list" class="topics-grid"></div>
+      <div class="refresh-time" id="hainan-time" style="margin-top:8px;"></div>
     </section>
 
     <!-- 页面：爆款链接拆解 -->
@@ -608,7 +618,7 @@ function copyText(t){ if(!t) return; if(navigator.clipboard&&navigator.clipboard
 function fallbackCopy(t){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
 
 /* ---------- 导航 ---------- */
-const PAGE_TITLES = { daily:'每日计划', inspire:'待办事项', hot:'爆款热点', decompose:'爆款链接拆解', review:'内容复盘', ai:'AI推荐选题', mine:'我的选题', knowledge:'中医小知识', designs:'今日所需设计图', dailyimg:'每日自动任务', sync:'同步设置' };
+const PAGE_TITLES = { daily:'每日计划', inspire:'待办事项', hot:'爆款热点', hainan:'海南中医热点', decompose:'爆款链接拆解', review:'内容复盘', ai:'AI推荐选题', mine:'我的选题', knowledge:'中医小知识', designs:'今日所需设计图', dailyimg:'每日自动任务', sync:'同步设置' };
 document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>{ switchPage(a.dataset.page); toggleSidebar(false); }));
 function toggleSidebar(open){ const sb=document.querySelector('.sidebar'); const ov=$('overlay'); const show=open===undefined?!sb.classList.contains('open'):open; sb.classList.toggle('open',show); ov.classList.toggle('show',show); }
 function switchPage(p){
@@ -625,6 +635,7 @@ function switchPage(p){
   if(p==='mine'){ renderMyTopics(); renderInspireChips(); }
   if(p==='ai'){ fetchAITopics().then(()=>renderWeeklyTopics()); }
   if(p==='hot'){ renderHot(); renderViral(); fetchLiveHotspots(); fetchLiveViral(); fetchTopics(); }
+  if(p==='hainan'){ renderHainan(); fetchLiveHainan(); }
   if(p==='decompose'){ renderDecompose(); }
 }
 
@@ -1060,6 +1071,40 @@ async function fetchLiveViral(){
     renderViral();
   }catch(e){}
 }
+async function fetchLiveHainan(){
+  try{
+    let j = await fetchFromGitHub('hainan.json');
+    const src = SYNC.ready() ? 'GitHub·实时' : '云端';
+    if(!j){
+      const r=await fetch('./hainan.json?t='+Date.now(),{cache:'no-store'});
+      if(!r.ok){ window.__HAINAN__=null; renderHainan(); return; }
+      j=await r.json();
+    }
+    window.__HAINAN__=j;
+    window.__HAINAN_LIST__ = (j&&j.items)?j.items:[];
+    if($('hainan-meta')) $('hainan-meta').textContent=(j.term||'海南')+' · '+src+' '+fmtGenTime(j.generatedAt);
+    renderHainan();
+  }catch(e){ /* 拉取失败 */ }
+}
+function renderHainan(){
+  const j=window.__HAINAN__; const el=$('hainan-list'); if(!el) return;
+  const items=(j&&j.items)?j.items:[];
+  if(!items.length){ el.innerHTML='<div class="no-topics">海南中医热点加载中…（用云链接打开可每小时自动拉取最新）</div>'; return; }
+  window.__HAINAN_LIST__ = items;
+  el.innerHTML = items.map((it,i)=>`
+    <div class="hot-card">
+      <span class="hot-tag">${escapeHtml(it.tag||'')}</span>
+      <h4>${escapeHtml(it.title||'')}</h4>
+      <div class="hot-angle">🎬 ${escapeHtml(it.angle||'')}</div>
+      ${it.why?`<div class="hot-warn" style="color:var(--info)">💡 为什么火：${escapeHtml(it.why)}</div>`:''}
+      ${it.platform?`<div style="font-size:11px;color:var(--muted);margin-top:4px;">📡 ${escapeHtml(it.platform)} · 热度 ${escapeHtml(it.heat||'-')}</div>`:''}
+      ${it.relatedClinic?`<div style="font-size:11px;color:var(--accent);margin-top:2px;">🏥 可结合：${escapeHtml(it.relatedClinic)}</div>`:''}
+      <button class="ghost" style="margin-top:8px;" onclick="saveHotToMine('hainan',${i})">➕ 存到我的选题</button>
+    </div>`).join('');
+  if($('hainan-meta2')) $('hainan-meta2').textContent=(j.term||'海南中医')+' · 云端更新 '+fmtGenTime(j.generatedAt);
+  if($('hainan-time')) $('hainan-time').textContent='最后更新：'+(j.generatedAt?new Date(j.generatedAt).toLocaleString('zh-CN',{hour12:false}):'-');
+}
+async function refreshHainan(){ await fetchLiveHainan(); toast('已刷新海南中医热点'); }
 async function fetchTopics(){
   try{
     const j = await fetchFromGitHub('topics.json');
@@ -1409,10 +1454,18 @@ function toggleShot(id, checked){ const arr=getMyTopics(); const t=arr.find(x=>S
 function saveMyTopicCard(id){ const card=document.querySelector(`.topic-card[data-id="${id}"]`); if(!card) return; const arr=getMyTopics(); const t=arr.find(x=>String(x.id)===String(id)); if(!t) return; t.hook=card.querySelector('.mt-hook').value; t.copy=card.querySelector('.mt-copy').value; t.note=card.querySelector('.mt-note').value; saveMyTopics(arr); const st=document.getElementById('mtsave-'+id); if(st){ st.style.opacity='1'; clearTimeout(st._t); st._t=setTimeout(()=>st.style.opacity='0',1500); } toast('选题已保存'); }
 function delMyTopic(id){ if(!confirm('删除这条我的选题？')) return; saveMyTopics(getMyTopics().filter(x=>String(x.id)!==String(id))); renderMyTopics(); }
 function saveHotToMine(kind, idx){
-  const item = (kind==='hot') ? (window.__HOT_LIST__&&window.__HOT_LIST__[idx]) : (window.__VIRAL_LIST__&&window.__VIRAL_LIST__[idx]);
+  let item;
+  if(kind==='hainan') item = window.__HAINAN_LIST__ && window.__HAINAN_LIST__[idx];
+  else if(kind==='hot') item = window.__HOT_LIST__ && window.__HOT_LIST__[idx];
+  else item = window.__VIRAL_LIST__ && window.__VIRAL_LIST__[idx];
   if(!item) return;
   let direction, hook='', shoot='', copy='', note='';
-  if(kind==='hot'){
+  if(kind==='hainan'){
+    direction = '[海南·'+(item.tag||'中医')+'] '+(item.title||'');
+    shoot = item.angle||'';
+    const c=[]; if(item.why) c.push('为什么火：'+item.why); if(item.relatedClinic) c.push('德馨远适配：'+item.relatedClinic); copy=c.join('\n');
+    const n=[]; if(item.relatedClinic) n.push('关联：'+item.relatedClinic); if(item.platform) n.push('来源：'+item.platform); if(item.heat) n.push('热度：'+item.heat); note=n.join('\n');
+  } else if(kind==='hot'){
     direction = '['+(item.tag||'热点')+'] '+(item.title||'');
     shoot = item.angle||'';
     const c=[]; if(item.why||item.warn) c.push('为什么火：'+(item.why||item.warn)); if(item.relatedClinic) c.push('德馨远适配：'+item.relatedClinic); copy=c.join('\n');
@@ -1999,7 +2052,7 @@ document.addEventListener('DOMContentLoaded', function(){
   initHeader(); renderKanban(); renderHot(); renderDayTabs(); renderDayPanel(); renderWeek(); renderDataSummary();
   renderAiHotspot(); renderMyTopics(); renderRightbar();
   renderWeeklyTopics();
-  fetchLiveHotspots(); fetchLiveViral(); fetchTopics();
+  fetchLiveHotspots(); fetchLiveViral(); fetchTopics(); fetchLiveHainan();
   SYNC.pull().then(()=>{
     SYNC.publishTopics();
   });
