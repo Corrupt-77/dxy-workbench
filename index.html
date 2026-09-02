@@ -27,6 +27,8 @@
     .sidebar nav a:hover { background:rgba(255,255,255,.07); opacity:1; }
     .sidebar nav a.active { background:rgba(255,255,255,.13); border-left-color:var(--warning); opacity:1; font-weight:600; }
     .sidebar nav a .ico { width:18px; text-align:center; }
+    .sidebar nav .nav-group { font-size:11px; color:#fff; opacity:.52; padding:15px 18px 5px; letter-spacing:1.2px; font-weight:500; }
+    .sidebar nav a.sub { padding-left:26px; font-size:13px; }
     .sidebar .foot { padding:14px 18px; font-size:11px; opacity:.6; border-top:1px solid rgba(255,255,255,.12); }
     .main { margin-left:208px; flex:1; padding:18px 26px 40px; min-width:0; }
     .topbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
@@ -296,6 +298,77 @@
     .field label { font-size:13.5px; margin-bottom:6px; }
     textarea { min-height:54px; font-size:14.5px; padding:8px; }
     input[type=text], select { font-size:14.5px; padding:8px; }
+
+    /* 今日作战台 */
+    .today-head { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+    .today-date { font-size:20px; font-weight:600; }
+    .today-sub { font-size:13px; color:var(--muted); margin-top:2px; }
+    .today-progress { font-size:12px; color:var(--muted); }
+    .tt-title { font-size:16px; font-weight:600; line-height:1.45; margin-bottom:6px; }
+    .tt-hook { font-size:13px; color:var(--accent); margin-bottom:8px; line-height:1.5; }
+    .tt-meta { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+    .tt-actions { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+    .tt-actions button { font-size:13px; padding:7px 12px; }
+    .today-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media(max-width:900px){ .today-grid{ grid-template-columns:1fr; } }
+    .chk-item { display:flex; align-items:center; gap:9px; padding:9px 0; border-bottom:1px dashed var(--border); font-size:13.5px; cursor:pointer; }
+    .chk-item:last-child { border-bottom:none; }
+    .chk-item input { width:17px; height:17px; cursor:pointer; }
+    .chk-item.done span { text-decoration:line-through; color:var(--muted); }
+    .pub-badge { font-size:11px; padding:2px 8px; border-radius:6px; background:var(--primary-light); color:var(--primary); }
+    .pub-badge.on { background:var(--accent-light); color:var(--accent); }
+    .empty-tip { font-size:13px; color:var(--muted); padding:4px 0; }
+
+    /* 专家到诊专题 */
+    .expert-card { border:1px solid var(--border); border-radius:10px; padding:15px; margin-bottom:13px; background:var(--card); }
+    .expert-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+    .expert-name { font-size:15px; font-weight:600; }
+    .expert-tag { font-size:11px; padding:2px 8px; border-radius:6px; background:var(--primary-light); color:var(--primary); }
+    .expert-meta { font-size:12.5px; color:var(--muted); line-height:1.6; }
+    .countdown { font-size:13px; font-weight:600; }
+    .countdown.soon { color:var(--danger); }
+    .countdown.now { color:var(--accent); }
+    .countdown.past { color:var(--muted); }
+    .phase { margin-top:11px; }
+    .phase-h { font-size:13px; font-weight:600; color:var(--accent); margin-bottom:5px; }
+    .topic-line { font-size:13px; padding:6px 0; border-bottom:1px dashed var(--border); line-height:1.55; }
+    .topic-line:last-child { border-bottom:none; }
+    .copy-row { display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+    .expert-add { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+    /* 今日作战台 */
+    .today-head { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px; flex-wrap:wrap; gap:10px; }
+    .today-date { font-size:22px; font-weight:700; }
+    .today-sub { font-size:13px; color:var(--muted); margin-top:2px; }
+    .today-progress { font-size:13px; background:var(--accent-light); color:var(--accent); padding:6px 12px; border-radius:20px; font-weight:600; }
+    .topic-card .tt-title { font-size:17px; font-weight:700; line-height:1.4; }
+    .topic-card .tt-hook { color:var(--muted); margin:6px 0 10px; font-size:13.5px; }
+    .topic-card .tt-meta { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+    .tt-actions { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0; }
+    .today-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media(max-width:760px){ .today-grid{ grid-template-columns:1fr; } }
+    .checkrow { display:flex; align-items:center; gap:7px; font-size:13.5px; padding:5px 0; cursor:pointer; }
+    .shot-item { font-size:13px; color:var(--muted); padding:3px 0 3px 14px; position:relative; }
+    .shot-item::before { content:"·"; position:absolute; left:2px; color:var(--accent); }
+    .todo-mini { font-size:13px; padding:4px 0; border-bottom:1px dashed var(--border); }
+    .asset-fig { display:inline-block; width:104px; margin:6px 8px 6px 0; vertical-align:top; }
+    .asset-fig img { width:104px; height:104px; object-fit:cover; border-radius:8px; border:1px solid var(--border); cursor:pointer; }
+    .asset-fig figcaption { font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.2; }
+    .empty-tip { color:var(--muted); font-size:13px; padding:10px 0; }
+    /* 专家到诊专题 */
+    .expert-card { border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:14px; background:linear-gradient(180deg,var(--bg),#fff); }
+    .ec-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+    .ec-head b { font-size:15px; }
+    .ec-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+    .ec-sec { margin-bottom:10px; font-size:13.5px; }
+    .ec-sec ol { margin:6px 0 0; padding-left:20px; }
+    .ec-sec li { margin:3px 0; }
+    .kw { display:inline-block; background:var(--accent-light); color:var(--accent); font-size:11.5px; padding:2px 8px; border-radius:10px; margin:2px 4px 2px 0; }
+    .ec-copy { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+    @media(max-width:760px){ .ec-copy{ grid-template-columns:1fr; } }
+    .ec-ctab { border:1px solid var(--border); border-radius:8px; padding:8px; }
+    .ec-ctab b { font-size:12.5px; display:flex; justify-content:space-between; align-items:center; }
+    .ec-ctext { font-size:12px; color:var(--muted); margin-top:5px; line-height:1.5; white-space:pre-wrap; max-height:160px; overflow:auto; }
+    .ghost.sm { padding:3px 9px; font-size:11.5px; }
   </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes">
@@ -303,28 +376,58 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="德馨远运营台">
 <link rel="apple-touch-icon" href="icon.svg">
-</head>
+<script src="https://beacon.cdn.qq.com/sdk/4.5.9/beacon_web.min.js"></script>
+<script>
+(function(){
+  try{
+    var beacon=new BeaconAction({
+      appkey:'0WEB06U85YBSLJNL',
+      versionCode:'1.0.0',
+      channelID:'share',
+      delay:1000,
+      sessionDuration:30*60*1000,
+      isOversea:false,
+      needReportRqdEvent:false
+    });
+    beacon.onDirectUserAction('preview_page_view',{
+      'url':location.href,
+      'referrer':document.referrer,
+      'title':document.title,
+      'sandbox_id':'56167d417bab442cba716127d248f7c4'
+    });
+  }catch(e){}
+})();
+</script></head>
 <body>
 <div class="app">
   <!-- 左侧导航 -->
   <aside class="sidebar">
     <div class="brand"><div class="logo">德</div><div><b>德馨远</b><small>短视频运营工作台</small></div></div>
     <nav id="nav">
-      <a data-page="daily" class="active"><span class="ico">🗓️</span>每日计划</a>
-      <a data-page="inspire"><span class="ico">☑️</span>待办事项</a>
+      <div class="nav-group">第一层 · 今日作战</div>
+      <a data-page="today" class="active"><span class="ico">🎯</span>今日作战台</a>
+
+      <div class="nav-group">第二层 · 内容生产</div>
+      <a data-page="ai"><span class="ico">🤖</span>AI推荐选题</a>
+      <a data-page="mine"><span class="ico">✍️</span>我的选题</a>
+      <a data-page="expert"><span class="ico">🩺</span>专家到诊专题</a>
       <a data-page="hot"><span class="ico">🔥</span>爆款热点</a>
       <a data-page="hainan"><span class="ico">🌴</span>海南中医热点</a>
       <a data-page="decompose"><span class="ico">🔗</span>爆款链接拆解</a>
+
+      <div class="nav-group">第三层 · 复盘与资产</div>
       <a data-page="review"><span class="ico">📊</span>内容复盘</a>
-      <a data-page="ai"><span class="ico">🤖</span>AI推荐选题</a>
-      <a data-page="mine"><span class="ico">✍️</span>我的选题</a>
-      <div class="nav-group" style="font-size:11px;color:var(--muted);padding:12px 18px 4px;letter-spacing:.5px;">素材与参考</div>
       <a data-page="knowledge"><span class="ico">🌿</span>中医小知识</a>
       <a data-page="designs"><span class="ico">🎨</span>今日所需设计图</a>
+      <a data-page="gallery"><span class="ico">🖼️</span>宣传图片库</a>
+      <a data-page="inspire"><span class="ico">📝</span>备忘录</a>
+
+      <div class="nav-group">系统</div>
+      <a data-page="daily"><span class="ico">🗓️</span>每日计划</a>
       <a data-page="dailyimg"><span class="ico">✨</span>每日自动任务</a>
       <a data-page="sync"><span class="ico">☁️</span>同步设置</a>
     </nav>
-    <div class="foot">数据可同步云端<br>每日 08:30 自动选题<br>周日 18:00 自动周报<br><span style="color:#ffd27f;">同步需在「同步设置」开启</span></div>
+    <div class="foot">数据可同步云端<br>每日 08:30 自动选题<br>周日 18:30 自动周报<br><span style="color:#ffd27f;">同步需在「同步设置」开启</span></div>
   </aside>
   <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
 
@@ -332,13 +435,57 @@
   <main class="main">
     <div class="topbar">
       <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="菜单">☰</button>
-      <h2 id="page-title">每日计划</h2>
+      <h2 id="page-title">今日作战台</h2>
       <div class="meta">
         <span id="current-date">--</span>
         <span id="current-theme">--</span>
         <button class="ghost" onclick="window.print()">🖨️ 打印</button>
       </div>
     </div>
+
+    <!-- 页面：今日作战台（第一层 · 默认首页） -->
+    <section class="page active" id="page-today">
+      <div class="today-head">
+        <div>
+          <div class="today-date" id="today-date">--</div>
+          <div class="today-sub" id="today-sub">--</div>
+        </div>
+        <div class="today-progress" id="today-progress">--</div>
+      </div>
+
+      <div class="section-title">今日选题 <span class="tag" id="today-src">来源：AI 推荐</span></div>
+      <div class="panel topic-card" id="today-topic">
+        <div class="tt-title" id="tt-title">正在读取今日选题…</div>
+        <div class="tt-hook" id="tt-hook"></div>
+        <div class="tt-meta" id="tt-meta"></div>
+        <div class="tt-actions">
+          <button class="primary" onclick="copyToday('script')">📋 复制完整脚本</button>
+          <button class="ghost" onclick="copyToday('title')">📋 复制标题 + 钩子</button>
+          <button class="ghost" onclick="switchPage('ai')">查看本周排期 →</button>
+        </div>
+        <details class="cand-detail">
+          <summary>展开完整口播脚本 + 分镜</summary>
+          <div class="script-box" id="tt-script">—</div>
+        </details>
+      </div>
+
+      <div class="today-grid" style="margin-top:16px;">
+        <div>
+          <div class="section-title">拍摄清单 <span class="tag">勾选即保存</span></div>
+          <div class="panel" id="today-shoot"><div class="empty-tip">—</div></div>
+        </div>
+        <div>
+          <div class="section-title">发布状态 <span class="tag">三平台各一条</span></div>
+          <div class="panel" id="today-publish"></div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:16px;">今日待办 <span class="tag">与「备忘录」同步</span></div>
+      <div class="panel" id="today-todo"><div class="empty-tip">—</div></div>
+
+      <div class="section-title" style="margin-top:16px;">今日素材建议 <span class="tag">按今日选题自动匹配</span></div>
+      <div class="panel" id="today-assets"><div class="empty-tip">—</div></div>
+    </section>
 
     <!-- 页面：每日计划 -->
     <section class="page" id="page-daily">
@@ -470,7 +617,7 @@
 
       <div class="section-title">AI 推荐选题 · 下周排期 <span class="tag" id="ai-weekrange">--</span></div>
       <div class="panel" style="margin-bottom:14px;font-size:13px;color:var(--muted);">
-        选题按硬性周排期（周一整骨 / 周二脱发 / 周三脏腑推拿 / 周四非遗脉诊 / 周五三大准则 / 周六随机养生 / 周日复盘）生成，<b>每天 3 个候选、主推第 1 条</b>。<b>每周日 18:30 自动依据实时热点重写下周排期</b>（覆盖本页，无需手动），平时点「刷新」即时更新热点。若未启用云端同步，则按节气/季节/星期本地推算。
+        选题按硬性周排期（周一整骨 / 周二脱发 / 周三轮值医生 / 周四非遗脉诊 / 周五三大准则 / 周六随机养生 / 周日复盘）生成，<b>每天 3 个候选、主推第 1 条</b>。<b>每周日 18:30 自动依据实时热点重写下周排期</b>（覆盖本页，无需手动），平时点「刷新」即时更新热点。若未启用云端同步，则按节气/季节/星期本地推算。
       </div>
       <div id="weekly-topics" class="week-grid"></div>
       <div class="refresh-time" id="ai-time" style="margin-top:8px;"></div>
@@ -484,7 +631,7 @@
           <div>
             <div class="field"><label>内容方向 / 主题</label><input type="text" id="mt-direction" placeholder="例：三伏天小孩积食怎么调"></div>
             <div class="field"><label>出镜医生</label>
-              <select id="mt-doctor"><option value="常玦明">常玦明（整骨/脏腑推拿）</option><option value="王东超">王东超（脱发/脉诊）</option><option value="其他医生">其他医生（自填）</option><option value="无">无（图文/口播）</option></select></div>
+              <select id="mt-doctor"><option value="常玦明">常玦明（整骨/脏腑推拿）</option><option value="王东超">王东超（脱发/脉诊）</option><option value="曹琳">曹琳（颊针/病根秘穴埋线）</option><option value="刘瑞鑫">刘瑞鑫（心脑血管）</option><option value="樊麟">樊麟（不孕不育/六代世家）</option><option value="其他医生">其他医生（自填）</option><option value="无">无（图文/口播）</option></select></div>
             <div class="field"><label>拍摄内容</label><input type="text" id="mt-shoot" placeholder="例：医生讲解+空镜+患者反馈 / 图文无需拍摄"></div>
           </div>
           <div>
@@ -503,9 +650,40 @@
         <div class="chipgrp" id="chips-chang"></div>
         <div class="chipgrp" id="chips-wang"></div>
         <div class="chipgrp" id="chips-general"></div>
+        <div class="chipgrp" id="chips-cao"></div>
         <div class="field" style="margin-top:10px;"><label>选题灵感备忘（自动保存）</label>
           <textarea id="inspire-notes" style="min-height:120px;" placeholder="随时记下想到的点子、患者反馈、灵感…"></textarea></div>
       </div>
+    </section>
+
+    <!-- 页面：专家到诊专题 -->
+    <section class="page" id="page-expert">
+      <div class="section-title">专家到诊专题 <span class="tag">曹琳 · 刘瑞鑫 · 樊麟 · 到诊不固定，按日期倒推排宣传</span></div>
+      <div class="panel" style="margin-bottom:14px;font-size:13px;color:var(--muted);">
+        三位专家均<b>半个月左右来一次、日期不固定</b>，不占每周固定档期。在此录入到诊日期后，系统按
+        <b>到诊前 7 天（预热）→ 前 3 天（造势）→ 到诊当天（转化）→ 到诊后（回顾）</b>
+        自动给出各阶段选题与文案，配好相关数据后一键复制去发。
+      </div>
+
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="section-title" style="margin-top:0;">添加 / 更新到诊安排</div>
+        <div class="expert-add">
+          <div class="field"><label>专家</label>
+            <select id="ex-name">
+              <option value="曹琳">曹琳（中医美容颊针 / 病根秘穴埋线）</option>
+              <option value="刘瑞鑫">刘瑞鑫（北中医心脑血管专家）</option>
+              <option value="樊麟">樊麟（六代中医世家 / 不孕不育）</option>
+            </select></div>
+          <div class="field"><label>到诊日期</label><input type="date" id="ex-date"></div>
+          <div class="field"><label>备注（可选）</label><input type="text" id="ex-note" placeholder="例：上午半天 / 需提前预约"></div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="primary" onclick="saveExpert()">保存安排</button>
+          <button class="ghost" onclick="renderExpert()">刷新</button>
+        </div>
+      </div>
+
+      <div id="expert-list"></div>
     </section>
 
     <!-- 页面：同步设置 -->
@@ -618,7 +796,7 @@ function copyText(t){ if(!t) return; if(navigator.clipboard&&navigator.clipboard
 function fallbackCopy(t){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
 
 /* ---------- 导航 ---------- */
-const PAGE_TITLES = { daily:'每日计划', inspire:'待办事项', hot:'爆款热点', hainan:'海南中医热点', decompose:'爆款链接拆解', review:'内容复盘', ai:'AI推荐选题', mine:'我的选题', knowledge:'中医小知识', designs:'今日所需设计图', dailyimg:'每日自动任务', sync:'同步设置' };
+const PAGE_TITLES = { today:'今日作战台', ai:'AI推荐选题', mine:'我的选题', expert:'专家到诊专题', hot:'爆款热点', hainan:'海南中医热点', decompose:'爆款链接拆解', review:'内容复盘', knowledge:'中医小知识', designs:'今日所需设计图', gallery:'宣传图片库', inspire:'备忘录', daily:'每日计划', dailyimg:'每日自动任务', sync:'同步设置' };
 document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>{ switchPage(a.dataset.page); toggleSidebar(false); }));
 function toggleSidebar(open){ const sb=document.querySelector('.sidebar'); const ov=$('overlay'); const show=open===undefined?!sb.classList.contains('open'):open; sb.classList.toggle('open',show); ov.classList.toggle('show',show); }
 function switchPage(p){
@@ -637,13 +815,15 @@ function switchPage(p){
   if(p==='hot'){ renderHot(); renderViral(); fetchLiveHotspots(); fetchLiveViral(); fetchTopics(); }
   if(p==='hainan'){ renderHainan(); fetchLiveHainan(); }
   if(p==='decompose'){ renderDecompose(); }
+  if(p==='today'){ renderToday(); }
+  if(p==='expert'){ renderExpert(); }
 }
 
 /* ---------- 周排期 ---------- */
 function mondayOf(d){ const x=new Date(d); const day=x.getDay(); const diff=(day===0?-6:1-day); x.setDate(x.getDate()+diff); x.setHours(0,0,0,0); return x; }
 function weekDates(){ const mon=mondayOf(today); const arr=[]; for(let i=0;i<7;i++){ const d=new Date(mon); d.setDate(d.getDate()+i); arr.push(fmtDate(d)); } return arr; }
 function fridayPrinciple(){ const anchor=new Date(2026,6,27); const mon=mondayOf(today); const days=Math.round((mon-anchor)/86400000); const idx=((Math.floor(days/7))%3+3)%3; return ['环境好','医生多','服务好'][idx]; }
-const ROTATION={1:{direction:'常医生整骨',doctor:'常玦明',duration:'1–1.5h',needDoc:'是·周日约'},2:{direction:'王医生脱发',doctor:'王东超',duration:'1–1.5h',needDoc:'是·周一约'},3:{direction:'常医生脏腑推拿',doctor:'常玦明',duration:'1h',needDoc:'是·周二约'},4:{direction:'王医生非遗脉诊',doctor:'王东超',duration:'1h',needDoc:'是·周三约'},5:{direction:'三大准则·'+fridayPrinciple(),doctor:'无',duration:'无需',needDoc:'否'},6:{direction:'随机养生',doctor:'视情况',duration:'可图文',needDoc:'否'},0:{direction:'数据复盘+下周选题',doctor:'无',duration:'居家',needDoc:'否'}};
+const ROTATION={1:{direction:'常医生整骨',doctor:'常玦明',duration:'1–1.5h',needDoc:'是·周日约'},2:{direction:'王医生脱发',doctor:'王东超',duration:'1–1.5h',needDoc:'是·周一约'},3:{direction:'周三轮值医生日',doctor:'轮值医生',duration:'1h',needDoc:'是·周二约'},4:{direction:'王医生非遗脉诊',doctor:'王东超',duration:'1h',needDoc:'是·周三约'},5:{direction:'三大准则·'+fridayPrinciple(),doctor:'无',duration:'无需',needDoc:'否'},6:{direction:'随机养生',doctor:'视情况',duration:'可图文',needDoc:'否'},0:{direction:'数据复盘+下周选题',doctor:'无',duration:'居家',needDoc:'否'}};
 
 /* ---------- 节气 / 季节 / 实时热点引擎 ---------- */
 const SOLAR_TERMS_2026 = [
@@ -745,10 +925,10 @@ const WEEKLY_CANDIDATES = {
     {title:'产后脱发别慌，王医生非遗脉诊辨体质',hook:'生完娃大把掉发、发际线塌了？多是气血亏+激素波动。',outline:'王医生用非遗脉诊辨气血虚实，给产后养发方向。',kw:['产后脱发','王东超','脉诊','养发']},
     {title:'头顶稀疏救星？王医生脱发分型调理',hook:'头顶见头皮、扎不起马尾？脱发要分型对因。',outline:'王医生讲脱发分型（脂溢/血虚/肾虚），对应调理路径。',kw:['脱发调理','王东超','中医养发']}
   ],
-  3:[ // 周三 脏腑推拿
-    {title:'{term}一吃就胀？常医生脏腑推拿帮肠腑动起来',hook:'吃点东西就胀、上厕所不痛快？{term}湿热最伤脾胃。',outline:'常医生演示叠掌顺时针推腹，讲「六腑以通为用」。',kw:['脏腑推拿','常玦明','脾胃','中伏养生']},
-    {title:'宫寒痛经别硬扛，常医生一招温通下焦',hook:'每到来例假冷得发抖、疼到打滚？可能是下焦寒凝。',outline:'常医生掌根按揉关元、气海，教居家揉腹小动作。',kw:['宫寒','痛经','脏腑推拿','常玦明']},
-    {title:'熬夜后睡不醒像灌铅？常医生调气机醒神',hook:'熬夜后整个人像灌铅、白天睡不醒？可能是气机下陷。',outline:'常医生轻快揉腹升清手法，教办公族1分钟醒神。',kw:['神疲乏力','脏腑推拿','常玦明','办公族']}
+  3:[ // 周三 轮值医生日（郭怀奇/吴艳群/柳华圃，不推揉腹）
+    {title:'{term}老寒腰反复疼？郭怀奇医生推拿20年有招',hook:'腰疼贴膏药管一阵、停了又犯？多半是筋结没松开。',outline:'郭怀奇演示松解筋结手法，讲慢性痛症日常养护。',kw:['痛症','郭怀奇','推拿','腰肌劳损']},
+    {title:'吃一点就胀、大便不爽？吴艳群医生讲脾胃',hook:'吃点东西就顶、上厕所不痛快？是脾胃运化弱了。',outline:'吴艳群讲脾胃辨证思路，给温和调养方向。',kw:['脾胃','吴艳群','消化不良','运化']},
+    {title:'月经总不准、量少色暗？柳华圃医生调妇科',hook:'例假要么迟到、要么量少色暗？多是寒凝血瘀。',outline:'柳华圃讲女性周期调理，给暖养小建议。',kw:['妇科','柳华圃','月经不调','暖养']}
   ],
   4:[ // 周四 非遗脉诊
     {title:'中医怎么把脉？王医生非遗脉诊当场揭秘',hook:'老中医三根手指知全身？脉诊没那么玄，今天拆给你看。',outline:'王医生示教寸关尺定位，讲浮沉迟数对应什么。',kw:['脉诊','王东超','非遗','中医辨证']},
@@ -763,7 +943,7 @@ const WEEKLY_CANDIDATES = {
   6:[ // 周六 随机养生
     {title:'{term}{season}季养生：三豆饮+泡脚祛湿',hook:'{term}湿气最重，脸油、身沉、大便黏？一杯三豆饮安排上。',outline:'讲三豆饮配方+艾草泡脚+穴位按压清单。',kw:['祛湿','{season}季养生','三豆饮','食疗']},
     {title:'{season}季食疗方：平民食材养好底子',hook:'养生不靠贵，2块钱食材就能调体质，收藏这组搭配。',outline:'列3-4个当季食疗方（如紫苏/山药/薏米）。',kw:['食疗','{season}季','药食同源']},
-    {title:'每天5分钟，{season}季居家调理小动作',hook:'没空去医馆？每天5分钟居家动作，养气血防小毛病。',outline:'教八段锦片段/揉腹/穴位按压跟练。',kw:['居家调理','八段锦','{season}季']}
+    {title:'每天5分钟，{season}季居家调理小动作',hook:'没空去医馆？每天5分钟居家动作，养气血防小毛病。',outline:'教八段锦片段 / 穴位按压 / 呼吸吐纳跟练。',kw:['居家调理','八段锦','{season}季']}
   ],
   0:[]
 };
@@ -865,6 +1045,7 @@ function renameTask(id,name){ const arr=getKanban(); const t=arr.find(x=>x.id===
 const CHIPS = {
   chang:['腹胀','便秘腹泻','脾胃虚弱','宫寒痛经','长短腿','脊柱侧弯','骨盆倾斜','腰椎间盘突出','颈椎病','肩周炎','失眠多梦','神疲乏力'],
   wang:['脱发','斑秃','脂溢性脱发','产后脱发','少精弱精','前列腺炎','早泄','白癜风','顽固性失眠','慢性胃肠病','更年期综合征'],
+  cao:['颊针','病根秘穴埋线','中医美容','黄褐斑','面部年轻化','减肥塑形','痤疮','抗初老'],
   general:['三伏晒背','三伏贴穴位','中伏祛湿','冬病夏治','八段锦','艾灸','药食同源','节气养生','脾胃调养','气血调理']
 };
 function planKeyFor(dt){ return 'dxy_plan_'+dt; }
@@ -1008,6 +1189,7 @@ function renderInspireChips(){
   $('chips-chang').innerHTML='<h5>常玦明 · 整骨/脏腑推拿</h5>'+CHIPS.chang.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
   $('chips-wang').innerHTML='<h5>王东超 · 脱发/脉诊</h5>'+CHIPS.wang.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
   $('chips-general').innerHTML='<h5>通用养生</h5>'+CHIPS.general.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
+  $('chips-cao').innerHTML='<h5>曹琳 · 中医美容颊针/埋线</h5>'+CHIPS.cao.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
   const ta=$('inspire-notes'); if(!ta) return; ta.value = localStorage.getItem('dxy_inspire_'+dateStr)||'';
   if(!ta.dataset.bound){ ta.addEventListener('change',e=>localStorage.setItem('dxy_inspire_'+dateStr,e.target.value)); ta.dataset.bound='1'; }
 }
@@ -1515,7 +1697,6 @@ const PROMO_IMAGES = [
   {cat:'环境实拍', file:'环境/诊室1.jpg', cap:'诊室·理疗床与采光'},
   {cat:'环境实拍', file:'环境/诊室2.jpg', cap:'诊室·竹景与锦旗'},
   {cat:'医生宣传', file:'外面磁吸66×88常和王_画板 1.png', cap:'常+王 医生磁吸'},
-  {cat:'医生宣传', file:'凯文/1.png', cap:'凯文医生'},
   {cat:'医生宣传', file:'常/1.png', cap:'常医生'},
   {cat:'节气养生', file:'九种体质门口宣传/湿热体质1.png', cap:'湿热体质科普'},
   {cat:'节气养生', file:'九种体质门口宣传/阳虚体质1.png', cap:'阳虚体质科普'},
@@ -1571,6 +1752,166 @@ function renderDesignNeeds(){
   if($('design-target')) $('design-target').textContent = dn.target;
   $('design-list').innerHTML = dn.list.map(it=>`<div class="design-item"><div class="di-name"><span class="di-pri pri-${it.pri}">${it.pri}</span>${escapeHtml(it.name)}</div><div class="di-spec">📐 ${escapeHtml(it.spec)}</div><div class="di-why">💡 ${escapeHtml(it.why)}</div></div>`).join('');
 }
+/* ================= 今日作战台 ================= */
+function getShootFlag(dt){ return localStorage.getItem('dxy_shoot_'+dt)==='1'; }
+function setShootFlag(dt,v){ localStorage.setItem('dxy_shoot_'+dt, v?'1':'0'); scheduleSync(); }
+function getPublish(dt){ try{ return JSON.parse(localStorage.getItem('dxy_pub_'+dt))||{}; }catch(e){ return {}; } }
+function setPublish(dt,p){ localStorage.setItem('dxy_pub_'+dt, JSON.stringify(p)); scheduleSync(); }
+function togglePub(dt,p,v){ const o=getPublish(dt); o[p]=v; setPublish(dt,o); }
+function getTodosPending(){ return getTodos().filter(t=>!t.done); }
+function fillTpl(s){ if(!s) return ''; const st=getSolarTerm(today); return s.replace(/\{term\}/g,st.cur).replace(/\{season\}/g,getSeason(today)).replace(/\{principle\}/g,fridayPrinciple()); }
+
+function renderToday(){
+  const st=getSolarTerm(today);
+  const elDate=$('today-date'), elSub=$('today-sub'), elProg=$('today-progress');
+  if(elDate) elDate.textContent = dateStr+' '+getWeekday(today);
+  if(elSub) elSub.textContent = '🌡️ '+st.cur+' · 距'+st.next+' '+st.daysLeft+'天 · '+getSeason(today)+'季';
+  const wk = window.__WEEKLY__ || buildWeeklyTopics();
+  const day = wk.find(d=>d.isToday) || wk[0];
+  const wd = new Date(day.date+'T00:00:00').getDay();
+  const rot = ROTATION[wd] || {doctor:'无', direction:day.direction||'', duration:'-', needDoc:'否'};
+  const cand = (day.candidates&&day.candidates[0])||null;
+
+  if(day.isReview){
+    $('today-src').textContent='周日 · 复盘日';
+    $('tt-title').textContent='今日为复盘日，无拍摄任务';
+    $('tt-hook').textContent='整理本周数据、看周报、规划下周。点下方进入复盘页。';
+    $('tt-meta').innerHTML='<span class="tag">复盘日</span>';
+    $('tt-script').textContent='—';
+    $('today-shoot').innerHTML='<div class="empty-tip">无拍摄任务</div>';
+    $('today-publish').innerHTML='<div class="empty-tip">无发布任务</div>';
+    renderTodayTodo(); renderTodayAssets(day);
+    if(elProg) elProg.innerHTML='📊 复盘日';
+    return;
+  }
+  const title= cand? fillTpl(cand.title): day.direction;
+  const hook = cand? fillTpl(cand.hook):'';
+  const outline = cand? fillTpl(cand.outline):'';
+  const script = cand? fillTpl(cand.script|| (cand.title+'\n'+cand.hook+'\n'+cand.outline)) : fillTpl(day.direction);
+  $('today-src').textContent='来源：'+(window.__WEEKLY__?'AI 周排期':'本地推算');
+  $('tt-title').textContent=title;
+  $('tt-hook').textContent=hook;
+  $('tt-meta').innerHTML = `<span class="tag">${escapeHtml(day.direction)}</span> ${day.doctor&&day.doctor!=='无'&&day.doctor!=='视情况'?('<span class="tag">👨‍⚕️ '+escapeHtml(day.doctor)+'</span>'):'<span class="tag">无医生</span>'} <span class="tag">⏱ ${escapeHtml(day.duration||'-')}</span>`;
+  $('tt-script').textContent = script || (title+'\n'+hook+'\n'+outline);
+
+  const shot=getShootFlag(day.date);
+  const pub=getPublish(day.date);
+  const pubDone=PLATFORMS.filter(p=>pub[p]).length;
+  if(elProg) elProg.innerHTML = `拍摄 ${shot?'✅':'⬜'} ｜ 发布 ${pubDone}/3`;
+  renderTodayShoot(day, rot, shot);
+  renderTodayPublish(day, pub);
+  renderTodayTodo();
+  renderTodayAssets(day);
+}
+function renderTodayShoot(day,rot,shot){
+  const el=$('today-shoot'); if(!el) return;
+  const needDoc = day.doctor&&day.doctor!=='无'&&day.doctor!=='视情况';
+  const items=[];
+  if(needDoc){ items.push('预约医生：'+day.doctor+'（提前 1 天）'); items.push('医生到岗 + 白大褂 / 工牌'); }
+  items.push('场地：'+(needDoc?'诊室 / 推拿床':'拍摄角 / 自然光'));
+  items.push('道具：'+(day.needDoc&&day.needDoc!=='否'?'诊疗床 / 模型 / 穴位图':'手机支架 / 补光灯 / 提词'));
+  items.push('时长：'+(day.duration||'1h'));
+  items.push('钩子确认 + 口播走一遍');
+  el.innerHTML = `<label class="checkrow"><input type="checkbox" ${shot?'checked':''} onchange="setShootFlag('${day.date}',this.checked);renderToday();"> 完成拍摄</label>`+
+    items.map(t=>`<div class="shot-item">${escapeHtml(t)}</div>`).join('');
+}
+function renderTodayPublish(day,pub){
+  const el=$('today-publish'); if(!el) return;
+  el.innerHTML = PLATFORMS.map(p=>`<label class="checkrow"><input type="checkbox" ${pub[p]?'checked':''} onchange="togglePub('${day.date}','${p}',this.checked);renderToday();"> ${p} 已发布</label>`).join('');
+}
+function renderTodayTodo(){
+  const el=$('today-todo'); if(!el) return;
+  const pend=getTodosPending();
+  if(!pend.length){ el.innerHTML='<div class="empty-tip">暂无待办，去「备忘录」添加</div>'; return; }
+  el.innerHTML = pend.slice(0,8).map(t=>`<div class="todo-mini">· ${escapeHtml(t.text||t.name||'')}</div>`).join('');
+}
+function renderTodayAssets(day){
+  const el=$('today-assets'); if(!el) return;
+  const kw=(day.direction||'')+' '+(day.doctor||'')+' '+(day.isReview?'':'');
+  const rec = PROMO_IMAGES.filter(im=>{ const s=(im.cap||'')+(im.tag||''); return kw.split(/\s+/).some(k=> k && s.indexOf(k)>=0); }).slice(0,6);
+  if(!rec.length){ el.innerHTML='<div class="empty-tip">暂无匹配素材，去「宣传图片库」挑选</div>'; return; }
+  el.innerHTML = rec.map(im=>`<figure class="asset-fig"><img src="${encodeURI(im.file)}" alt="${escapeHtml(im.cap)}" loading="lazy" onerror="this.style.display='none';this.closest('figure').style.display='none';" onclick="if(this.src)window.open(this.src)"><figcaption>${escapeHtml(im.cap)}</figcaption></figure>`).join('');
+}
+function copyToday(which){
+  const wk = window.__WEEKLY__ || buildWeeklyTopics();
+  const day = wk.find(d=>d.isToday) || wk[0];
+  const cand = (day.candidates&&day.candidates[0])||null;
+  if(which==='title'){
+    copyText(fillTpl(cand?cand.title:day.direction)+'\n'+fillTpl(cand?cand.hook:''));
+    toast('已复制标题 + 钩子');
+  } else {
+    const script=cand?fillTpl(cand.script||(cand.title+'\n'+cand.hook+'\n'+cand.outline)):fillTpl(day.direction);
+    copyText(script); toast('已复制完整脚本');
+  }
+}
+
+/* ================= 专家到诊专题 ================= */
+const EXPERT_LIB = {
+  '曹琳': { tags:['中医美容颊针','病根秘穴埋线','面部年轻化','痤疮','黄褐斑','减肥塑形'],
+    hot:['中医美容','颊针','埋线减肥','面部针灸','黄褐斑调理','抗初老'],
+    topics:{ warm:['曹医生来前剧透：颊针为啥能“悄悄”提气色','埋线不是抽脂！曹医生讲清病根埋线原理','脸垮、斑多、肉松？可能是“筋”松了'],
+      hit:['明天曹医生坐诊！颊针 + 埋线现场体验','来了！曹琳医生中医美容专场','曹医生一句话点破你反复长斑的根因'],
+      review:['上周曹医生埋线反馈实录','颊针做完一个月，她的变化','曹医生走前叮嘱：埋线后这 3 件事别做'] },
+    copy:{ wx:'曹医生明天来德馨远！中医美容颊针 + 病根秘穴埋线，脸垮斑多肉松的姐妹冲，手法稳、恢复快，想变美的私我留位～',
+      dy:'很多人脸垮长斑疯狂外敷，曹医生说根在“筋”和“气”。颊针调筋膜、埋线补气血，不动刀也能提气色。明天她来德馨远坐诊，想了解的评论区扣 1。',
+      xhs:'面部松弛 / 黄褐斑 / 想温和塑形看过来✨ 曹琳医生 颊针 + 病根秘穴埋线，中医美容思路很绝。明天坐诊德馨远，附面诊预约方式，建议先囤功课。' } },
+  '刘瑞鑫': { tags:['心脑血管','高血压','冠心病','中风后遗症','失眠','头晕'],
+    hot:['心脑血管养护','高血压调理','失眠','头晕','秋冬护心','中风预防'],
+    topics:{ warm:['刘主任来前提醒：心脑血管最怕这 3 个习惯','血压忽高忽低？刘主任讲清调理思路','天一冷就头晕心慌？提前养血管'],
+      hit:['明天刘瑞鑫主任坐诊德馨远！心脑血管专场','北中医专家来了：一把脉知心脑状态','刘主任当面讲：吃药之外还能怎么调'],
+      review:['刘主任坐诊反馈：他说的这点很多人忽略','调理一个月，老周的头晕好多了','刘主任走前叮嘱：换季护心记住这几点'] },
+    copy:{ wx:'刘瑞鑫主任（北中医心脑血管专家）明天来德馨远坐诊！高血压、头晕、睡不踏实的朋友别错过，老专家把脉稳，想约的私我留号～',
+      dy:'血压药天天吃还是忽高忽低？刘瑞鑫主任说，心脑血管要“养”不是只“压”。明天他来德馨远坐诊，一把脉看清体质，想了解的评论区扣 1。',
+      xhs:'长辈血压不稳 / 常头晕 / 睡不踏实，建议看看✨ 刘瑞鑫主任 北中医心脑血管专家，明天坐诊德馨远。附预约方式，带父母面诊很合适。' } },
+  '樊麟': { tags:['不孕不育','月经不调','男科调理','脾胃','六代中医世家'],
+    hot:['中医助孕','月经不调调理','宫寒','脾胃虚寒','男科','备孕'],
+    topics:{ warm:['樊医生来前说：备孕别只查女方','月经不调拖久了有多麻烦？','六代世家的调理思路，到底特别在哪'],
+      hit:['明天樊麟医生坐诊德馨远！不孕 / 月经不调专场','六代中医世家，把脉很有一套','樊医生当面讲：宫寒怎么一点点暖回来'],
+      review:['樊医生坐诊反馈：她最强调的这点','调理两月，例假终于规律了','樊医生走前叮嘱：暖养别等冬天'] },
+    copy:{ wx:'樊麟医生（六代中医世家）明天来德馨远坐诊！月经不调、宫寒、备孕困难的朋友别错过，老辈传下来的方子很稳，想约的私我留号～',
+      dy:'月经不调、宫寒一直调不好？樊麟医生出身六代中医世家，讲病机特别透。明天他来德馨远坐诊，想了解调理思路的评论区扣 1。',
+      xhs:'姨妈不准 / 宫寒 / 备孕焦虑看过来✨ 樊麟医生 六代中医世家，明天坐诊德馨远。附预约方式，建议夫妻一起来面诊。' } }
+};
+function getExperts(){ try{ return JSON.parse(localStorage.getItem('dxy_experts'))||[]; }catch(e){ return []; } }
+function saveExperts(a){ localStorage.setItem('dxy_experts', JSON.stringify(a)); scheduleSync(); }
+function saveExpert(){
+  const name=$('ex-name').value, date=$('ex-date').value, note=$('ex-note').value;
+  if(!date){ toast('请填写到诊日期'); return; }
+  const arr=getExperts(); const ex=arr.find(x=>x.name===name);
+  if(ex){ ex.date=date; ex.note=note; } else arr.push({name,date,note,createdAt:Date.now()});
+  saveExperts(arr); toast('已保存 '+name+' 到诊安排'); renderExpert();
+}
+function delExpert(name){ const arr=getExperts().filter(x=>x.name!==name); saveExperts(arr); renderExpert(); }
+function renderExpert(){
+  const el=$('expert-list'); if(!el) return;
+  let arr=getExperts();
+  if(!arr.length){ el.innerHTML='<div class="empty-tip">还没有录入专家到诊安排。上方选专家 + 填到诊日期，系统会自动排宣传节奏（预热 → 造势 → 到诊 → 回顾）。</div>'; return; }
+  const todayT=new Date(dateStr+'T00:00:00').getTime();
+  arr = arr.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  el.innerHTML = arr.map(ex=>{
+    const d=new Date(ex.date+'T00:00:00'); const days=Math.round((d-todayT)/86400000);
+    const lib=EXPERT_LIB[ex.name]||{tags:[],hot:[],topics:{warm:[],hit:[],review:[]},copy:{}};
+    let phase, phTitle;
+    if(days>3){ phase='warm'; phTitle='预热期（到诊前 '+days+' 天）'; }
+    else if(days>0){ phase='hit'; phTitle='造势期（倒计时 '+days+' 天）'; }
+    else if(days===0){ phase='hit'; phTitle='🔥 到诊当天（转化）'; }
+    else { phase='review'; phTitle='回顾期（已到诊 '+Math.abs(days)+' 天）'; }
+    const tops=lib.topics[phase]||[];
+    const copy=lib.copy||{};
+    return `<div class="expert-card">
+      <div class="ec-head"><b>${escapeHtml(ex.name)}</b> <span class="tag">${escapeHtml(phTitle)}</span> ${ex.note?('<span class="lb-tip">'+escapeHtml(ex.note)+'</span>'):''} <button class="ghost sm" onclick="delExpert('${escapeHtml(ex.name)}')">删除</button></div>
+      <div class="ec-tags">${lib.tags.map(t=>`<span class="chip">${escapeHtml(t)}</span>`).join('')}</div>
+      <div class="ec-sec"><b>📈 热点数据（参考方向）</b> ${lib.hot.map(h=>'<span class="kw">'+escapeHtml(h)+'</span>').join('')}</div>
+      <div class="ec-sec"><b>🎯 本阶段选题（3 选 1）</b><ol>${tops.map(t=>`<li>${escapeHtml(t)}</li>`).join('')}</ol></div>
+      <div class="ec-copy">
+        <div class="ec-ctab"><b>朋友圈<button class="ghost sm" onclick="copyText(this.parentElement.querySelector('.ec-ctext').innerText)">复制</button></b><div class="ec-ctext">${escapeHtml(copy.wx||'')}</div></div>
+        <div class="ec-ctab"><b>抖音（合规）<button class="ghost sm" onclick="copyText(this.parentElement.querySelector('.ec-ctext').innerText)">复制</button></b><div class="ec-ctext">${escapeHtml(copy.dy||'')}</div></div>
+        <div class="ec-ctab"><b>小红书（合规）<button class="ghost sm" onclick="copyText(this.parentElement.querySelector('.ec-ctext').innerText)">复制</button></b><div class="ec-ctext">${escapeHtml(copy.xhs||'')}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderRightbar(){ renderTodayBrief(); }
 function renderTodayBrief(){
   const wk = window.__WEEKLY__ || buildWeeklyTopics();
@@ -2058,18 +2399,7 @@ document.addEventListener('DOMContentLoaded', function(){
   });
   fetchAITopics().then(()=>renderWeeklyTopics());
   bindSyncUI();
-  if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){
-    navigator.serviceWorker.register('sw.js').then(reg=>{
-      reg.addEventListener('updatefound',()=>{
-        const w=reg.installing;
-        w.addEventListener('statechange',()=>{
-          if(w.state==='installed' && navigator.serviceWorker.controller){
-            toast('检测到工作台新版本，刷新页面即可生效');
-          }
-        });
-      });
-    }).catch(()=>{});
-  }
+  // Pages 版不注册 Service Worker，避免缓存导致改版后看不到新内容；每次打开均拉取最新 HTML。
 });
 </script>
 </body>
