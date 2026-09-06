@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>德馨遠 · 药材存储管理工作台</title>
+<style>
+  :root{
+    --brown:#3b2a1e; --brown2:#4a3526; --brown3:#6b4f3a;
+    --vermilion:#b5322f; --vermilion2:#c0392b;
+    --cream:#f5efe6; --cream2:#efe6d8; --line:#d8cbb6;
+    --green:#2e7d4f; --amber:#c9871f; --grey:#8a7a66;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--cream);color:var(--brown);font-size:14px;line-height:1.5;}
+  header{background:linear-gradient(135deg,var(--brown),var(--brown2));
+    color:var(--cream);padding:14px 16px;display:flex;align-items:center;gap:12px;
+    position:sticky;top:0;z-index:30;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+  .seal{width:42px;height:42px;background:var(--vermilion);border-radius:6px;
+    display:flex;align-items:center;justify-content:center;font-weight:700;
+    color:#fff;font-size:13px;line-height:1.05;text-align:center;flex:0 0 auto;
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);}
+  .ht{display:flex;flex-direction:column;}
+  .ht b{font-size:16px;letter-spacing:1px;}
+  .ht span{font-size:11px;opacity:.75;}
+  .toolbar{position:sticky;top:70px;z-index:25;background:var(--cream);
+    padding:8px 10px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .toolbar input[type=search]{flex:1;min-width:140px;padding:9px 12px;border:1px solid var(--line);
+    border-radius:20px;background:#fff;font-size:14px;outline:none;}
+  .toolbar input[type=search]:focus{border-color:var(--vermilion);}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:8px;padding:9px 12px;font-size:13px;
+    background:var(--brown3);color:#fff;transition:.15s;white-space:nowrap;}
+  button:active{transform:scale(.96);}
+  button.primary{background:var(--vermilion);}
+  button.ghost{background:#fff;color:var(--brown);border:1px solid var(--line);}
+  button.tiny{padding:5px 9px;font-size:12px;border-radius:6px;}
+  .left-out{background:var(--vermilion);box-shadow:0 2px 6px rgba(181,50,47,.4);font-weight:600;}
+  .summary{display:flex;gap:8px;padding:10px;flex-wrap:wrap;font-size:12px;}
+  .chip{background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px 10px;color:var(--brown3);}
+  .chip b{color:var(--vermilion);}
+  .wrap{overflow-x:auto;padding:0 8px 30px;}
+  table{border-collapse:collapse;width:100%;min-width:900px;background:#fff;border-radius:8px;overflow:hidden;
+    box-shadow:0 1px 4px rgba(0,0,0,.06);}
+  th,td{border-bottom:1px solid var(--cream2);padding:8px 7px;text-align:left;font-size:12.5px;vertical-align:middle;}
+  th{background:var(--brown2);color:var(--cream);font-weight:600;white-space:nowrap;}
+  tr:hover td{background:#faf6ee;}
+  td .nm{font-weight:600;color:var(--brown);}
+  .tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;margin:1px 2px;}
+  .t-common{background:#fbe9e7;color:var(--vermilion);}
+  .t-rare{background:#eee5d6;color:var(--grey);}
+  .s-normal{background:#e8f3ea;color:var(--green);}
+  .s-near{background:#fdeccd;color:var(--amber);}
+  .s-reorder{background:#fbd9d7;color:var(--vermilion2);}
+  .s-wait{background:#eceff3;color:#41556e;}
+  .s-scrap{background:#e7e0d6;color:#6b5b45;}
+  .muted{color:var(--grey);}
+  mark{background:#ffe9a8;color:var(--brown);padding:0 1px;border-radius:2px;}
+  .mask{position:fixed;inset:0;background:rgba(40,28,18,.55);z-index:50;display:none;
+    align-items:flex-start;justify-content:center;padding:18px 10px;overflow:auto;}
+  .mask.show{display:flex;}
+  .modal{background:var(--cream);border-radius:14px;width:100%;max-width:480px;padding:16px;
+    box-shadow:0 10px 40px rgba(0,0,0,.35);margin-top:14px;}
+  .modal h3{margin:0 0 12px;font-size:16px;color:var(--brown);display:flex;align-items:center;gap:8px;}
+  .modal h3 .x{margin-left:auto;font-size:20px;color:var(--grey);cursor:pointer;line-height:1;}
+  .field{margin-bottom:10px;}
+  .field label{display:block;font-size:12px;color:var(--brown3);margin-bottom:4px;}
+  .field input,.field select,.field textarea{width:100%;padding:9px 10px;border:1px solid var(--line);
+    border-radius:8px;font-size:14px;background:#fff;font-family:inherit;}
+  .field textarea{min-height:96px;resize:vertical;}
+  .row2{display:flex;gap:8px;}
+  .row2>*{flex:1;}
+  .hint{font-size:11px;color:var(--grey);margin-top:3px;}
+  .alloc{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:10px;font-size:12.5px;}
+  .alloc div{padding:3px 0;border-bottom:1px dashed var(--cream2);}
+  .alloc .short{color:var(--vermilion);font-weight:600;}
+  .seg{display:flex;gap:6px;}
+  .seg button{flex:1;background:#fff;color:var(--brown3);border:1px solid var(--line);}
+  .seg button.on{background:var(--vermilion);color:#fff;border-color:var(--vermilion);}
+  .tea-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;}
+  .tea-row input{flex:1;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:14px;}
+  .tea-row .del{background:#fff;color:var(--vermilion);border:1px solid var(--line);flex:0 0 34px;}
+  .recipe{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:13px;}
+  .recipe b{color:var(--brown);}
+  .recipe .acts{margin-top:6px;display:flex;gap:6px;}
+  .logtbl{width:100%;border-collapse:collapse;font-size:12px;}
+  .logtbl th,.logtbl td{border-bottom:1px solid var(--cream2);padding:6px 5px;text-align:left;vertical-align:top;}
+  .logtbl th{background:var(--brown2);color:var(--cream);position:sticky;top:0;font-weight:600;}
+  .lt-out{color:var(--vermilion);} .lt-in{color:var(--green);} .lt-tea{color:var(--amber);}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--brown);
+    color:#fff;padding:10px 18px;border-radius:22px;font-size:13px;z-index:80;opacity:0;transition:.25s;pointer-events:none;}
+  .toast.show{opacity:1;}
+  .foot{padding:14px 12px 40px;font-size:11px;color:var(--grey);text-align:center;line-height:1.7;}
+  .syncbar{display:flex;gap:6px;justify-content:center;margin-top:6px;flex-wrap:wrap;}
+</style>
+</head>
+<body>
+<header>
+  <div class="seal">德馨<br>遠</div>
+  <div class="ht"><b>药材存储管理工作台</b><span>批次管理 · 出库入库 · 临期补货提醒</span></div>
+</header>
+
+<div class="toolbar">
+  <button class="left-out" id="btnOut">⬇ 出库</button>
+  <input type="search" id="search" placeholder="搜索药材名称，自动跳转…" autocomplete="off">
+  <button class="ghost" id="btnTea">茶包出库</button>
+  <button class="ghost" id="btnBorrow">药房借</button>
+  <button class="ghost" id="btnBuy">采购</button>
+  <button class="ghost" id="btnStock">盘点</button>
+  <button class="ghost" id="btnCfg">配置</button>
+  <button class="ghost" id="btnIn">入库</button>
+  <button class="ghost" id="btnAdd">批量录入</button>
+  <button class="ghost" id="btnRecipe">配方</button>
+  <button class="ghost" id="btnLog">流水</button>
+  <button class="ghost" id="btnMd">复制MD</button>
+  <button class="ghost" id="btnSave">💾 保存</button>
+  <button class="ghost" id="btnPull">📂 拉取</button>
+  <button class="ghost" id="btnSet">设置</button>
+  <button class="ghost" id="btnCloud">☁ 云端</button>
+  <input type="file" id="fileImp" accept="application/json" hidden>
+</div>
+
+<div class="summary" id="summary"></div>
+<div class="wrap"><table id="tbl">
+  <thead><tr>
+    <th>药材名称</th><th>批次</th><th>供应商批号</th><th>形态</th><th>袋/包</th><th>现有库存</th>
+    <th>生产日期</th><th>到期日期</th><th>频率</th><th>状态备注</th><th>操作</th>
+  </tr></thead>
+  <tbody id="tbody"></tbody>
+</table></div>
+
+<div class="foot">数据自动同步到云端 Dxy-Sync（打开自动拉取，编辑后「☁ 云端 → 保存到云端」推送）；本机也支持「💾 保存」下载 JSON 备份。<br>
+同药材不同批次/形态独立成行；常用按效期升序、不常用按到期时间排（无日期置顶）。</div>
+
+<!-- 出库（单出其他药材） -->
+<div class="mask" id="mOut"><div class="modal">
+  <h3>⬇ 出库（单出其他药材，自动扣减）<span class="x" data-close>×</span></h3>
+  <div class="field"><label>选择药材</label><select id="outName"></select></div>
+  <div class="field"><label>选择批次</label><select id="outBatch"></select></div>
+  <div class="field"><label>出库数量（单位随批次）</label>
+    <div class="row2"><input type="number" id="outQty" min="0" step="0.1" placeholder="0">
+    <button class="ghost" id="outFill">填满该批</button></div>
+    <div class="hint" id="outHint"></div></div>
+  <div id="outWarn" class="hint" style="color:var(--vermilion);display:none;margin-bottom:8px"></div>
+  <div class="row2" style="margin-bottom:8px">
+    <div class="field" style="flex:1;margin:0"><label>出库去向</label>
+      <select id="outDest">
+        <option value="客户">客户</option>
+        <option value="药房">药房</option>
+        <option value="自用">自用</option>
+        <option value="其他">其他</option>
+      </select></div>
+    <div class="field" style="flex:1.6;margin:0"><label>备注（可选）</label><input id="outNote" placeholder="如：给药房/王医生"></div>
+  </div>
+  <button class="primary" id="outSubmit" style="width:100%">确认出库</button>
+</div></div>
+
+<!-- 入库 -->
+<div class="mask" id="mIn"><div class="modal">
+  <h3>⬆ 入库（新批次，自动编号）<span class="x" data-close>×</span></h3>
+  <div class="field"><label>药材名称</label><input id="inName" placeholder="如：黄芪"></div>
+  <div class="field"><label>物料形态</label>
+    <div class="seg" id="inForm">
+      <button type="button" data-v="整装" class="on">整装（袋装）</button>
+      <button type="button" data-v="散装">散装</button></div></div>
+  <div class="row2">
+    <div class="field"><label>包装袋数（整装填）</label><input id="inBags" type="number" min="1" placeholder="如 3"></div>
+    <div class="field"><label>库存数量</label><input id="inQty" type="number" min="0" step="0.1" placeholder="如 1500"></div>
+  </div>
+  <div class="row2">
+    <div class="field"><label>单位</label>
+      <select id="inUnit"><option>克</option><option>斤</option><option>袋</option><option>包</option></select></div>
+    <div class="field"><label>使用频率</label>
+      <select id="inFreq"><option>常用</option><option>不常用</option></select></div>
+  </div>
+  <div class="row2">
+    <div class="field"><label>生产日期</label><input id="inProd" placeholder="2026-08-01"></div>
+    <div class="field"><label>到期日期</label><input id="inExp" placeholder="2029-08-01"></div>
+  </div>
+  <div class="field"><label>供应商批号（外部编码，可选）</label><input id="inSup" placeholder="如：GYS20260801-A"></div>
+  <div class="field"><label>状态备注（可选）</label>
+    <select id="inStatus"><option value="">正常库存</option><option>待入库</option><option>待报废</option><option>需要补货</option><option>临近过期</option></select></div>
+  <div class="field"><label>操作人/备注（可选）</label><input id="inNote" placeholder="如：进货一整包"></div>
+  <button class="primary" id="inSubmit" style="width:100%">确认入库</button>
+</div></div>
+
+<!-- 茶包出库 -->
+<div class="mask" id="mTea"><div class="modal">
+  <h3>🍵 茶包出库（优先用散装）<span class="x" data-close>×</span></h3>
+  <div class="hint" style="margin-bottom:8px">逐行填药材与每包需求量（克）。做多包时点「份数」自动按倍数扣料；提交后先扣散装、不足再扣整装，跨批次补足。</div>
+  <div id="teaList"></div>
+  <button class="ghost" id="teaAdd" style="width:100%;margin:4px 0 8px">＋ 再加一行</button>
+  <div class="row2" style="align-items:flex-end">
+    <div class="field" style="flex:1;margin:0"><label>份数（包/次，自动按倍数扣料）</label><input id="teaPacks" type="number" min="1" step="1" value="1" style="width:100%"></div>
+    <button class="ghost" id="teaPreview" type="button">预览总计</button>
+  </div>
+  <div id="teaPreviewBox" class="alloc" style="display:none;margin-bottom:8px"></div>
+  <div class="row2" style="margin-bottom:8px">
+    <div class="field" style="flex:1;margin:0"><label>出库去向</label>
+      <select id="teaDest">
+        <option value="客户茶包">客户茶包</option>
+        <option value="药房">药房</option>
+        <option value="自用">自用</option>
+        <option value="其他">其他</option>
+      </select>
+    </div>
+    <div class="field" style="flex:1.6;margin:0"><label>备注（可选）</label><input id="teaNote" placeholder="如：张姐订、3号柜台" style="width:100%"></div>
+  </div>
+  <div class="row2">
+    <button class="ghost" id="teaSaveTpl">💾 存为配方</button>
+    <button class="ghost" id="teaLoadTpl">📋 载入配方</button>
+  </div>
+  <button class="primary" id="teaSubmit" style="width:100%;margin-top:8px">计算并出库</button>
+  <div id="teaResult"></div>
+</div></div>
+
+<!-- 配方 -->
+<div class="mask" id="mRecipe"><div class="modal">
+  <h3>📋 茶包配方模板<span class="x" data-close>×</span></h3>
+  <div class="hint" style="margin-bottom:8px">在「茶包出库」里填好每行后点「存为配方」即可保存；此处可载入或删除。</div>
+  <div id="recipeList"></div>
+  <div class="hint" style="margin-top:8px">勾选多个配方可一起合并出库；也可点单条「单独载入」。</div>
+  <div class="row2" style="margin-top:10px">
+    <label class="muted" style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="rcAll"> 全选</label>
+    <button class="primary" id="recipeMerge">☑ 合并载入勾选配方</button>
+  </div>
+</div></div>
+
+<!-- 批量录入 -->
+<div class="mask" id="mAdd"><div class="modal">
+  <h3>📥 批量录入<span class="x" data-close>×</span></h3>
+  <div class="field"><label>每行一条，格式如：</label>
+    <textarea id="addText" placeholder="柏子仁，整装，3袋，共1500g，生产日期2025-10-01，到期2027-10-01，常用
+黄芪，散装，166克，2026.2.26(两年)，常用"></textarea>
+    <div class="hint">支持「无日期」「保质期N年/月」「整装/散装」。可加「批号:XXX」给供应商批号。多行一次录入，自动按名称+批次拆分。</div></div>
+  <button class="primary" id="addSubmit" style="width:100%">解析并录入</button>
+</div></div>
+
+<!-- 编辑 -->
+<div class="mask" id="mEdit"><div class="modal">
+  <h3>✏ 编辑记录<span class="x" data-close>×</span></h3>
+  <input id="edId" hidden>
+  <div class="field"><label>药材名称</label><input id="edName"></div>
+  <div class="field"><label>批次编号</label><input id="edBatch" readonly class="muted"></div>
+  <div class="field"><label>供应商批号</label><input id="edSup" placeholder="外部编码"></div>
+  <div class="field"><label>物料形态</label>
+    <div class="seg" id="edForm">
+      <button type="button" data-v="整装">整装</button>
+      <button type="button" data-v="散装">散装</button></div></div>
+  <div class="row2">
+    <div class="field"><label>包装袋数</label><input id="edBags" placeholder="整装填，散装留空"></div>
+    <div class="field"><label>库存数量</label><input id="edQty" type="number" step="0.1"></div>
+  </div>
+  <div class="row2">
+    <div class="field"><label>单位</label><select id="edUnit"><option>克</option><option>斤</option><option>袋</option><option>包</option></select></div>
+    <div class="field"><label>使用频率</label><select id="edFreq"><option>常用</option><option>不常用</option></select></div>
+  </div>
+  <div class="row2">
+    <div class="field"><label>生产日期</label><input id="edProd"></div>
+    <div class="field"><label>到期日期</label><input id="edExp"></div>
+  </div>
+  <div class="field"><label>状态备注</label>
+    <select id="edStatus"><option value="">正常库存</option><option>待入库</option><option>待报废</option><option>需要补货</option><option>临近过期</option></select></div>
+  <button class="primary" id="edSubmit" style="width:100%">保存修改</button>
+</div></div>
+
+<!-- 流水 -->
+<div class="mask" id="mLog"><div class="modal" style="max-width:520px">
+  <h3>📜 出入库流水<span class="x" data-close>×</span></h3>
+  <div class="hint" style="margin-bottom:8px">记录每次出库/入库/茶包出库（最近 500 条，随「💾 保存」一并导出）。</div>
+  <div style="max-height:60vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff">
+    <table class="logtbl"><thead><tr><th>时间</th><th>类型</th><th>明细</th></tr></thead>
+    <tbody id="logBody"></tbody></table>
+  </div>
+  <button class="ghost" id="logClear" style="width:100%;margin-top:8px">清空流水</button>
+</div></div>
+
+<!-- 设置 -->
+<div class="mask" id="mSet"><div class="modal">
+  <h3>⚙ 提醒设置<span class="x" data-close>×</span></h3>
+  <div class="field"><label>临近过期阈值（天）</label><input id="setNear" type="number" min="1"></div>
+  <div class="field"><label>补货阈值（克，低于即提醒）</label><input id="setRe" type="number" min="1"></div>
+  <button class="primary" id="setSubmit" style="width:100%">保存设置</button>
+  <div class="hint" style="margin-top:10px">本机「💾 保存」可下载 JSON 备份；「☁ 云端」走 Dxy-Sync 自动同步（推荐）。</div>
+</div></div>
+
+<!-- 云端同步 -->
+<div class="mask" id="mCloud"><div class="modal">
+  <h3>☁ 云端同步（Dxy-Sync）<span class="x" data-close>×</span></h3>
+  <div class="field"><label>GitHub Token（仅存本机浏览器，不上传）</label><input id="syncToken" type="password" placeholder="ghp_..."></div>
+  <div class="field"><label>仓库</label><input id="syncRepo" placeholder="Corrupt-77/Dxy-Sync"></div>
+  <div class="row2">
+    <div class="field"><label>分支</label><input id="syncBranch" placeholder="main"></div>
+    <div class="field"><label>文件名</label><input id="syncFile" placeholder="herb_inventory.json"></div>
+  </div>
+  <div class="row2" style="margin-top:6px">
+    <button class="ghost" id="syncSaveCfg">保存配置</button>
+    <button class="ghost" id="syncTest">测试连接</button>
+  </div>
+  <div class="row2" style="margin-top:8px">
+    <button class="primary" id="syncPush">⬆ 保存到云端</button>
+    <button class="ghost" id="syncPull">⬇ 从云端拉取</button>
+  </div>
+  <div class="hint" style="margin-top:10px">已配置 Token 时，打开页面自动从云端拉取最新；编辑后点「⬆ 保存到云端」推送。Token 与内容工作台同一把。</div>
+</div></div>
+
+<!-- 药房借看板 -->
+<div class="mask" id="mBorrow"><div class="modal">
+  <h3>🏦 药房借看板（欠款核销）<span class="x" data-close>×</span></h3>
+  <div class="hint" style="margin-bottom:8px">负库存 = 从药房借入的克重。下方按药材汇总「累计借入 / 已还 / 当前欠款」；点「回补冲抵」入库可自动冲抵欠款。</div>
+  <div id="borrowList"></div>
+</div></div>
+
+<!-- 采购清单 -->
+<div class="mask" id="mBuy"><div class="modal">
+  <h3>🛒 采购清单（消耗累计·自动补货）<span class="x" data-close>×</span></h3>
+  <div class="hint" style="margin-bottom:8px">按出库流水累计各药材消耗，低于补货阈值的自动列入采购。</div>
+  <div id="buyList"></div>
+  <button class="ghost" id="buyCopy" style="width:100%;margin-top:8px">复制采购清单</button>
+</div></div>
+
+<!-- 盘点 -->
+<div class="mask" id="mStock"><div class="modal">
+  <h3>📋 盘点（盘盈/盘亏）<span class="x" data-close>×</span></h3>
+  <div class="field"><label>每行：药材名称 实际库存（如「黄芪 1200克」或「黄芪 1200」）</label>
+    <textarea id="stockText" placeholder="黄芪 1200克&#10;葛根 50克"></textarea>
+    <div class="hint">系统按现有库存 diff，自动生成盘盈(+)/盘亏(-)调整记录，计入同步流水。</div></div>
+  <div id="stockResult"></div>
+  <button class="primary" id="stockSubmit" style="width:100%;margin-top:8px">计算并生成调整</button>
+</div></div>
+
+<!-- 配置 -->
+<div class="mask" id="mCfg"><div class="modal">
+  <h3>⚙ 别名 / 按个换算配置<span class="x" data-close>×</span></h3>
+  <div class="field"><label>别名映射（配方名→库存名，每行「别名=标准名」）</label>
+    <textarea id="cfgAlias" placeholder="红枣=灰枣&#10;枸杞=枸杞子"></textarea></div>
+  <div class="field"><label>按个计量药材（每行「药材名=每克数」）</label>
+    <textarea id="cfgPiece" placeholder="罗汉果=18"></textarea>
+    <div class="hint">出库按克计算时自动换算并展示个数（如 1 个≈18克）。保存后随云端同步。</div></div>
+  <button class="primary" id="cfgSubmit" style="width:100%">保存配置</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/*SEED_START*/
+const SEED = {"config": {"near_expiry_days": 60, "reorder_threshold": {"克": 100}, "reorder_g": 100}, "records": [{"药材名称": "黄精", "物料形态": "散装", "现有库存数量": "2051.3克", "包装袋数": "—", "生产日期": "2024-07-18", "到期日期": "2027-07-18", "使用频率标签": "不常用", "manual_status": null, "批次编号": "黄精-01", "供应商批号": ""}, {"药材名称": "马蹄", "物料形态": "整装", "现有库存数量": "820克", "包装袋数": 1, "生产日期": "2026-02-24", "到期日期": "2027-02-24", "使用频率标签": "不常用", "manual_status": null, "批次编号": "马蹄-01", "供应商批号": ""}, {"药材名称": "豆蔻", "物料形态": "散装", "现有库存数量": "2286克", "包装袋数": "—", "生产日期": "2025-03-01", "到期日期": "2027-03-01", "使用频率标签": "不常用", "manual_status": null, "批次编号": "豆蔻-01", "供应商批号": ""}, {"药材名称": "干姜", "物料形态": "散装", "现有库存数量": "400克", "包装袋数": "—", "生产日期": "2025-11-02", "到期日期": "2027-11-02", "使用频率标签": "常用", "manual_status": null, "批次编号": "干姜-01", "供应商批号": ""}, {"药材名称": "干姜", "物料形态": "散装", "现有库存数量": "567克", "包装袋数": "—", "生产日期": "2025-05-16", "到期日期": "2027-05-16", "使用频率标签": "常用", "manual_status": null, "批次编号": "干姜-02", "供应商批号": ""}, {"药材名称": "薏苡仁", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 2, "生产日期": "2025-11-11", "到期日期": "2028-11-11", "使用频率标签": "不常用", "manual_status": "待报废", "批次编号": "薏苡仁-01", "供应商批号": ""}, {"药材名称": "薏苡仁", "物料形态": "散装", "现有库存数量": "350克", "包装袋数": "—", "生产日期": "2025-11-11", "到期日期": "2028-11-11", "使用频率标签": "不常用", "manual_status": null, "批次编号": "薏苡仁-02", "供应商批号": ""}, {"药材名称": "花生衣", "物料形态": "散装", "现有库存数量": "900克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "不常用", "manual_status": null, "批次编号": "花生衣-01", "供应商批号": ""}, {"药材名称": "赤小豆", "物料形态": "散装", "现有库存数量": "1070克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "常用", "manual_status": null, "批次编号": "赤小豆-01", "供应商批号": ""}, {"药材名称": "酸枣仁", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 1, "生产日期": "2025-11-06", "到期日期": "2027-11-06", "使用频率标签": "常用", "manual_status": "待报废", "批次编号": "酸枣仁-01", "供应商批号": ""}, {"药材名称": "酸枣仁", "物料形态": "散装", "现有库存数量": "135克", "包装袋数": "—", "生产日期": "2025-11-06", "到期日期": "2027-11-06", "使用频率标签": "常用", "manual_status": null, "批次编号": "酸枣仁-02", "供应商批号": ""}, {"药材名称": "玳玳花", "物料形态": "散装", "现有库存数量": "1894克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "不常用", "manual_status": null, "批次编号": "玳玳花-01", "供应商批号": ""}, {"药材名称": "淡竹叶", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 2, "生产日期": "2025-05-05", "到期日期": "2028-05-05", "使用频率标签": "不常用", "manual_status": "待报废", "批次编号": "淡竹叶-01", "供应商批号": ""}, {"药材名称": "淡竹叶", "物料形态": "散装", "现有库存数量": "470克", "包装袋数": "—", "生产日期": "2025-05-05", "到期日期": "2028-05-05", "使用频率标签": "不常用", "manual_status": null, "批次编号": "淡竹叶-02", "供应商批号": ""}, {"药材名称": "桔梗", "物料形态": "散装", "现有库存数量": "1107.6克", "包装袋数": "—", "生产日期": "2025-04-24", "到期日期": "2028-04-24", "使用频率标签": "常用", "manual_status": null, "批次编号": "桔梗-01", "供应商批号": ""}, {"药材名称": "玉竹", "物料形态": "整装", "现有库存数量": "1000克", "包装袋数": 2, "生产日期": "2025-05-31", "到期日期": "2028-05-31", "使用频率标签": "常用", "manual_status": null, "批次编号": "玉竹-01", "供应商批号": ""}, {"药材名称": "玉竹", "物料形态": "散装", "现有库存数量": "235克", "包装袋数": "—", "生产日期": "2025-05-31", "到期日期": "2028-05-31", "使用频率标签": "常用", "manual_status": null, "批次编号": "玉竹-02", "供应商批号": ""}, {"药材名称": "海底椰", "物料形态": "散装", "现有库存数量": "450克", "包装袋数": "—", "生产日期": "2026-02-01", "到期日期": "2027-02-01", "使用频率标签": "不常用", "manual_status": null, "批次编号": "海底椰-01", "供应商批号": ""}, {"药材名称": "山楂", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 2, "生产日期": "2025-07-01", "到期日期": "2028-07-01", "使用频率标签": "常用", "manual_status": "待报废", "批次编号": "山楂-01", "供应商批号": ""}, {"药材名称": "乌梅", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 1, "生产日期": "2024-07-02", "到期日期": "2027-07-02", "使用频率标签": "常用", "manual_status": "待报废", "批次编号": "乌梅-01", "供应商批号": ""}, {"药材名称": "乌梅", "物料形态": "散装", "现有库存数量": "110克", "包装袋数": "—", "生产日期": "2024-07-02", "到期日期": "2027-07-02", "使用频率标签": "常用", "manual_status": null, "批次编号": "乌梅-02", "供应商批号": ""}, {"药材名称": "鸡内金", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 1, "生产日期": "2025-06-01", "到期日期": "2028-06-01", "使用频率标签": "不常用", "manual_status": "待报废", "批次编号": "鸡内金-01", "供应商批号": ""}, {"药材名称": "鸡内金", "物料形态": "散装", "现有库存数量": "900克", "包装袋数": "—", "生产日期": "2025-06-01", "到期日期": "2028-06-01", "使用频率标签": "不常用", "manual_status": null, "批次编号": "鸡内金-02", "供应商批号": ""}, {"药材名称": "甘草", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 1, "生产日期": "2024-05-12", "到期日期": "2027-05-12", "使用频率标签": "常用", "manual_status": "待报废", "批次编号": "甘草-01", "供应商批号": ""}, {"药材名称": "甘草", "物料形态": "散装", "现有库存数量": "595克", "包装袋数": "—", "生产日期": "2025-06-02", "到期日期": "2028-06-02", "使用频率标签": "常用", "manual_status": null, "批次编号": "甘草-02", "供应商批号": ""}, {"药材名称": "炒薏苡仁", "物料形态": "散装", "现有库存数量": "2570克", "包装袋数": "—", "生产日期": "2025-05-01", "到期日期": "2028-05-01", "使用频率标签": "常用", "manual_status": null, "批次编号": "炒薏苡仁-01", "供应商批号": ""}, {"药材名称": "山药", "物料形态": "整装", "现有库存数量": "500克", "包装袋数": 1, "生产日期": "2025-11-07", "到期日期": "2028-11-07", "使用频率标签": "常用", "manual_status": null, "批次编号": "山药-01", "供应商批号": ""}, {"药材名称": "山药", "物料形态": "散装", "现有库存数量": "400克", "包装袋数": "—", "生产日期": "2025-11-07", "到期日期": "2028-11-07", "使用频率标签": "常用", "manual_status": null, "批次编号": "山药-02", "供应商批号": ""}, {"药材名称": "五指毛桃片", "物料形态": "整装", "现有库存数量": "500克", "包装袋数": 1, "生产日期": "2026-02-25", "到期日期": "2027-02-25", "使用频率标签": "常用", "manual_status": null, "批次编号": "五指毛桃片-01", "供应商批号": ""}, {"药材名称": "五指毛桃片", "物料形态": "散装", "现有库存数量": "10克", "包装袋数": "—", "生产日期": "2026-02-25", "到期日期": "2027-02-25", "使用频率标签": "常用", "manual_status": null, "批次编号": "五指毛桃片-02", "供应商批号": ""}, {"药材名称": "五指毛桃须", "物料形态": "整装", "现有库存数量": "250克", "包装袋数": 1, "生产日期": "2026-01-09", "到期日期": "", "使用频率标签": "常用", "manual_status": null, "批次编号": "五指毛桃须-01", "供应商批号": ""}, {"药材名称": "五指毛桃须", "物料形态": "散装", "现有库存数量": "50克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "常用", "manual_status": null, "批次编号": "五指毛桃须-02", "供应商批号": ""}, {"药材名称": "玉米须", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 2, "生产日期": "2025-10-15", "到期日期": "2028-10-15", "使用频率标签": "不常用", "manual_status": "待报废", "批次编号": "玉米须-01", "供应商批号": ""}, {"药材名称": "玉米须", "物料形态": "散装", "现有库存数量": "40克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "不常用", "manual_status": null, "批次编号": "玉米须-02", "供应商批号": ""}, {"药材名称": "桂圆", "物料形态": "整装", "现有库存数量": "500克", "包装袋数": 11, "生产日期": "2025-08-01", "到期日期": "2028-08-01", "使用频率标签": "常用", "manual_status": null, "批次编号": "桂圆-01", "供应商批号": ""}, {"药材名称": "桂圆", "物料形态": "整装", "现有库存数量": "1000克", "包装袋数": 1, "生产日期": "2025-12-01", "到期日期": "2028-12-01", "使用频率标签": "常用", "manual_status": null, "批次编号": "桂圆-02", "供应商批号": ""}, {"药材名称": "桂圆", "物料形态": "散装", "现有库存数量": "400克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "常用", "manual_status": null, "批次编号": "桂圆-03", "供应商批号": ""}, {"药材名称": "罗汉果", "物料形态": "整装", "现有库存数量": "32包", "包装袋数": "32包", "生产日期": "2025-11-20", "到期日期": "2028-11-20", "使用频率标签": "常用", "manual_status": null, "批次编号": "罗汉果-01", "供应商批号": ""}, {"药材名称": "罗汉果", "物料形态": "整装", "现有库存数量": "6.7包", "包装袋数": "7包", "生产日期": "2025-07-24", "到期日期": "2028-07-24", "使用频率标签": "常用", "manual_status": null, "批次编号": "罗汉果-02", "供应商批号": ""}, {"药材名称": "罗汉果", "物料形态": "整装", "现有库存数量": "3包", "包装袋数": "3包", "生产日期": "2025-09-11", "到期日期": "2028-09-11", "使用频率标签": "常用", "manual_status": null, "批次编号": "罗汉果-03", "供应商批号": ""}, {"药材名称": "梨", "物料形态": "散装", "现有库存数量": "458克", "包装袋数": "—", "生产日期": "2026-01-02", "到期日期": "2027-01-02", "使用频率标签": "常用", "manual_status": null, "批次编号": "梨-01", "供应商批号": ""}, {"药材名称": "佛手", "物料形态": "散装", "现有库存数量": "310克", "包装袋数": "—", "生产日期": "2026-02-11", "到期日期": "2027-02-11", "使用频率标签": "常用", "manual_status": null, "批次编号": "佛手-01", "供应商批号": ""}, {"药材名称": "桂花", "物料形态": "散装", "现有库存数量": "65克", "包装袋数": "—", "生产日期": "2026-03-30", "到期日期": "2027-03-29", "使用频率标签": "常用", "manual_status": null, "批次编号": "桂花-01", "供应商批号": ""}, {"药材名称": "白茅根", "物料形态": "散装", "现有库存数量": "243克", "包装袋数": "—", "生产日期": "2025-06-29", "到期日期": "2028-06-28", "使用频率标签": "不常用", "manual_status": null, "批次编号": "白茅根-01", "供应商批号": ""}, {"药材名称": "白茅根", "物料形态": "整装", "现有库存数量": "500克", "包装袋数": 1, "生产日期": "2025-06-29", "到期日期": "2028-06-28", "使用频率标签": "不常用", "manual_status": null, "批次编号": "白茅根-02", "供应商批号": ""}, {"药材名称": "苦杏仁", "物料形态": "散装", "现有库存数量": "927克", "包装袋数": "—", "生产日期": "2024-07-17", "到期日期": "2027-07-16", "使用频率标签": "不常用", "manual_status": null, "批次编号": "苦杏仁-01", "供应商批号": ""}, {"药材名称": "玉兰花", "物料形态": "散装", "现有库存数量": "315克", "包装袋数": "—", "生产日期": "2025-09-23", "到期日期": "2026-09-23", "使用频率标签": "不常用", "manual_status": null, "批次编号": "玉兰花-01", "供应商批号": ""}, {"药材名称": "甜叶菊", "物料形态": "散装", "现有库存数量": "486克", "包装袋数": "—", "生产日期": "2025-03-30", "到期日期": "2028-03-29", "使用频率标签": "不常用", "manual_status": null, "批次编号": "甜叶菊-01", "供应商批号": ""}, {"药材名称": "洛神花", "物料形态": "散装", "现有库存数量": "158克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "常用", "manual_status": null, "批次编号": "洛神花-01", "供应商批号": ""}, {"药材名称": "炒麦芽", "物料形态": "散装", "现有库存数量": "242克", "包装袋数": "—", "生产日期": "2026-03-11", "到期日期": "2027-03-10", "使用频率标签": "不常用", "manual_status": null, "批次编号": "炒麦芽-01", "供应商批号": ""}, {"药材名称": "牛蒡子", "物料形态": "散装", "现有库存数量": "500克", "包装袋数": "—", "生产日期": "2024-11-11", "到期日期": "2027-11-10", "使用频率标签": "不常用", "manual_status": null, "批次编号": "牛蒡子-01", "供应商批号": ""}, {"药材名称": "酒黄精", "物料形态": "散装", "现有库存数量": "150克", "包装袋数": "—", "生产日期": "2024-07-15", "到期日期": "2027-07-14", "使用频率标签": "不常用", "manual_status": null, "批次编号": "酒黄精-01", "供应商批号": ""}, {"药材名称": "连翘", "物料形态": "散装", "现有库存数量": "80克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "不常用", "manual_status": null, "批次编号": "连翘-01", "供应商批号": ""}, {"药材名称": "黑枸杞", "物料形态": "散装", "现有库存数量": "291克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "不常用", "manual_status": null, "批次编号": "黑枸杞-01", "供应商批号": ""}, {"药材名称": "胖大海", "物料形态": "散装", "现有库存数量": "762克", "包装袋数": "—", "生产日期": "2024-05-24", "到期日期": "2027-05-23", "使用频率标签": "常用", "manual_status": null, "批次编号": "胖大海-01", "供应商批号": ""}, {"药材名称": "栀子", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 1, "生产日期": "2025-12-04", "到期日期": "2028-12-03", "使用频率标签": "不常用", "manual_status": "待报废", "批次编号": "栀子-01", "供应商批号": ""}, {"药材名称": "栀子", "物料形态": "散装", "现有库存数量": "374克", "包装袋数": "—", "生产日期": "2025-12-04", "到期日期": "2028-12-03", "使用频率标签": "不常用", "manual_status": null, "批次编号": "栀子-02", "供应商批号": ""}, {"药材名称": "麦冬", "物料形态": "散装", "现有库存数量": "179克", "包装袋数": "—", "生产日期": "2025-06-19", "到期日期": "2028-06-18", "使用频率标签": "常用", "manual_status": null, "批次编号": "麦冬-01", "供应商批号": ""}, {"药材名称": "红参", "物料形态": "散装", "现有库存数量": "691克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "不常用", "manual_status": null, "批次编号": "红参-01", "供应商批号": ""}, {"药材名称": "西洋参", "物料形态": "散装", "现有库存数量": "71克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "不常用", "manual_status": null, "批次编号": "西洋参-01", "供应商批号": ""}, {"药材名称": "杜仲雄花", "物料形态": "散装", "现有库存数量": "60克", "包装袋数": "—", "生产日期": "2026-01-20", "到期日期": "2028-01-19", "使用频率标签": "不常用", "manual_status": null, "批次编号": "杜仲雄花-02", "供应商批号": ""}, {"药材名称": "杜仲雄花", "物料形态": "散装", "现有库存数量": "60克", "包装袋数": "—", "生产日期": "2026-01-20", "到期日期": "2028-01-19", "使用频率标签": "不常用", "manual_status": null, "批次编号": "杜仲雄花-03", "供应商批号": ""}, {"药材名称": "黄芪", "物料形态": "散装", "现有库存数量": "166克", "包装袋数": "—", "生产日期": "2026-02-26", "到期日期": "2028-02-25", "使用频率标签": "常用", "manual_status": null, "批次编号": "黄芪-01", "供应商批号": ""}, {"药材名称": "黄芪", "物料形态": "整装", "现有库存数量": "500克", "包装袋数": 1, "生产日期": "2026-02-26", "到期日期": "2028-02-25", "使用频率标签": "常用", "manual_status": null, "批次编号": "黄芪-02", "供应商批号": ""}, {"药材名称": "百合", "物料形态": "散装", "现有库存数量": "190克", "包装袋数": "—", "生产日期": "2025-08-23", "到期日期": "2028-08-22", "使用频率标签": "常用", "manual_status": null, "批次编号": "百合-01", "供应商批号": ""}, {"药材名称": "百合", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 2, "生产日期": "2025-08-23", "到期日期": "2028-08-22", "使用频率标签": "常用", "manual_status": "待报废", "批次编号": "百合-02", "供应商批号": ""}, {"药材名称": "百合", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 1, "生产日期": "2025-10-01", "到期日期": "2028-09-30", "使用频率标签": "常用", "manual_status": "待报废", "批次编号": "百合-03", "供应商批号": ""}, {"药材名称": "玫瑰花", "物料形态": "整装", "现有库存数量": "500克", "包装袋数": 4, "生产日期": "2024-09-17", "到期日期": "2027-09-16", "使用频率标签": "常用", "manual_status": null, "批次编号": "玫瑰花-01", "供应商批号": ""}, {"药材名称": "玫瑰花", "物料形态": "散装", "现有库存数量": "110克", "包装袋数": "—", "生产日期": "2024-09-17", "到期日期": "2027-09-16", "使用频率标签": "常用", "manual_status": null, "批次编号": "玫瑰花-02", "供应商批号": ""}, {"药材名称": "枸杞子", "物料形态": "散装", "现有库存数量": "419克", "包装袋数": "—", "生产日期": "2025-11-07", "到期日期": "2027-11-06", "使用频率标签": "常用", "manual_status": null, "批次编号": "枸杞子-01", "供应商批号": ""}, {"药材名称": "金银花", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 2, "生产日期": "2025-08-27", "到期日期": "2027-08-26", "使用频率标签": "不常用", "manual_status": "待报废", "批次编号": "金银花-01", "供应商批号": ""}, {"药材名称": "菊花", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 1, "生产日期": "2025-09-15", "到期日期": "2028-09-14", "使用频率标签": "常用", "manual_status": "待报废", "批次编号": "菊花-01", "供应商批号": ""}, {"药材名称": "菊花", "物料形态": "散装", "现有库存数量": "270克", "包装袋数": "—", "生产日期": "2025-09-15", "到期日期": "2028-09-14", "使用频率标签": "常用", "manual_status": null, "批次编号": "菊花-02", "供应商批号": ""}, {"药材名称": "桑叶", "物料形态": "散装", "现有库存数量": "460克", "包装袋数": "—", "生产日期": "2025-11-08", "到期日期": "2028-11-07", "使用频率标签": "不常用", "manual_status": null, "批次编号": "桑叶-01", "供应商批号": ""}, {"药材名称": "黑果花楸", "物料形态": "散装", "现有库存数量": "2353克", "包装袋数": "—", "生产日期": "2024-10-05", "到期日期": "2027-10-04", "使用频率标签": "不常用", "manual_status": null, "批次编号": "黑果花楸-01", "供应商批号": ""}, {"药材名称": "灰枣", "物料形态": "散装", "现有库存数量": "195克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "常用", "manual_status": null, "批次编号": "灰枣-01", "供应商批号": ""}, {"药材名称": "山参", "物料形态": "散装", "现有库存数量": "1938克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "不常用", "manual_status": null, "批次编号": "山参-01", "供应商批号": ""}, {"药材名称": "砂仁", "物料形态": "散装", "现有库存数量": "2682克", "包装袋数": "—", "生产日期": "2025-03-06", "到期日期": "2027-03-05", "使用频率标签": "不常用", "manual_status": null, "批次编号": "砂仁-01", "供应商批号": ""}, {"药材名称": "荷叶", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 3, "生产日期": "2025-10-19", "到期日期": "2028-10-18", "使用频率标签": "常用", "manual_status": "待报废", "批次编号": "荷叶-01", "供应商批号": ""}, {"药材名称": "荷叶", "物料形态": "散装", "现有库存数量": "273克", "包装袋数": "—", "生产日期": "2025-10-19", "到期日期": "2028-10-18", "使用频率标签": "常用", "manual_status": null, "批次编号": "荷叶-02", "供应商批号": ""}, {"药材名称": "桑椹", "物料形态": "整装", "现有库存数量": "1000克", "包装袋数": 1, "生产日期": "2024-08-23", "到期日期": "2027-08-22", "使用频率标签": "常用", "manual_status": null, "批次编号": "桑椹-01", "供应商批号": ""}, {"药材名称": "桑椹", "物料形态": "散装", "现有库存数量": "550克", "包装袋数": "—", "生产日期": "2024-08-23", "到期日期": "2027-08-22", "使用频率标签": "常用", "manual_status": null, "批次编号": "桑椹-02", "供应商批号": ""}, {"药材名称": "桑椹", "物料形态": "整装", "现有库存数量": "1000克", "包装袋数": 1, "生产日期": "2025-06-30", "到期日期": "2028-06-29", "使用频率标签": "常用", "manual_status": null, "批次编号": "桑椹-03", "供应商批号": ""}, {"药材名称": "西洋参", "物料形态": "整装", "现有库存数量": "1500克", "包装袋数": 3, "生产日期": "2025-09-05", "到期日期": "2028-09-04", "使用频率标签": "不常用", "manual_status": null, "批次编号": "西洋参-02", "供应商批号": ""}, {"药材名称": "西洋参", "物料形态": "散装", "现有库存数量": "420克", "包装袋数": "—", "生产日期": "2024-12-04", "到期日期": "2027-12-03", "使用频率标签": "不常用", "manual_status": null, "批次编号": "西洋参-03", "供应商批号": ""}, {"药材名称": "决明子", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 2, "生产日期": "2025-05-02", "到期日期": "2027-05-01", "使用频率标签": "常用", "manual_status": "待报废", "批次编号": "决明子-01", "供应商批号": ""}, {"药材名称": "决明子", "物料形态": "散装", "现有库存数量": "130克", "包装袋数": "—", "生产日期": "2025-05-02", "到期日期": "2027-05-01", "使用频率标签": "常用", "manual_status": null, "批次编号": "决明子-02", "供应商批号": ""}, {"药材名称": "菊苣根", "物料形态": "散装", "现有库存数量": "1059克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "不常用", "manual_status": null, "批次编号": "菊苣根-01", "供应商批号": ""}, {"药材名称": "苹果干", "物料形态": "散装", "现有库存数量": "390克", "包装袋数": "—", "生产日期": "2026-04-10", "到期日期": "2027-04-09", "使用频率标签": "常用", "manual_status": null, "批次编号": "苹果干-01", "供应商批号": ""}, {"药材名称": "蛹虫草", "物料形态": "散装", "现有库存数量": "370克", "包装袋数": "—", "生产日期": "2026-02-17", "到期日期": "2027-02-16", "使用频率标签": "不常用", "manual_status": null, "批次编号": "蛹虫草-01", "供应商批号": ""}, {"药材名称": "蒲公英", "物料形态": "散装", "现有库存数量": "600克", "包装袋数": "—", "生产日期": "2025-07-23", "到期日期": "2028-07-22", "使用频率标签": "不常用", "manual_status": null, "批次编号": "蒲公英-01", "供应商批号": ""}, {"药材名称": "蒲公英", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 2, "生产日期": "2025-10-31", "到期日期": "2028-10-30", "使用频率标签": "不常用", "manual_status": "待报废", "批次编号": "蒲公英-02", "供应商批号": ""}, {"药材名称": "茯苓", "物料形态": "散装", "现有库存数量": "300克", "包装袋数": "—", "生产日期": "2026-04-29", "到期日期": "2029-04-28", "使用频率标签": "常用", "manual_status": null, "批次编号": "茯苓-01", "供应商批号": ""}, {"药材名称": "绞股蓝", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 1, "生产日期": "2025-05-16", "到期日期": "2028-05-16", "使用频率标签": "不常用", "manual_status": "待报废", "批次编号": "绞股蓝-01", "供应商批号": ""}, {"药材名称": "绞股蓝", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 1, "生产日期": "2024-10-05", "到期日期": "2027-10-05", "使用频率标签": "不常用", "manual_status": "待报废", "批次编号": "绞股蓝-02", "供应商批号": ""}, {"药材名称": "绞股蓝", "物料形态": "散装", "现有库存数量": "150克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "不常用", "manual_status": null, "批次编号": "绞股蓝-03", "供应商批号": ""}, {"药材名称": "陈皮", "物料形态": "整装", "现有库存数量": "0克", "包装袋数": 1, "生产日期": "2025-12-16", "到期日期": "2028-12-15", "使用频率标签": "常用", "manual_status": "待报废", "批次编号": "陈皮-01", "供应商批号": ""}, {"药材名称": "陈皮", "物料形态": "散装", "现有库存数量": "215克", "包装袋数": "—", "生产日期": "2025-12-16", "到期日期": "2028-12-15", "使用频率标签": "常用", "manual_status": null, "批次编号": "陈皮-02", "供应商批号": ""}, {"药材名称": "葛根", "物料形态": "散装", "现有库存数量": "-35.0克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "常用", "manual_status": null, "批次编号": "葛根-01", "供应商批号": ""}, {"药材名称": "枳椇子", "物料形态": "散装", "现有库存数量": "-15.0克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "常用", "manual_status": null, "批次编号": "枳椇子-01", "供应商批号": ""}, {"药材名称": "紫苏叶", "物料形态": "散装", "现有库存数量": "-5.0克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "常用", "manual_status": null, "批次编号": "紫苏叶-01", "供应商批号": ""}, {"药材名称": "人参", "物料形态": "散装", "现有库存数量": "50克", "包装袋数": "—", "生产日期": "", "到期日期": "", "使用频率标签": "常用", "manual_status": null, "批次编号": "人参-01", "供应商批号": ""}], "log": [{"t": "2026-08-12 21:25", "type": "出库", "detail": "枸杞子 枸杞子-01 出 1580克（2029克→449克） · 报废（过期）"}, {"t": "2026-08-12 21:24", "type": "出库", "detail": "乌梅 乌梅-01 出 500克（500克→0克） · 给药房"}, {"t": "2026-08-12 21:23", "type": "出库", "detail": "鸡内金 鸡内金-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:23", "type": "出库", "detail": "山楂 山楂-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:23", "type": "出库", "detail": "淡竹叶 淡竹叶-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:23", "type": "出库", "detail": "绞股蓝 绞股蓝-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:23", "type": "出库", "detail": "绞股蓝 绞股蓝-02 出 500克（500克→0克） · 给药房"}, {"t": "2026-08-12 21:22", "type": "出库", "detail": "炒薏苡仁 炒薏苡仁-01 出 1000克（3600克→2600克） · 给药房"}, {"t": "2026-08-12 21:22", "type": "出库", "detail": "甘草 甘草-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:22", "type": "出库", "detail": "荷叶 荷叶-01 出 1500克（1500克→0克） · 给药房"}, {"t": "2026-08-12 21:21", "type": "出库", "detail": "金银花 金银花-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:21", "type": "出库", "detail": "百合 百合-03 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:21", "type": "出库", "detail": "百合 百合-02 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:20", "type": "出库", "detail": "蒲公英 蒲公英-02 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:20", "type": "出库", "detail": "决明子 决明子-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:20", "type": "出库", "detail": "菊花 菊花-01 出 500克（500克→0克） · 给药房"}, {"t": "2026-08-12 21:20", "type": "出库", "detail": "薏苡仁 薏苡仁-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:20", "type": "出库", "detail": "陈皮 陈皮-01 出 500克（500克→0克） · 给药房"}, {"t": "2026-08-12 21:20", "type": "出库", "detail": "玉米须 玉米须-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-12 21:19", "type": "出库", "detail": "栀子 栀子-01 出 500克（500克→0克） · 给药房"}, {"t": "2026-08-12 21:19", "type": "出库", "detail": "玫瑰花 玫瑰花-01 出 1500克（2000克→500克） · 给药房"}, {"t": "2026-08-12 21:19", "type": "出库", "detail": "酸枣仁 酸枣仁-01 出 500克（500克→0克） · 给药房"}, {"t": "2026-08-12 18:10", "type": "茶包出库", "detail": "4份｜酸枣仁 20克、百合 12克、大枣 12克、佛手 8克、玫瑰花 8克、茯苓 8克"}, {"t": "2026-08-12 18:09", "type": "茶包出库", "detail": "5份｜赤小豆 15克、炒薏苡仁 15克、茯苓 15克、荷叶 15克、苹果干 15克、陈皮 10克"}, {"t": "2026-08-12 18:09", "type": "茶包出库", "detail": "1份｜酸枣仁 5克、百合 3克、大枣 3克、佛手 2克、玫瑰花 2克、茯苓 2克"}, {"t": "2026-08-12 18:09", "type": "茶包出库", "detail": "5份｜菊花 15克、枸杞 15克、炒决明子 15克、桑葚 15克、玉竹 10克、麦冬 10克、陈皮 5克、罗汉果 5克"}, {"t": "2026-08-12 18:08", "type": "茶包出库", "detail": "4份｜葛根 28克、枳椇子 12克、枸杞 12克、陈皮 8克、紫苏叶 4克、生姜 4克、甘草 4克"}, {"t": "2026-08-12 18:08", "type": "茶包出库", "detail": "1份｜葛根 7克、枳椇子 3克、枸杞 3克、陈皮 2克、紫苏叶 1克、生姜 1克、甘草 1克"}, {"t": "2026-08-12 18:07", "type": "茶包出库", "detail": "5份｜赤小豆 15克、炒薏苡仁 15克、茯苓 15克、荷叶 15克、苹果干 15克、陈皮 10克"}, {"t": "2026-08-10 10:17", "type": "出库", "detail": "荷叶 荷叶-01 出 1500克（1500克→0克） · 给药房"}, {"t": "2026-08-10 10:17", "type": "出库", "detail": "乌梅 乌梅-01 出 500克（500克→0克） · 给药房"}, {"t": "2026-08-10 10:17", "type": "出库", "detail": "山楂 山楂-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-10 10:16", "type": "出库", "detail": "金银花 金银花-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-10 10:16", "type": "出库", "detail": "百合 百合-03 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-10 10:16", "type": "出库", "detail": "百合 百合-02 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-10 10:16", "type": "出库", "detail": "蒲公英 蒲公英-02 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-10 10:16", "type": "出库", "detail": "决明子 决明子-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-10 10:16", "type": "出库", "detail": "淡竹叶 淡竹叶-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-10 10:16", "type": "出库", "detail": "菊花 菊花-01 出 500克（500克→0克） · 给药房"}, {"t": "2026-08-10 10:15", "type": "出库", "detail": "薏苡仁 薏苡仁-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-10 10:15", "type": "出库", "detail": "绞股蓝 绞股蓝-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-10 10:15", "type": "出库", "detail": "绞股蓝 绞股蓝-02 出 500克（500克→0克） · 给药房"}, {"t": "2026-08-10 10:15", "type": "出库", "detail": "炒薏苡仁 炒薏苡仁-01 出 1000克（3600克→2600克） · 给药房"}, {"t": "2026-08-10 10:14", "type": "出库", "detail": "陈皮 陈皮-01 出 500克（500克→0克） · 给药房"}, {"t": "2026-08-10 10:14", "type": "出库", "detail": "玉米须 玉米须-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-10 10:14", "type": "出库", "detail": "栀子 栀子-01 出 500克（500克→0克） · 给药房"}, {"t": "2026-08-10 10:14", "type": "出库", "detail": "甘草 甘草-01 出 1000克（1000克→0克） · 给药房"}, {"t": "2026-08-10 10:13", "type": "出库", "detail": "玫瑰花 玫瑰花-01 出 1500克（2000克→500克） · 给药房"}, {"t": "2026-08-10 10:13", "type": "出库", "detail": "酸枣仁 酸枣仁-01 出 500克（500克→0克） · 给药房"}], "recipes": [{"name": "温补气血", "alias": "朝暖·姜枣桂圆饮", "sweetener": "红糖", "items": [{"name": "桂圆", "qty": 3}, {"name": "红枣", "qty": 3}, {"name": "苹果干", "qty": 3}, {"name": "枸杞", "qty": 2}, {"name": "生姜", "qty": 1}, {"name": "重瓣玫瑰", "qty": 1}, {"name": "陈皮", "qty": 1}]}, {"name": "美容养颜", "alias": "暮润·桑玫洛神茶", "sweetener": "冰糖", "items": [{"name": "苹果干", "qty": 3}, {"name": "桑葚", "qty": 3}, {"name": "洛神花", "qty": 2}, {"name": "茯苓", "qty": 2}, {"name": "炒薏苡仁", "qty": 2}, {"name": "重瓣玫瑰", "qty": 2}]}, {"name": "润肺清嗓", "alias": "清音·雪梨桔梗饮", "sweetener": "", "items": [{"name": "雪梨干", "qty": 6}, {"name": "百合", "qty": 4}, {"name": "桔梗", "qty": 2}, {"name": "胖大海", "qty": 2}, {"name": "罗汉果", "qty": 2}, {"name": "陈皮", "qty": 1}]}, {"name": "解酒护肝", "alias": "醒酌·紫苏葛根饮", "sweetener": "蜂蜜", "items": [{"name": "葛根", "qty": 7}, {"name": "枳椇子", "qty": 3}, {"name": "枸杞", "qty": 3}, {"name": "陈皮", "qty": 2}, {"name": "紫苏叶", "qty": 1}, {"name": "生姜", "qty": 1}, {"name": "甘草", "qty": 1}]}, {"name": "清食解腻", "alias": "清食·乌梅山楂饮", "sweetener": "冰糖", "items": [{"name": "山楂", "qty": 3}, {"name": "乌梅", "qty": 3}, {"name": "苹果干", "qty": 5}, {"name": "陈皮", "qty": 2}, {"name": "甘草", "qty": 1}, {"name": "桂花", "qty": 1}]}, {"name": "清肝明目", "alias": "清眸·菊杞决明饮", "sweetener": "", "items": [{"name": "菊花", "qty": 3}, {"name": "枸杞", "qty": 3}, {"name": "炒决明子", "qty": 3}, {"name": "桑葚", "qty": 3}, {"name": "玉竹", "qty": 2}, {"name": "麦冬", "qty": 2}, {"name": "陈皮", "qty": 1}, {"name": "罗汉果", "qty": 1}]}, {"name": "调养脾胃", "alias": "健韵·五指山药饮", "sweetener": "", "items": [{"name": "苹果干", "qty": 5}, {"name": "五指毛桃", "qty": 3}, {"name": "山药", "qty": 3}, {"name": "茯苓", "qty": 3}, {"name": "陈皮", "qty": 2}]}, {"name": "疏肝安神", "alias": "安舒·佛手玫瑰饮", "sweetener": "", "items": [{"name": "酸枣仁", "qty": 5}, {"name": "百合", "qty": 3}, {"name": "大枣", "qty": 3}, {"name": "佛手", "qty": 2}, {"name": "玫瑰花", "qty": 2}, {"name": "茯苓", "qty": 2}]}, {"name": "补气提神", "alias": "元养·参芪红枣饮", "sweetener": "", "items": [{"name": "麦冬", "qty": 3}, {"name": "大枣", "qty": 3}, {"name": "人参", "qty": 2}, {"name": "黄芪", "qty": 2}, {"name": "苹果干", "qty": 2}, {"name": "菊花", "qty": 1}, {"name": "陈皮", "qty": 1}, {"name": "罗汉果", "qty": 1}]}, {"name": "减肥瘦身", "alias": "清盈·赤豆薏米饮", "sweetener": "", "items": [{"name": "赤小豆", "qty": 3}, {"name": "炒薏苡仁", "qty": 3}, {"name": "茯苓", "qty": 3}, {"name": "荷叶", "qty": 3}, {"name": "苹果干", "qty": 3}, {"name": "陈皮", "qty": 2}]}], "syncedAt": "2026-08-12T19:02:10+08:00", "ops": [{"t": "2026-08-12 21:25", "kind": "out", "items": [{"name": "枸杞子", "batch": "枸杞子-01", "qty": 1580}], "dest": "", "note": "报废（过期）"}, {"t": "2026-08-12 21:24", "kind": "out", "items": [{"name": "乌梅", "batch": "乌梅-01", "qty": 500}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:23", "kind": "out", "items": [{"name": "鸡内金", "batch": "鸡内金-01", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:23", "kind": "out", "items": [{"name": "山楂", "batch": "山楂-01", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:23", "kind": "out", "items": [{"name": "淡竹叶", "batch": "淡竹叶-01", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:23", "kind": "out", "items": [{"name": "绞股蓝", "batch": "绞股蓝-01", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:23", "kind": "out", "items": [{"name": "绞股蓝", "batch": "绞股蓝-02", "qty": 500}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:22", "kind": "out", "items": [{"name": "炒薏苡仁", "batch": "炒薏苡仁-01", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:22", "kind": "out", "items": [{"name": "甘草", "batch": "甘草-01", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:22", "kind": "out", "items": [{"name": "荷叶", "batch": "荷叶-01", "qty": 1500}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:21", "kind": "out", "items": [{"name": "金银花", "batch": "金银花-01", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:21", "kind": "out", "items": [{"name": "百合", "batch": "百合-03", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:21", "kind": "out", "items": [{"name": "百合", "batch": "百合-02", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:20", "kind": "out", "items": [{"name": "蒲公英", "batch": "蒲公英-02", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:20", "kind": "out", "items": [{"name": "决明子", "batch": "决明子-01", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:20", "kind": "out", "items": [{"name": "菊花", "batch": "菊花-01", "qty": 500}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:20", "kind": "out", "items": [{"name": "薏苡仁", "batch": "薏苡仁-01", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:20", "kind": "out", "items": [{"name": "陈皮", "batch": "陈皮-01", "qty": 500}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:20", "kind": "out", "items": [{"name": "玉米须", "batch": "玉米须-01", "qty": 1000}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:19", "kind": "out", "items": [{"name": "栀子", "batch": "栀子-01", "qty": 500}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:19", "kind": "out", "items": [{"name": "玫瑰花", "batch": "玫瑰花-01", "qty": 1500}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 21:19", "kind": "out", "items": [{"name": "酸枣仁", "batch": "酸枣仁-01", "qty": 500}], "dest": "", "note": "给药房"}, {"t": "2026-08-12 18:07", "kind": "tea_out", "items": [{"name": "赤小豆", "batch": "赤小豆-01", "qty": 15.0}, {"name": "炒薏苡仁", "batch": "炒薏苡仁-01", "qty": 15.0}, {"name": "茯苓", "batch": "茯苓-01", "qty": 15.0}, {"name": "荷叶", "batch": "荷叶-02", "qty": 15.0}, {"name": "苹果干", "batch": "苹果干-01", "qty": 15.0}, {"name": "陈皮", "batch": "陈皮-02", "qty": 10.0}], "dest": "客户茶包", "note": ""}, {"t": "2026-08-12 18:08", "kind": "tea_out", "items": [{"name": "葛根", "batch": "葛根-01", "qty": 0.0}, {"name": "枳椇子", "batch": "枳椇子-01", "qty": 0.0}, {"name": "枸杞子", "batch": "枸杞子-01", "qty": 12.0}, {"name": "陈皮", "batch": "陈皮-02", "qty": 8.0}, {"name": "紫苏叶", "batch": "紫苏叶-01", "qty": 0.0}, {"name": "干姜", "batch": "干姜-02", "qty": 4.0}, {"name": "甘草", "batch": "甘草-02", "qty": 4.0}], "dest": "客户茶包", "note": ""}, {"t": "2026-08-12 18:08", "kind": "tea_out", "items": [{"name": "葛根", "batch": "葛根-01", "qty": 0.0}, {"name": "枳椇子", "batch": "枳椇子-01", "qty": 0.0}, {"name": "枸杞子", "batch": "枸杞子-01", "qty": 3.0}, {"name": "陈皮", "batch": "陈皮-02", "qty": 2.0}, {"name": "紫苏叶", "batch": "紫苏叶-01", "qty": 0.0}, {"name": "干姜", "batch": "干姜-02", "qty": 1.0}, {"name": "甘草", "batch": "甘草-02", "qty": 1.0}], "dest": "客户茶包", "note": ""}, {"t": "2026-08-12 18:09", "kind": "tea_out", "items": [{"name": "赤小豆", "batch": "赤小豆-01", "qty": 15.0}, {"name": "炒薏苡仁", "batch": "炒薏苡仁-01", "qty": 15.0}, {"name": "茯苓", "batch": "茯苓-01", "qty": 15.0}, {"name": "荷叶", "batch": "荷叶-02", "qty": 15.0}, {"name": "苹果干", "batch": "苹果干-01", "qty": 15.0}, {"name": "陈皮", "batch": "陈皮-02", "qty": 10.0}], "dest": "客户茶包", "note": ""}, {"t": "2026-08-12 18:09", "kind": "tea_out", "items": [{"name": "酸枣仁", "batch": "酸枣仁-02", "qty": 5.0}, {"name": "百合", "batch": "百合-01", "qty": 3.0}, {"name": "灰枣", "batch": "灰枣-01", "qty": 3.0}, {"name": "佛手", "batch": "佛手-01", "qty": 2.0}, {"name": "玫瑰花", "batch": "玫瑰花-02", "qty": 2.0}, {"name": "茯苓", "batch": "茯苓-01", "qty": 2.0}], "dest": "客户茶包", "note": ""}, {"t": "2026-08-12 18:09", "kind": "tea_out", "items": [{"name": "菊花", "batch": "菊花-02", "qty": 15.0}, {"name": "枸杞子", "batch": "枸杞子-01", "qty": 15.0}, {"name": "决明子", "batch": "决明子-02", "qty": 15.0}, {"name": "桑椹", "batch": "桑椹-02", "qty": 15.0}, {"name": "玉竹", "batch": "玉竹-02", "qty": 10.0}, {"name": "麦冬", "batch": "麦冬-01", "qty": 10.0}, {"name": "陈皮", "batch": "陈皮-02", "qty": 5.0}, {"name": "罗汉果", "batch": "罗汉果-02", "qty": 0.3}], "dest": "客户茶包", "note": ""}, {"t": "2026-08-12 18:10", "kind": "tea_out", "items": [{"name": "酸枣仁", "batch": "酸枣仁-02", "qty": 20.0}, {"name": "百合", "batch": "百合-01", "qty": 12.0}, {"name": "灰枣", "batch": "灰枣-01", "qty": 12.0}, {"name": "佛手", "batch": "佛手-01", "qty": 8.0}, {"name": "玫瑰花", "batch": "玫瑰花-02", "qty": 8.0}, {"name": "茯苓", "batch": "茯苓-01", "qty": 8.0}], "dest": "客户茶包", "note": ""}, {"t": "2026-08-12 茶包出库-药房借", "kind": "tea_out", "items": [{"name": "葛根", "batch": "葛根-01", "qty": 35.0}], "dest": "药房借", "note": "负数=从药房拿的克重"}, {"t": "2026-08-12 茶包出库-药房借", "kind": "tea_out", "items": [{"name": "枳椇子", "batch": "枳椇子-01", "qty": 15.0}], "dest": "药房借", "note": "负数=从药房拿的克重"}, {"t": "2026-08-12 茶包出库-药房借", "kind": "tea_out", "items": [{"name": "紫苏叶", "batch": "紫苏叶-01", "qty": 5.0}], "dest": "药房借", "note": "负数=从药房拿的克重"}]};
+/*SEED_END*/
+const LS_KEY = "dx_herb_inventory_v2";
+const STATUS_OPT = ["待入库","正常库存","临近过期","待报废","需要补货"];
+
+/* 配方常用名 → 库存存储名；按"个"计量药材。二者中心化到配置，可界面编辑并随云端同步 */
+const DEFAULT_ALIAS = {
+  "红枣":"灰枣","大枣":"灰枣","枸杞":"枸杞子","桑葚":"桑椹","生姜":"干姜",
+  "重瓣玫瑰":"玫瑰花","五指毛桃":"五指毛桃片","雪梨干":"梨","炒决明子":"决明子"
+};
+const DEFAULT_PIECE = { "罗汉果": { gPerUnit: 18, piece: "个" } };
+function resolveName(n){ const a=Object.assign({}, DEFAULT_ALIAS, (state.config&&state.config.aliases)||{}); return a[n] || n; }
+function isPiece(name){ const p=Object.assign({}, DEFAULT_PIECE, (state.config&&state.config.pieces)||{}); return p[resolveName(name)] || null; }
+
+let state = loadState();
+ensureBorrowLedger();
+function normCfg(cfg){
+  cfg = cfg || {};
+  if(typeof cfg.near_expiry_days !== "number") cfg.near_expiry_days = 60;
+  if(typeof cfg.reorder_g !== "number"){
+    cfg.reorder_g = (cfg.reorder_threshold && cfg.reorder_threshold["克"]) || 100;
+  }
+  return cfg;
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ const o=JSON.parse(raw); if(o && o.records){ o.log=o.log||[]; o.recipes=o.recipes||[]; o.ops=o.ops||[]; o.config=normCfg(o.config); o.records.forEach(r=>{ if(!("供应商批号" in r)) r["供应商批号"]=""; });
+      /* 若本地无配方但 SEED 有，自动补入（避免旧数据丢失预置配方） */
+      if((!o.recipes || !o.recipes.length) && SEED.recipes && SEED.recipes.length){ o.recipes=JSON.parse(JSON.stringify(SEED.recipes)); save(); }
+      return o; } }
+  }catch(e){}
+  // 从旧版 v1 迁移（仅当 v2 无数据且 v1 存在）
+  try{
+    const old = localStorage.getItem("dx_herb_inventory_v1");
+    if(old){ const o=JSON.parse(old); if(o && o.records){ o.log=o.log||[]; o.recipes=o.recipes||[]; o.ops=o.ops||[]; o.config=normCfg(o.config); o.records.forEach(r=>{ if(!("供应商批号" in r)) r["供应商批号"]=""; });
+      if((!o.recipes || !o.recipes.length) && SEED.recipes && SEED.recipes.length){ o.recipes=JSON.parse(JSON.stringify(SEED.recipes)); save(); }
+      return o; } }
+  }catch(e){}
+  const s = JSON.parse(JSON.stringify(SEED));
+  s.ops = [];
+  s.config = normCfg(s.config);
+  s.records.forEach(r=>{ if(!("供应商批号" in r)) r["供应商批号"]=""; });
+  return s;
+}
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){ toast("本浏览器无法保存，已暂存内存"); } }
+
+/* ---------- 工具 ---------- */
+function pad(n){ n=+n; return n<10? "0"+n : ""+n; }
+function parseDate(s){
+  if(!s||!s.trim()) return null;
+  const m=s.match(/(\d{4})\s*[年.\/-]\s*(\d{1,2})\s*[月.\/-]\s*(\d{1,2})/);
+  if(!m) return null;
+  return new Date(+m[1], +m[2]-1, +m[3]);
+}
+function daysLeft(s){ const d=parseDate(s); if(!d) return null; return Math.round((d-new Date())/86400000); }
+function parseStock(str){
+  const m=String(str).match(/(-?[\d.]+)\s*(克|g|公斤|kg|斤|袋|包)/i);
+  if(!m) return {val:0, unit:"克"};
+  let unit=m[2]; if(unit.toLowerCase()==="g") unit="克"; if(unit.toLowerCase()==="kg"||unit==="公斤"){return {val:parseFloat(m[1])*1000, unit:"克"};}
+  return {val:parseFloat(m[1]), unit};
+}
+function round1(n){ return Math.round(n*10)/10; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1800); }
+function nowStr(){ const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function addLog(type, detail){
+  if(!state.log) state.log=[];
+  state.log.unshift({t:nowStr(), type, detail});
+  if(state.log.length>500) state.log.length=500;
+}
+
+function statusOf(r){
+  const dl=daysLeft(r["到期日期"]);
+  const near = dl!==null && dl < state.config.near_expiry_days;
+  const {val,unit}=parseStock(r["现有库存数量"]);
+  const reorder = unit==="克" && val < state.config.reorder_g;
+  const base = r.manual_status || "正常库存";
+  const chips=[];
+  if(near) chips.push(["临近过期","s-near"]);
+  if(reorder) chips.push(["需要补货","s-reorder"]);
+  return {base, chips};
+}
+function sortRecs(recs){
+  const g = r => r["使用频率标签"]==="常用"?0:1;
+  const ed = r => { const d=parseDate(r["到期日期"]); return d? d.getTime(): null; };
+  return recs.slice().sort((a,b)=>{
+    const ga=g(a), gb=g(b);
+    if(ga!==gb) return ga-gb;
+    const ea=ed(a), eb=ed(b);
+    if(ea===null && eb===null) return a["药材名称"].localeCompare(b["药材名称"], "zh-Hans-CN");
+    if(ea===null) return -1;   // 无日期置顶
+    if(eb===null) return 1;
+    return ea-eb;              // 到期近的排前
+  });
+}
+function bagDisp(r){
+  const b=r["包装袋数"];
+  if(b==="—"||b==null||b==="") return "—";
+  if(typeof b==="number") return r["物料形态"]==="散装"?"—":(b+"袋");
+  return esc(b);
+}
+
+/* ---------- 渲染 ---------- */
+let curFilter="";
+function render(){
+  const tbody=document.getElementById("tbody");
+  const all=sortRecs(state.records);
+  const kw=curFilter.trim();
+  const rows = kw? all.filter(r=>r["药材名称"].includes(kw) || r["批次编号"].includes(kw) || (r["供应商批号"]||"").includes(kw)) : all;
+  tbody.innerHTML = rows.map((r,i)=>{
+    const {base,chips}=statusOf(r);
+    const nm = kw? esc(r["药材名称"]).replace(new RegExp("("+kw.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","g"),"<mark>$1</mark>") : esc(r["药材名称"]);
+    const ft = r["使用频率标签"]==="常用"? '<span class="tag t-common">常用</span>':'<span class="tag t-rare">不常用</span>';
+    let stHtml = '<span class="tag '+(base==="待入库"?"s-wait":base==="待报废"?"s-scrap":base==="正常库存"?"s-normal":"s-near")+'">'+esc(base)+'</span>';
+    chips.forEach(c=> stHtml+=' <span class="tag '+c[1]+'">'+c[0]+'</span>');
+    const idx = state.records.indexOf(r);
+    return `<tr id="row${idx}">
+      <td><span class="nm">${nm}</span></td>
+      <td>${esc(r["批次编号"])}</td>
+      <td class="muted">${esc(r["供应商批号"]||"—")}</td>
+      <td>${esc(r["物料形态"])}</td>
+      <td>${bagDisp(r)}</td>
+      <td>${esc(r["现有库存数量"])}</td>
+      <td class="${r["生产日期"]?"":"muted"}">${esc(r["生产日期"])||"—"}</td>
+      <td class="${r["到期日期"]?"":"muted"}">${esc(r["到期日期"])||"—"}</td>
+      <td>${ft}</td>
+      <td>${stHtml}</td>
+      <td><button class="tiny ghost" onclick="openEdit(${idx})">改</button>
+          <button class="tiny ghost" onclick="quickOut(${idx})">出</button>
+          <button class="tiny" style="background:#fff;color:var(--vermilion);border:1px solid var(--line)" onclick="delRec(${idx})">删</button></td>
+    </tr>`;
+  }).join("");
+  if(rows.length===0) tbody.innerHTML='<tr><td colspan="11" class="muted" style="text-align:center;padding:24px">无匹配记录</td></tr>';
+  renderSummary();
+}
+function renderSummary(){
+  const recs=state.records;
+  const common=recs.filter(r=>r["使用频率标签"]==="常用").length;
+  const rare=recs.length-common;
+  let near=0,re=0;
+  recs.forEach(r=>{const s=statusOf(r); if(s.chips.some(c=>c[0]==="临近过期"))near++; if(s.chips.some(c=>c[0]==="需要补货"))re++;});
+  document.getElementById("summary").innerHTML =
+    `<span class="chip">共 <b>${recs.length}</b> 条</span>`+
+    `<span class="chip">常用 <b>${common}</b></span>`+
+    `<span class="chip">不常用 <b>${rare}</b></span>`+
+    `<span class="chip">临近过期 <b>${near}</b></span>`+
+    `<span class="chip">需补货 <b>${re}</b></span>`;
+}
+
+/* ---------- 搜索 ---------- */
+const searchEl=document.getElementById("search");
+searchEl.addEventListener("input", ()=>{ curFilter=searchEl.value; render(); if(curFilter.trim()){ const f=document.querySelector("#tbody tr"); if(f) f.scrollIntoView({behavior:"smooth",block:"center"}); } });
+searchEl.addEventListener("keydown", e=>{ if(e.key==="Enter"){ const f=document.querySelector("#tbody tr"); if(f) f.scrollIntoView({behavior:"smooth",block:"center"}); } });
+
+/* ---------- 弹窗通用 ---------- */
+function openMask(id){ document.getElementById(id).classList.add("show"); }
+function closeMask(el){ el.classList.remove("show"); }
+document.querySelectorAll(".mask").forEach(m=> m.addEventListener("click",e=>{ if(e.target===m) m.classList.remove("show"); }));
+document.querySelectorAll("[data-close]").forEach(x=> x.addEventListener("click",e=> closeMask(e.target.closest(".mask"))));
+
+/* ---------- 出库 ---------- */
+function fillNames(sel, withAll){
+  const names=[...new Set(state.records.map(r=>r["药材名称"]))].sort((a,b)=>a.localeCompare(b,"zh-Hans-CN"));
+  sel.innerHTML = (withAll?'<option value="">全部</option>':'') + names.map(n=>`<option>${esc(n)}</option>`).join("");
+}
+function refreshOutBatch(){
+  const name=document.getElementById("outName").value;
+  const sel=document.getElementById("outBatch");
+  const bs=state.records.filter(r=>r["药材名称"]===name)
+    .sort((a,b)=> (a["物料形态"]==="散装"?0:1)-(b["物料形态"]==="散装"?0:1) || (parseDate(a["到期日期"])?.getTime()||1e15)-(parseDate(b["到期日期"])?.getTime()||1e15));
+  sel.innerHTML=bs.map(r=>`<option value="${esc(r["批次编号"])}">${esc(r["批次编号"])} · ${esc(r["物料形态"])} · 余${esc(r["现有库存数量"])} · ${esc(r["到期日期"])||"无到期"}</option>`).join("");
+  refreshOutHint();
+}
+function refreshOutHint(){
+  const r=curOutRec(); if(!r) return;
+  const {val,unit}=parseStock(r["现有库存数量"]);
+  document.getElementById("outHint").textContent=`该批剩余 ${round1(val)}${unit}（单位固定为${unit}）`;
+  document.getElementById("outQty").dataset.unit=unit;
+  refreshOutWarn();
+}
+function refreshOutWarn(){
+  const r=curOutRec(); const w=document.getElementById("outWarn"); if(!w) return;
+  if(!r){ w.style.display="none"; w.textContent=""; return; }
+  const {val}=parseStock(r["现有库存数量"]);
+  if(val<0){ w.style.display="block"; w.textContent="⚠ 此药材为从药房借入（负库存 "+round1(val)+"克），出库将增加欠款"; }
+  else { w.style.display="none"; w.textContent=""; }
+}
+function curOutRec(){
+  const name=document.getElementById("outName").value;
+  const bn=document.getElementById("outBatch").value;
+  return state.records.find(r=>r["药材名称"]===name && r["批次编号"]===bn);
+}
+document.getElementById("btnOut").onclick=()=>{ fillNames(document.getElementById("outName")); refreshOutBatch(); document.getElementById("outQty").value=""; document.getElementById("outNote").value=""; openMask("mOut"); };
+document.getElementById("outName").onchange=refreshOutBatch;
+document.getElementById("outBatch").onchange=refreshOutHint;
+document.getElementById("outFill").onclick=()=>{ const r=curOutRec(); if(r){ const {val}=parseStock(r["现有库存数量"]); document.getElementById("outQty").value=val; } };
+document.getElementById("outSubmit").onclick=()=>{
+  const r=curOutRec(); if(!r){ toast("请选择批次"); return; }
+  const unit=document.getElementById("outQty").dataset.unit;
+  const dest=document.getElementById("outDest").value;
+  let q=parseFloat(document.getElementById("outQty").value);
+  if(isNaN(q)||q<=0){ toast("请输入出库数量"); return; }
+  const {val}=parseStock(r["现有库存数量"]);
+  if(val>0 && q>val){ toast("超出该批库存，已按全部出库"); q=val; }
+  const nv=round1(val-q);
+  if(val<0) bumpBorrow(r["药材名称"], q);
+  const before=r["现有库存数量"];
+  r["现有库存数量"]= round1(nv)+unit;
+  if(val>0 && nv===0) r.manual_status="待报废";
+  addLog("出库", `${r["药材名称"]} ${r["批次编号"]} 出 ${round1(q)}${unit}（${before}→${r["现有库存数量"]}）${document.getElementById("outNote").value.trim()?(" · "+document.getElementById("outNote").value.trim()):""}${dest?(" · 去向:"+dest):""}`);
+  pushOp("out", [{name:r["药材名称"], batch:r["批次编号"], qty:round1(q)}], dest, document.getElementById("outNote").value.trim());
+  save(); closeMask(document.getElementById("mOut")); render(); toast("出库成功，库存已更新");
+};
+function quickOut(idx){ const r=state.records[idx]; fillNames(document.getElementById("outName")); document.getElementById("outName").value=r["药材名称"]; refreshOutBatch(); document.getElementById("outBatch").value=r["批次编号"]; refreshOutHint(); openMask("mOut"); }
+
+/* ---------- 入库 ---------- */
+let inForm="整装";
+document.querySelectorAll("#inForm button").forEach(b=> b.onclick=()=>{ document.querySelectorAll("#inForm button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); inForm=b.dataset.v; });
+document.getElementById("btnIn").onclick=()=>{ document.getElementById("inName").value=""; document.getElementById("inBags").value=""; document.getElementById("inQty").value=""; document.getElementById("inProd").value=""; document.getElementById("inExp").value=""; document.getElementById("inSup").value=""; document.getElementById("inNote").value=""; document.getElementById("inStatus").value=""; inForm="整装"; document.querySelectorAll("#inForm button").forEach((x,i)=>x.classList.toggle("on",i===0)); openMask("mIn"); };
+document.getElementById("inSubmit").onclick=()=>{
+  const name=document.getElementById("inName").value.trim();
+  if(!name){ toast("请输入药材名称"); return; }
+  const qty=parseFloat(document.getElementById("inQty").value);
+  if(isNaN(qty)||qty<=0){ toast("请输入库存数量"); return; }
+  const unit=document.getElementById("inUnit").value;
+  const bags = inForm==="整装"? (parseInt(document.getElementById("inBags").value)||1) : "—";
+  const freq=document.getElementById("inFreq").value;
+  const prod=document.getElementById("inProd").value.trim();
+  const exp=document.getElementById("inExp").value.trim();
+  const sup=document.getElementById("inSup").value.trim();
+  const st=document.getElementById("inStatus").value;
+  let max=0; state.records.forEach(r=>{ if(r["药材名称"]===name){ const m=r["批次编号"].match(/-(\d+)$/); if(m) max=Math.max(max,+m[1]); } });
+  const bn=`${name}-${pad(max+1)}`;
+  state.records.push({药材名称:name,物料形态:inForm,现有库存数量:(round1(qty)+unit),包装袋数:bags,生产日期:prod,到期日期:exp,使用频率标签:freq,manual_status:st||null,批次编号:bn,供应商批号:sup});
+  applyRepay(name, qty);
+  addLog("入库", `${name} ${bn} 入 ${round1(qty)}${unit}${sup?(" 批号:"+sup):""}${document.getElementById("inNote").value.trim()?(" · "+document.getElementById("inNote").value.trim()):""}`);
+  pushOp("in", [{name, batch:bn, qty, form:inForm, unit, bags, prod, exp, freq, sup, st}], "", document.getElementById("inNote").value.trim());
+  save(); closeMask(document.getElementById("mIn")); render(); toast("入库成功："+bn);
+};
+
+/* ---------- 茶包出库 ---------- */
+function teaRowHtml(name="",qty=""){
+  return `<div class="tea-row"><input class="tn" placeholder="药材名" value="${esc(name)}"><input class="tq" type="number" placeholder="需求量(克)" value="${esc(qty)}"><button class="del" onclick="this.parentNode.remove()">×</button></div>`;
+}
+document.getElementById("btnTea").onclick=()=>{ document.getElementById("teaList").innerHTML=teaRowHtml()+teaRowHtml(); document.getElementById("teaResult").innerHTML=""; document.getElementById("teaPacks").value=1; document.getElementById("teaPreviewBox").style.display="none"; document.getElementById("teaNote").value=""; openMask("mTea"); };
+document.getElementById("teaAdd").onclick=()=>{ document.getElementById("teaList").insertAdjacentHTML("beforeend", teaRowHtml()); };
+document.getElementById("teaSaveTpl").onclick=()=>{
+  const rows=[...document.querySelectorAll("#teaList .tea-row")].map(d=>({name:d.querySelector(".tn").value.trim(), qty:parseFloat(d.querySelector(".tq").value)}))
+    .filter(d=>d.name && !isNaN(d.qty) && d.qty>0);
+  if(!rows.length){ toast("请先填至少一行再存"); return; }
+  const nm=prompt("配方名称：", "新配方"); if(!nm) return;
+  if(!state.recipes) state.recipes=[];
+  state.recipes.push({name:nm.trim(), items:rows}); save(); toast("配方已保存："+nm);
+};
+document.getElementById("teaLoadTpl").onclick=()=>{ renderRecipes(); openMask("mRecipe"); };
+document.getElementById("teaSubmit").onclick=()=>{
+  const packs=Math.max(1, Math.floor(parseFloat(document.getElementById("teaPacks").value)||1));
+  const rows=[...document.querySelectorAll("#teaList .tea-row")].map(d=>({name:d.querySelector(".tn").value.trim(), qty:parseFloat(d.querySelector(".tq").value)}))
+    .filter(d=>d.name && !isNaN(d.qty) && d.qty>0);
+  if(!rows.length){ toast("请至少填一行"); return; }
+  const alloc=[]; const teaItems=[];
+  rows.forEach(row=>{
+    const pc=isPiece(row.name);
+    let need=round1(row.qty*packs);
+    let batches=state.records.filter(r=>r["药材名称"]===resolveName(row.name));
+    batches.sort((a,b)=> (a["物料形态"]==="散装"?0:1)-(b["物料形态"]==="散装"?0:1) || (parseDate(a["到期日期"])?.getTime()||1e15)-(parseDate(b["到期日期"])?.getTime()||1e15));
+    let lastB=null;
+    batches.forEach(b=>{
+      if(need<=0) return;
+      lastB=b;
+      const {val,unit}=parseStock(b["现有库存数量"]);
+      if(val<=0){ // 已欠药房，无实物可取，需求直接累加成欠款（负数）
+        const nv=round1(val-need);
+        b["现有库存数量"]=round1(nv)+unit;
+        alloc.push(`<span class="short">${esc(row.name)} <b>${esc(b["批次编号"])}</b> 无实物，记药房欠款 ${round1(need)}${unit}</span>`);
+        teaItems.push({name:resolveName(row.name), batch:b["批次编号"], qty:round1(need)});
+        bumpBorrow(resolveName(row.name), need);
+        need=0; return;
+      }
+      let take, gramsTaken, disp;
+      if(pc){
+        const needPkg=need/pc.gPerUnit, takePkg=Math.min(val,needPkg);
+        take=takePkg; gramsTaken=round1(takePkg*pc.gPerUnit);
+        disp=`${esc(row.name)} <b>${esc(b["批次编号"])}</b> 扣 ${round1(takePkg)}${unit}（≈${gramsTaken}·1${pc.piece}≈${pc.gPerUnit}克）`;
+        teaItems.push({name:resolveName(row.name), batch:b["批次编号"], qty:round1(takePkg)});
+      } else {
+        take=Math.min(val,need); gramsTaken=round1(take);
+        disp=`${esc(row.name)} <b>${esc(b["批次编号"])}</b> 扣 ${round1(take)}${unit}`;
+        teaItems.push({name:resolveName(row.name), batch:b["批次编号"], qty:round1(take)});
+      }
+      const nv=round1(val-take);
+      b["现有库存数量"]=round1(nv)+unit;
+      if(val>0 && nv===0) b.manual_status="待报废";
+      alloc.push(disp);
+      need=round1(need-gramsTaken);
+    });
+    if(need>0){ // 实物不足部分，记药房欠款（保持负数，便于日后核对从药房拿了多少）
+      if(lastB){
+        const {val,unit}=parseStock(lastB["现有库存数量"]);
+        const nv=round1(val-need);
+        lastB["现有库存数量"]=round1(nv)+unit;
+        teaItems.push({name:resolveName(row.name), batch:lastB["批次编号"], qty:round1(need)});
+        bumpBorrow(resolveName(row.name), need);
+        const msg = pc ? `实物不足，记药房欠款 ${round1(need)}克（约${round1(need/pc.gPerUnit)}${pc.piece}）` : `实物不足，记药房欠款 ${round1(need)}克`;
+        alloc.push(`<span class="short">${esc(row.name)} ${msg}</span>`);
+      } else {
+        alloc.push(`<span class="short">${esc(row.name)} 库存无此药材，记药房欠款 ${round1(need)}克</span>`);
+      }
+    }
+  });
+  const dest=document.getElementById("teaDest").value;
+  const note=document.getElementById("teaNote").value.trim();
+  const head=`${packs}份｜${dest}`+(note?`｜${note}`:"");
+  addLog("茶包出库", head+"｜"+rows.map(r=>`${r.name} ${round1(r.qty*packs)}克`).join("、"));
+  pushOp("tea_out", teaItems, dest, note);
+  save(); closeMask(document.getElementById("mTea")); render();
+  document.getElementById("teaResult").innerHTML='<div class="alloc"><div class="muted" style="font-size:12px">共 '+packs+' 份 · 去向：'+dest+(note?(' · 备注：'+esc(note)):'')+'</div>'+alloc.map(a=>`<div>${a}</div>`).join("")+'</div>';
+  toast("茶包出库完成");
+};
+function teaPreview(){
+  const packs=Math.max(1, Math.floor(parseFloat(document.getElementById("teaPacks").value)||1));
+  const rows=[...document.querySelectorAll("#teaList .tea-row")].map(d=>({name:d.querySelector(".tn").value.trim(), qty:parseFloat(d.querySelector(".tq").value)}))
+    .filter(d=>d.name && !isNaN(d.qty) && d.qty>0);
+  const box=document.getElementById("teaPreviewBox");
+  if(!rows.length){ box.style.display="none"; return; }
+  box.style.display="block";
+  const dest=document.getElementById("teaDest").value; box.innerHTML='<div class="muted" style="font-size:12px;margin-bottom:4px">去向：'+dest+' · 共 '+packs+' 份，每味总用量：</div>'+
+    rows.map(r=>{ const pc=isPiece(r.name); const g=round1(r.qty*packs);
+      const extra = pc? ` · 约${round1(g/pc.gPerUnit)}${pc.piece}（1${pc.piece}≈${pc.gPerUnit}克）` : "";
+      return `<div>${esc(r.name)} <b>${g}</b>克（每包${round1(r.qty)}×${packs}）${extra}</div>`; }).join("");
+}
+document.getElementById("teaPreview").onclick=teaPreview;
+document.getElementById("teaPacks").addEventListener("input", teaPreview);
+
+/* ---------- 配方 ---------- */
+function renderRecipes(){
+  const box=document.getElementById("recipeList");
+  if(!state.recipes||!state.recipes.length){ box.innerHTML='<div class="muted" style="padding:10px">暂无配方</div>'; return; }
+  box.innerHTML=state.recipes.map((rc,i)=>`<div class="recipe">
+    <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+      <input type="checkbox" class="rcChk" data-i="${i}" style="margin-top:4px">
+      <span><b>${esc(rc.name)}</b>（${rc.items.length}味）
+        <div class="muted" style="font-size:11px;margin-top:3px">${rc.items.map(it=>esc(it.name)+" "+round1(it.qty)+"克").join("、")}</div></span>
+    </label>
+    <div class="acts"><button class="tiny primary" onclick="loadRecipe(${i})">单独载入</button>
+    <button class="tiny ghost" onclick="delRecipe(${i})">删除</button></div></div>`).join("");
+}
+function loadRecipe(i){
+  const rc=state.recipes[i]; if(!rc) return;
+  document.getElementById("teaPacks").value=1;
+  document.getElementById("teaList").innerHTML=rc.items.map(it=>teaRowHtml(it.name, it.qty)).join("");
+  document.getElementById("teaNote").value="";
+  closeMask(document.getElementById("mRecipe")); openMask("mTea"); teaPreview(); toast("已载入配方："+rc.name);
+}
+function mergeRecipes(){
+  const ids=[...document.querySelectorAll(".rcChk:checked")].map(c=>parseInt(c.dataset.i));
+  if(!ids.length){ toast("请先勾选至少一个配方"); return; }
+  const merged={}; const src=[];
+  ids.forEach(i=>{
+    const rc=state.recipes[i]; if(!rc) return;
+    src.push(rc.name);
+    rc.items.forEach(it=>{ const k=resolveName(it.name); merged[k]=(merged[k]||0)+ (parseFloat(it.qty)||0); });
+  });
+  document.getElementById("teaList").innerHTML=Object.entries(merged).map(([k,q])=>teaRowHtml(k, round1(q))).join("");
+  document.getElementById("teaPacks").value=1;
+  document.getElementById("teaResult").innerHTML="";
+  document.getElementById("teaNote").value="";
+  closeMask(document.getElementById("mRecipe")); openMask("mTea"); teaPreview();
+  toast("已合并载入："+src.join("、"));
+}
+document.getElementById("recipeMerge").onclick=mergeRecipes;
+document.getElementById("rcAll").onchange=e=>{ document.querySelectorAll(".rcChk").forEach(c=>c.checked=e.target.checked); };
+function delRecipe(i){ if(!confirm("删除该配方？")) return; state.recipes.splice(i,1); save(); renderRecipes(); toast("已删除"); }
+document.getElementById("btnRecipe").onclick=()=>{ renderRecipes(); openMask("mRecipe"); };
+
+/* ---------- 批量录入 ---------- */
+function findDates(text){
+  const re=/(\d{4})\s*[年.\/-]\s*(\d{1,2})\s*[月.\/-]\s*(\d{1,2})/g; let m,out=[];
+  while((m=re.exec(text))) out.push(`${m[1]}-${pad(m[2])}-${pad(m[3])}`);
+  return out;
+}
+function parseLine(line){
+  line=line.trim(); if(!line) return null;
+  const name=line.split(/[，,]/)[0].trim(); if(!name) return null;
+  const form = /整装/.test(line)? "整装" : (/散装/.test(line)? "散装":"整装");
+  let bags="—";
+  const bm=line.match(/(\d+(?:\.\d+)?)\s*袋/); if(bm && form==="整装") bags=parseInt(bm[1]);
+  const pm=line.match(/(\d+(?:\.\d+)?)\s*包/); if(pm && form==="整装") bags=pm[1]+"包";
+  let stockStr=line.replace(/(\d+(?:\.\d+)?)\s*(袋|包)/g,"");
+  let sm=stockStr.match(/(?:共|计)?\s*(\d+(?:\.\d+)?)\s*(克|g|斤|公斤|kg)/i);
+  let val=null,unit="克";
+  if(sm){ val=parseFloat(sm[1]); unit="克"; }
+  else { const bm2=line.match(/(\d+(?:\.\d+)?)\s*包/); if(bm2){ val=parseFloat(bm2[1]); unit="包"; } }
+  if(val==null) return null;
+  let prod="", exp="";
+  const supM=line.match(/批号[:：]\s*([^\s，,]+)/); const sup=supM?supM[1]:"";
+  if(/无日期/.test(line)){ prod=""; exp=""; }
+  else{
+    const ds=findDates(line);
+    if(ds.length>=2){ prod=ds[0]; exp=ds[1]; }
+    else if(ds.length===1){
+      prod=ds[0];
+      const sm2=line.match(/保质期\s*(\d+)\s*(年|个月|月)/);
+      if(sm2){ const d=parseDate(prod); const add=sm2[2]==="年"? +sm2[1]*365 : +sm2[1]*30; const nd=new Date(d.getTime()+add*86400000); exp=`${nd.getFullYear()}-${pad(nd.getMonth()+1)}-${pad(nd.getDate())}`; }
+    }
+  }
+  const freq=/常用/.test(line)? "常用":"不常用";
+  return {药材名称:name,物料形态:form,现有库存数量:(round1(val)+unit),包装袋数:bags,生产日期:prod,到期日期:exp,使用频率标签:freq,manual_status:null,批次编号:null,供应商批号:sup};
+}
+document.getElementById("btnAdd").onclick=()=>{ document.getElementById("addText").value=""; openMask("mAdd"); };
+document.getElementById("addSubmit").onclick=()=>{
+  const lines=document.getElementById("addText").value.split(/\n/).map(parseLine).filter(Boolean);
+  if(!lines.length){ toast("未解析到有效记录"); return; }
+  lines.forEach(rec=>{
+    let max=0; state.records.forEach(r=>{ if(r["药材名称"]===rec.药材名称){ const m=r["批次编号"].match(/-(\d+)$/); if(m) max=Math.max(max,+m[1]); } });
+    rec.批次编号=`${rec.药材名称}-${pad(max+1)}`;
+    state.records.push(rec);
+  });
+  save(); closeMask(document.getElementById("mAdd")); render(); toast("已录入 "+lines.length+" 条");
+};
+
+/* ---------- 编辑 ---------- */
+function openEdit(idx){
+  const r=state.records[idx]; if(!r) return;
+  document.getElementById("edId").value=idx;
+  document.getElementById("edName").value=r["药材名称"];
+  document.getElementById("edBatch").value=r["批次编号"];
+  document.getElementById("edSup").value=r["供应商批号"]||"";
+  document.querySelectorAll("#edForm button").forEach(b=> b.classList.toggle("on", b.dataset.v===r["物料形态"]));
+  const b=r["包装袋数"]; document.getElementById("edBags").value=(b==="—"||b==null)?"":(typeof b==="number"?b:b);
+  const {val,unit}=parseStock(r["现有库存数量"]); document.getElementById("edQty").value=val;
+  document.getElementById("edUnit").value=unit;
+  document.getElementById("edFreq").value=r["使用频率标签"];
+  document.getElementById("edProd").value=r["生产日期"]||"";
+  document.getElementById("edExp").value=r["到期日期"]||"";
+  document.getElementById("edStatus").value=r.manual_status||"";
+  openMask("mEdit");
+}
+document.querySelectorAll("#edForm button").forEach(b=> b.onclick=()=>{ document.querySelectorAll("#edForm button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); });
+document.getElementById("edSubmit").onclick=()=>{
+  const idx=+document.getElementById("edId").value; const r=state.records[idx];
+  const form=document.querySelector("#edForm button.on").dataset.v;
+  const qty=parseFloat(document.getElementById("edQty").value); if(isNaN(qty)){ toast("数量错误"); return; }
+  const unit=document.getElementById("edUnit").value;
+  const bags=form==="整装"? (parseInt(document.getElementById("edBags").value)||1) : "—";
+  const beforeVal=parseStock(r["现有库存数量"]).val;
+  r["药材名称"]=document.getElementById("edName").value.trim()||r["药材名称"];
+  r["供应商批号"]=document.getElementById("edSup").value.trim();
+  r["物料形态"]=form; r["现有库存数量"]=round1(qty)+unit; r["包装袋数"]=bags;
+  { const delta=round1(qty-beforeVal); if(delta!==0) pushOp("adjust", [{name:r["药材名称"], batch:r["批次编号"], qty:delta}], "手动调整", ""); }
+  r["使用频率标签"]=document.getElementById("edFreq").value;
+  r["生产日期"]=document.getElementById("edProd").value.trim();
+  r["到期日期"]=document.getElementById("edExp").value.trim();
+  r["manual_status"]=document.getElementById("edStatus").value||null;
+  save(); closeMask(document.getElementById("mEdit")); render(); toast("已保存");
+};
+function delRec(idx){
+  const r=state.records[idx]; if(!r) return;
+  if(!confirm(`确认删除 ${r["药材名称"]} ${r["批次编号"]} ？`)) return;
+  state.records.splice(idx,1); save(); render(); toast("已删除");
+}
+
+/* ---------- 流水 ---------- */
+function renderLog(){
+  const b=document.getElementById("logBody");
+  if(!state.log||!state.log.length){ b.innerHTML='<tr><td colspan="3" class="muted" style="text-align:center;padding:18px">暂无流水记录</td></tr>'; return; }
+  b.innerHTML=state.log.map(l=>{
+    const cls=l.type==="出库"?"lt-out":l.type==="入库"?"lt-in":"lt-tea";
+    return `<tr><td class="muted">${esc(l.t)}</td><td class="${cls}">${esc(l.type)}</td><td>${esc(l.detail)}</td></tr>`;
+  }).join("");
+}
+document.getElementById("btnLog").onclick=()=>{ renderLog(); openMask("mLog"); };
+document.getElementById("logClear").onclick=()=>{ if(!confirm("确认清空全部流水？")) return; state.log=[]; save(); renderLog(); toast("已清空流水"); };
+
+/* ---------- 保存 / 拉取 ---------- */
+document.getElementById("btnSave").onclick=()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="药材库存_"+new Date().toISOString().slice(0,10)+".json"; a.click(); toast("已保存（下载JSON）");
+};
+document.getElementById("btnPull").onclick=()=> document.getElementById("fileImp").click();
+document.getElementById("fileImp").onchange=e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{ try{ const o=JSON.parse(rd.result); if(!o.records){ toast("文件格式错误"); return; }
+    if(!confirm("导入将合并：库存以文件为准，本地独有的流水/配方会保留。继续？")) { e.target.value=""; return; }
+    applyCloud(o, false);
+    toast("导入成功，共 "+o.records.length+" 条库存");
+  }catch(err){ toast("解析失败"); } };
+  rd.readAsText(f); e.target.value="";
+};
+document.getElementById("btnMd").onclick=()=>{
+  const all=sortRecs(state.records);
+  let md="| 药材名称 | 批次 | 供应商批号 | 形态 | 袋/包 | 现有库存 | 生产日期 | 到期日期 | 频率 | 状态备注 |\n|---|---|---|---|---|---|---|---|---|---|\n";
+  all.forEach(r=>{ const {base,chips}=statusOf(r); const st=[base,...chips.map(c=>c[0])].join("/"); md+=`| ${r["药材名称"]} | ${r["批次编号"]} | ${r["供应商批号"]||"—"} | ${r["物料形态"]} | ${bagDisp(r)} | ${r["现有库存数量"]} | ${r["生产日期"]||"—"} | ${r["到期日期"]||"—"} | ${r["使用频率标签"]} | ${st} |\n`; });
+  navigator.clipboard.writeText(md).then(()=>toast("Markdown 已复制"),()=>toast("复制失败，请手动"));
+};
+
+/* ---------- 设置 ---------- */
+document.getElementById("btnSet").onclick=()=>{ document.getElementById("setNear").value=state.config.near_expiry_days; document.getElementById("setRe").value=state.config.reorder_g; openMask("mSet"); };
+document.getElementById("setSubmit").onclick=()=>{ state.config.near_expiry_days=+document.getElementById("setNear").value||60; state.config.reorder_g=+document.getElementById("setRe").value||100; save(); closeMask(document.getElementById("mSet")); render(); toast("设置已保存"); };
+
+/* ---------- 云端同步（Dxy-Sync / GitHub） ---------- */
+const SYNC = { token:"", repo:"Corrupt-77/Dxy-Sync", branch:"main", dataFile:"herb_inventory.json" };
+function syncCfg(){
+  try{ const s=JSON.parse(localStorage.getItem("dx_herb_sync")||"{}");
+    if(s.token) SYNC.token=s.token; if(s.repo) SYNC.repo=s.repo;
+    if(s.branch) SYNC.branch=s.branch; if(s.dataFile) SYNC.dataFile=s.dataFile;
+  }catch(e){}
+}
+function syncSaveCfg(){ localStorage.setItem("dx_herb_sync", JSON.stringify({token:SYNC.token,repo:SYNC.repo,branch:SYNC.branch,dataFile:SYNC.dataFile})); }
+function ghHeaders(extra){ const h={"Accept":"application/vnd.github+json","User-Agent":"wb-herb","Authorization":"Bearer "+SYNC.token}; if(extra) Object.assign(h,extra); return h; }
+function ghUrl(){ return "https://api.github.com/repos/"+SYNC.repo+"/contents/"+encodeURIComponent(SYNC.dataFile)+"?ref="+SYNC.branch; }
+function opSig(o){ const its=(o.items||[]).map(i=>i.name+"/"+i.batch+"/"+i.qty).join(","); return o.t+"|"+o.kind+"|"+its+"|"+(o.dest||"")+"|"+(o.note||""); }
+function pushOp(kind, items, dest, note){
+  if(!state.ops) state.ops=[];
+  state.ops.unshift({ t:nowStr(), kind, items:items||[], dest:dest||"", note:note||"" });
+  if(state.ops.length>2000) state.ops.length=2000;
+}
+function replayOp(op, records){
+  if(!op.items) return;
+  op.items.forEach(it=>{
+    let rec = records.find(r=>r["药材名称"]===it.name && r["批次编号"]===it.batch);
+    if(!rec && op.kind!=="in") rec = records.find(r=>r["药材名称"]===it.name); // 出库批次缺失时按同名任意批次兜底
+    if(!rec && op.kind==="adjust") rec = records.find(r=>r["药材名称"]===it.name);
+    if(rec){
+      const {val,unit}=parseStock(rec["现有库存数量"]);
+      if(op.kind==="in"){ const nv=round1(val+(parseFloat(it.qty)||0)); rec["现有库存数量"]=round1(nv)+unit; }
+      else if(op.kind==="adjust"){ const nv=round1(val+(parseFloat(it.qty)||0)); rec["现有库存数量"]=round1(nv)+unit; if(nv>=0) rec.manual_status=null; }
+      else { const nv=round1(val-(parseFloat(it.qty)||0)); rec["现有库存数量"]=round1(nv)+unit; if(val>0 && nv===0) rec.manual_status="待报废"; }
+    } else if(op.kind==="in"){
+      records.push({药材名称:it.name,物料形态:it.form||"整装",现有库存数量:(round1(it.qty)+(it.unit||"克")),包装袋数:(it.bags||"—"),生产日期:it.prod||"",到期日期:it.exp||"",使用频率标签:it.freq||"不常用",manual_status:it.st||null,批次编号:it.batch,供应商批号:it.sup||""});
+    }
+  });
+}
+function applyCloud(obj, silent){
+  if(!obj.records){ if(!silent) toast("云端格式错误"); return false; }
+  /* ---- 增量合并：云端库存为基准，本地独有操作重放，流水/配方并集去重 ---- */
+  const localOps=(state.ops||[]).slice();
+  const localLog=(state.log||[]).slice();
+  const localRecipes=(state.recipes||[]).slice();
+  state=obj;
+  state.ops=state.ops||[];
+  /* 操作合并：本地有但云端没有的操作，重放到云端库存快照上（库存真正合并） */
+  const cloudOpKey=new Set(state.ops.map(o=>opSig(o)));
+  const extraOps=localOps.filter(o=>!cloudOpKey.has(opSig(o)));
+  extraOps.forEach(o=>replayOp(o, state.records));
+  if(extraOps.length) state.ops=[...state.ops, ...extraOps];
+  ensureBorrowLedger();
+  /* 合并流水：本地有但云端没有的，追加到前面 */
+  const remoteLogKeys=new Set((state.log||[]).map(l=>l.type+"|"+l.detail));
+  const extraLogs=localLog.filter(l=>!remoteLogKeys.has(l.type+"|"+l.detail));
+  if(extraLogs.length) state.log=[...extraLogs, ...(state.log||[])];
+  else state.log=state.log||[];
+  /* 合并配方：以名称去重，本地独有的追加 */
+  const remoteRcNames=new Set((state.recipes||[]).map(r=>r.name));
+  const extraRc=localRecipes.filter(r=>!remoteRcNames.has(r.name));
+  if(extraRc.length) state.recipes=[...(state.recipes||[]), ...extraRc];
+  else state.recipes=state.recipes||[];
+  state.records.forEach(r=>{ if(!("供应商批号" in r)) r["供应商批号"]=""; });
+  if(!state.config) state.config={near_expiry_days:60,reorder_g:100};
+  save(); render();
+  if(extraOps.length && !silent){
+    toast("已拉取（合并了 "+extraOps.length+" 笔本地出入库）");
+    if(SYNC.token) syncPush();   // 合并后自动推回云端，确保多端最终一致
+  }
+  else if(!silent) toast("已从云端拉取 ✅");
+  return true;
+}
+async function syncPull(silent){
+  if(!SYNC.token){ if(!silent){ toast("请先在☁云端填写 Token"); openMask("mCloud"); } return; }
+  try{
+    const r=await fetch(ghUrl(),{headers:ghHeaders()});
+    if(!r.ok){ if(!silent) toast("拉取失败："+r.status); return; }
+    const j=await r.json();
+    const txt=decodeURIComponent(escape(atob(j.content)));
+    const o=JSON.parse(txt);
+    if(silent){ applyCloud(o,true); }
+    else{ if(!confirm("从云端拉取：库存以云端为准，本地独有的流水/配方会保留。继续？")) return; applyCloud(o,false); toast("已从云端拉取 ✅"); }
+  }catch(e){ if(!silent) toast("拉取失败："+e.message); }
+}
+async function syncPush(){
+  if(!SYNC.token){ toast("请先在☁云端填写 Token"); openMask("mCloud"); return; }
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify(state,null,2))));
+  let sha=null;
+  try{ const r=await fetch(ghUrl(),{headers:ghHeaders()}); if(r.ok){ const j=await r.json(); sha=j.sha; } }catch(e){}
+  const body={message:"herb sync "+new Date().toISOString(), content:content, branch:SYNC.branch};
+  if(sha) body.sha=sha;
+  try{
+    const r=await fetch(ghUrl(),{method:"PUT",headers:ghHeaders({"Content-Type":"application/json"}),body:JSON.stringify(body)});
+    if(r.ok){ toast("已保存到云端 ✅"); } else { toast("保存失败："+r.status); }
+  }catch(e){ toast("保存失败："+e.message); }
+}
+async function syncTest(){
+  if(!SYNC.token){ toast("请先填写 Token"); return; }
+  try{ const r=await fetch(ghUrl(),{headers:ghHeaders()}); if(r.ok) toast("连接成功 ✅"); else toast("连接失败："+r.status); }catch(e){ toast("网络错误"); }
+}
+document.getElementById("btnCloud").onclick=()=>{
+  document.getElementById("syncToken").value=SYNC.token;
+  document.getElementById("syncRepo").value=SYNC.repo;
+  document.getElementById("syncBranch").value=SYNC.branch;
+  document.getElementById("syncFile").value=SYNC.dataFile;
+  openMask("mCloud");
+};
+document.getElementById("syncSaveCfg").onclick=()=>{
+  SYNC.token=document.getElementById("syncToken").value.trim();
+  SYNC.repo=document.getElementById("syncRepo").value.trim()||SYNC.repo;
+  SYNC.branch=document.getElementById("syncBranch").value.trim()||SYNC.branch;
+  SYNC.dataFile=document.getElementById("syncFile").value.trim()||SYNC.dataFile;
+  syncSaveCfg(); toast("云端配置已保存");
+};
+document.getElementById("syncTest").onclick=syncTest;
+document.getElementById("syncPush").onclick=syncPush;
+document.getElementById("syncPull").onclick=()=>syncPull(false);
+syncCfg();
+if(SYNC.token){ syncPull(true); }
+/* ---------- 药房借看板 + 回补核销 ---------- */
+function applyRepay(name, qty){
+  let remain=+qty;
+  state.records.forEach(r=>{
+    if(remain<=0) return;
+    if(r["药材名称"]===name){
+      const {val,unit}=parseStock(r["现有库存数量"]);
+      if(val<0){ const cut=Math.min(-val, remain); const nv=round1(val+cut); r["现有库存数量"]=round1(nv)+unit; if(nv>=0) r.manual_status=null; bumpRepay(name, cut); remain=round1(remain-cut); }
+    }
+  });
+}
+/* ---------- 药房借：累计借入/已还台账 ---------- */
+function ensureBorrowLedger(){
+  if(!state.borrowLedger) state.borrowLedger={};
+  let changed=false;
+  state.records.forEach(r=>{ const {val}=parseStock(r["现有库存数量"]);
+    if(val<0){ const n=r["药材名称"]; const e=state.borrowLedger[n]||(state.borrowLedger[n]={borrowed:0,repaid:0}); if(e.borrowed < -val){ e.borrowed=round1(-val); changed=true; } } });
+  if(changed) save();
+}
+function bumpBorrow(name, qty){ qty=+(parseFloat(qty)||0); if(qty<=0) return; const e=state.borrowLedger[name]||(state.borrowLedger[name]={borrowed:0,repaid:0}); e.borrowed=round1(e.borrowed+qty); }
+function bumpRepay(name, qty){ qty=+(parseFloat(qty)||0); if(qty<=0) return; const e=state.borrowLedger[name]||(state.borrowLedger[name]={borrowed:0,repaid:0}); e.repaid=round1(e.repaid+qty); }
+
+function renderBorrow(){
+  const box=document.getElementById("borrowList");
+  ensureBorrowLedger();
+  const byName={};
+  state.records.forEach(r=>{ const {val,unit}=parseStock(r["现有库存数量"]); if(val<0){ const n=r["药材名称"]; (byName[n]=byName[n]||{owe:0,batches:[]}); byName[n].owe+=(-val); byName[n].batches.push(esc(r["批次编号"])+" "+round1(-val)+unit); } });
+  const names=Object.keys(byName);
+  if(!names.length){ box.innerHTML='<div class="muted" style="padding:10px">暂无药房借欠款 ✅</div>'; return; }
+  let tb=0,tr=0,tow=0;
+  const rows=names.map(n=>{ const o=byName[n]; const e=state.borrowLedger[n]||{borrowed:0,repaid:0}; tb+=e.borrowed; tr+=e.repaid; tow+=o.owe;
+    return `<div class="alloc" style="margin-bottom:8px"><div><b>${esc(n)}</b> · 当前欠款 <span class="short">${round1(o.owe)}克</span></div>
+      <div style="font-size:12px;color:#888">批次：${o.batches.join("、")}</div>
+      <div style="font-size:12px;margin-top:2px">累计借入 <b>${round1(e.borrowed)}克</b> · 已还 <b style="color:#2a8">${round1(e.repaid)}克</b></div>
+      <button class="tiny ghost" style="margin-top:4px" onclick="repayBorrow('${esc(n)}')">回补冲抵</button></div>`; }).join("");
+  const total=`<div style="border-top:1px dashed #ddd;margin-top:8px;padding-top:8px;font-size:13px"><b>合计</b> · 累计借入 <b>${round1(tb)}克</b> · 已还 <b style="color:#2a8">${round1(tr)}克</b> · 当前欠款 <span class="short">${round1(tow)}克</span></div>`;
+  box.innerHTML=rows+total;
+}
+function repayBorrow(name){
+  document.getElementById("inName").value=name;
+  document.getElementById("inBags").value="";
+  document.getElementById("inQty").value="";
+  document.getElementById("inProd").value="";
+  document.getElementById("inExp").value="";
+  document.getElementById("inSup").value="";
+  document.getElementById("inNote").value="回补药房借";
+  document.getElementById("inStatus").value="";
+  inForm="整装"; document.querySelectorAll("#inForm button").forEach((x,i)=>x.classList.toggle("on",i===0));
+  closeMask(document.getElementById("mBorrow")); openMask("mIn");
+}
+document.getElementById("btnBorrow").onclick=()=>{ renderBorrow(); openMask("mBorrow"); };
+
+/* ---------- 采购清单（消耗累计·自动补货） ---------- */
+function renderBuy(){
+  const box=document.getElementById("buyList");
+  const consume={};
+  (state.ops||[]).forEach(o=>{ if(o.kind==="out"||o.kind==="tea_out"){ (o.items||[]).forEach(it=>{ const n=it.name; consume[n]=(consume[n]||0)+(parseFloat(it.qty)||0); }); } });
+  const seen={}; const uniq=[];
+  state.records.forEach(r=>{
+    const name=r["药材名称"];
+    if(seen[name]) return; seen[name]=true;
+    const {val,unit}=parseStock(r["现有库存数量"]);
+    const total=state.records.filter(x=>x["药材名称"]===name).reduce((s,x)=>s+parseStock(x["现有库存数量"]).val,0);
+    if(unit==="克" && total < state.config.reorder_g) uniq.push({name, total, consume:round1(consume[name]||0)});
+  });
+  if(!uniq.length){ box.innerHTML='<div class="muted" style="padding:10px">当前无需补货 ✅</div>'; box.dataset.text=""; return; }
+  box.innerHTML=uniq.map(x=>`<div class="alloc" style="margin-bottom:6px"><div><b>${esc(x.name)}</b> · 现有合计 <span class="short">${round1(x.total)}克</span> · 累计消耗 ${x.consume}克</div></div>`).join("");
+  box.dataset.text=uniq.map(x=>`${x.name} 现有${round1(x.total)}克 累计消耗${x.consume}克（低于${state.config.reorder_g}克需补货）`).join("\n");
+}
+document.getElementById("btnBuy").onclick=()=>{ renderBuy(); openMask("mBuy"); };
+document.getElementById("buyCopy").onclick=()=>{ const t=document.getElementById("buyList").dataset.text||""; if(!t){ toast("暂无可复制清单"); return; } navigator.clipboard.writeText(t).then(()=>toast("采购清单已复制"),()=>toast("复制失败，请手动")); };
+
+/* ---------- 盘点（盘盈/盘亏） ---------- */
+document.getElementById("btnStock").onclick=()=>{ document.getElementById("stockText").value=""; document.getElementById("stockResult").innerHTML=""; openMask("mStock"); };
+document.getElementById("stockSubmit").onclick=()=>{
+  const lines=document.getElementById("stockText").value.split(/\n/).map(s=>s.trim()).filter(Boolean);
+  if(!lines.length){ toast("请先填写盘点数据"); return; }
+  const diffs=[];
+  lines.forEach(line=>{
+    const m=line.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*(克|g|公斤|kg|斤|袋|包)?$/i);
+    if(!m){ toast("无法解析："+line); return; }
+    const name=resolveName(m[1].trim()); const actual=parseFloat(m[2]); const unit=m[3]? (m[3].toLowerCase()==="g"?"克":m[3]) : "克";
+    const recs=state.records.filter(r=>r["药材名称"]===name);
+    if(!recs.length){ toast("库存无此药材："+name); return; }
+    const total=recs.reduce((s,r)=>s+parseStock(r["现有库存数量"]).val,0);
+    diffs.push({name, actual, total, delta:round1(actual-total), unit});
+  });
+  if(!diffs.length) return;
+  diffs.forEach(d=>{
+    const r=state.records.find(x=>x["药材名称"]===d.name);
+    const {val,unit}=parseStock(r["现有库存数量"]);
+    const nv=round1(val+d.delta);
+    r["现有库存数量"]=round1(nv)+(d.unit||unit);
+    if(nv>=0) r.manual_status=null;
+    addLog("盘点调整", `${d.name} 账${round1(d.total)}→实${d.actual}（${d.delta>=0?"盘盈+":""}${round1(d.delta)}）`);
+    pushOp("adjust", [{name:d.name, batch:r["批次编号"], qty:d.delta}], "盘点", "");
+  });
+  save(); render();
+  document.getElementById("stockResult").innerHTML='<div class="alloc">'+diffs.map(d=>`<div>${esc(d.name)} 账 ${round1(d.total)} → 实 ${d.actual}（<b class="${d.delta>=0?'s-normal':'s-reorder'}">${d.delta>=0?'+':''}${round1(d.delta)}</b>）</div>`).join("")+'</div>';
+  toast("盘点调整完成");
+};
+
+/* ---------- 配置（别名 / 按个换算，随云端同步） ---------- */
+function cfgToText(map){
+  return Object.entries(map||{}).map(([k,v])=> typeof v==="object"? `${k}=${v.gPerUnit}` : `${k}=${v}`).join("\n");
+}
+document.getElementById("btnCfg").onclick=()=>{
+  const a=(state.config&&state.config.aliases)||{}; const p=(state.config&&state.config.pieces)||{};
+  document.getElementById("cfgAlias").value=cfgToText(a);
+  document.getElementById("cfgPiece").value=cfgToText(p);
+  openMask("mCfg");
+};
+document.getElementById("cfgSubmit").onclick=()=>{
+  const aliases={}; document.getElementById("cfgAlias").value.split(/\n/).map(s=>s.trim()).filter(Boolean).forEach(l=>{ const i=l.indexOf("="); if(i>0) aliases[l.slice(0,i).trim()]=l.slice(i+1).trim(); });
+  const pieces={}; document.getElementById("cfgPiece").value.split(/\n/).map(s=>s.trim()).filter(Boolean).forEach(l=>{ const i=l.indexOf("="); if(i>0){ const g=parseFloat(l.slice(i+1).trim()); if(!isNaN(g)) pieces[l.slice(0,i).trim()]={gPerUnit:g, piece:"个"}; } });
+  if(!state.config) state.config={near_expiry_days:60,reorder_g:100};
+  state.config.aliases=aliases; state.config.pieces=pieces;
+  save(); closeMask(document.getElementById("mCfg")); render(); toast("配置已保存（已随云端同步）");
+};
+
+/* ---------- 初始化 ---------- */
+render();
+</script>
+</body>
+</html>
