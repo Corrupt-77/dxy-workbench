@@ -1584,6 +1584,36 @@ async function refreshHot(){
   toast('已刷新实时热点');
 }
 
+/* ---------- 固定时间自动刷新（恢复项：每小时 / 每日 09:00 定点） ---------- */
+let _autoRefreshTimer=null, _viralRefreshedDate='';
+function fmtClock(d){ return d.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',hour12:false}); }
+function setAutoStatus(){
+  const ts=fmtClock(new Date());
+  if($('ai-time')) $('ai-time').textContent='自动更新于 '+ts+'（每 60 分钟刷新）';
+  if($('hot-time')) $('hot-time').textContent='已刷新 '+ts+'（每 60 分钟自动刷新）';
+  if($('hainan-time')) $('hainan-time').textContent='最后更新：'+new Date().toLocaleString('zh-CN',{hour12:false})+'（每 60 分钟自动刷新）';
+}
+async function autoRefreshOnce(){
+  try{
+    await fetchLiveHotspots();
+    await fetchLiveHainan();
+    try{ await fetchAITopics(); }catch(e){}
+    renderAiHotspot(); renderWeeklyTopics(); renderHot();
+    const now=new Date();
+    if(now.getHours()===9 && _viralRefreshedDate!==now.toDateString()){
+      await fetchLiveViral(); _viralRefreshedDate=now.toDateString();
+    }
+    setAutoStatus();
+    console.log('[auto-refresh] 已自动刷新热点/海南热点/AI选题', fmtClock(now));
+  }catch(e){ console.warn('[auto-refresh] 失败', e); }
+}
+function setupAutoRefresh(){
+  if(_autoRefreshTimer) clearInterval(_autoRefreshTimer);
+  _autoRefreshTimer=setInterval(autoRefreshOnce, 60*60*1000); // 每 60 分钟
+  setTimeout(autoRefreshOnce, 30000); // 进入后 30 秒补刷一次，确保云端数据就位
+  console.log('[auto-refresh] 已启用：每 60 分钟刷新热点/海南热点/AI选题，每日 09:00 刷新爆款');
+}
+
 /* ---------- 我的选题 ---------- */
 function myTopicsKey(){ return 'dxy_mytopics'; } // 全局 key，不再按日期分片
 function getMyTopics(){ try{ return JSON.parse(localStorage.getItem(myTopicsKey()))||[]; }catch(e){ return []; } }
@@ -2541,6 +2571,7 @@ document.addEventListener('DOMContentLoaded', function(){
   });
   fetchAITopics().then(()=>renderWeeklyTopics());
   bindSyncUI();
+  setupAutoRefresh(); // 恢复「固定时间自动刷新」
   // Pages 版不注册 Service Worker，避免缓存导致改版后看不到新内容；每次打开均拉取最新 HTML。
 });
 </script>
