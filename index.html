@@ -486,7 +486,7 @@
       <div class="section-title" style="margin-top:16px;" data-page-node-id="kaxjIaDm8861UbORPJEnYV">今日素材建议 <span class="tag" data-page-node-id="EqNdjRwQUgCMQCwy8FpGjO">按今日选题自动匹配</span></div>
       <div class="panel" id="today-assets" data-page-node-id="OTwd1dwG3a9TfsvcApodg0"><div class="empty-tip" data-page-node-id="GBHeKHGKv8x6DPGkaJU5uG">—</div></div>
 
-      <div class="section-title" style="margin-top:16px;" data-page-node-id="EXP_HDR_TITLE">近期专家到诊 <span class="tag" data-page-node-id="EXP_HDR_TAG">曹琳 · 刘瑞鑫 · 樊麟 · 倒计时 ≤7 天自动高亮 · <a href="javascript:void(0)" onclick="switchPage('expert');return false;" data-page-node-id="EXP_HDR_GOTO" style="color:var(--primary);text-decoration:underline;">→ 完整专题</a></span></div>
+      <div class="section-title" style="margin-top:16px;" data-page-node-id="EXP_HDR_TITLE">近期专家到诊 <span class="tag" data-page-node-id="EXP_HDR_TAG">王东超 · 常玦明 · 曹琳 · 刘瑞鑫 · 樊麟 · 倒计时 ≤7 天自动高亮 · <a href="javascript:void(0)" onclick="switchPage('expert');return false;" data-page-node-id="EXP_HDR_GOTO" style="color:var(--primary);text-decoration:underline;">→ 完整专题</a></span></div>
       <div id="today-expert-card" data-page-node-id="EXP_HDR_CONTAINER"><div class="empty-tip" data-page-node-id="EXP_HDR_PLACEHOLDER">—</div></div>
     </section>
 
@@ -661,7 +661,7 @@
 
     <!-- 页面：专家到诊专题 -->
     <section class="page" id="page-expert" data-page-node-id="3DdREHFd8dkt4WA6PDjOr0">
-      <div class="section-title" data-page-node-id="TNNKuSIJ4ckzMhLbDgLvKI">专家到诊专题 <span class="tag" data-page-node-id="BdyybXyvppmT7atu6r4xgQ">曹琳 · 刘瑞鑫 · 樊麟 · 到诊不固定，按日期倒推排宣传</span></div>
+      <div class="section-title" data-page-node-id="TNNKuSIJ4ckzMhLbDgLvKI">专家到诊专题 <span class="tag" data-page-node-id="BdyybXyvppmT7atu6r4xgQ">王东超 · 常玦明 · 曹琳 · 刘瑞鑫 · 樊麟 · 到诊不固定，按日期倒推排宣传</span></div>
       <div class="panel" style="margin-bottom:14px;font-size:13px;color:var(--muted);" data-page-node-id="t4hdzZ89ZlRMdxYisPrxXP">
         三位专家均<b data-page-node-id="PQZAkR47nA0mHD9BNOnfwP">半个月左右来一次、日期不固定</b>，不占每周固定档期。在此录入到诊日期后，系统按
         <b data-page-node-id="D3XjovUkfKByleIryJlEvt">到诊前 7 天（预热）→ 前 3 天（造势）→ 到诊当天（转化）→ 到诊后（回顾）</b>
@@ -1879,6 +1879,66 @@ function copyToday(which){
 
 /* ================= 专家到诊专题 ================= */
 const EXPERT_LIB = {
+  '王东超': { tags:['防脱生发','第九代男科传人','非遗脉诊','内科主治医师','脂溢性脱发','产后脱发','疲劳虚损'],
+    hot:['发际线后移','洗头一抓一把','头顶稀疏','产后大把掉发','非遗脉诊','男科隐私调理','体检正常却总累'],
+    topics:{
+      warm:[
+        '换季掉发猛到堵下水道？不是洗发水的事，王医生讲脂溢型头皮环境',
+        '发际线一年后移两指？王医生用非遗脉诊看你是血虚还是湿热',
+        '生完娃大把掉发、发缝越来越宽？王医生讲产后气血亏的养护窗口期',
+        '体检各项正常却天天累、提不起劲？中医叫"虚劳"，脉上能看出来',
+        '男人的问题不敢开口？王医生：第九代男科传人，隐私门诊单独走',
+        '喝凉的就拉、吃辣就上火？王医生一把脉说清你是寒体还是热体'
+      ],
+      hit:[
+        '明天王医生坐诊！脱发 / 男科 / 长期疲劳 现场脉诊给评估',
+        '来了！王东超医生防脱生发专场，脱发分型一次讲清',
+        '头顶见头皮、扎不起马尾？王医生分型对因不乱补',
+        '非遗脉诊现场示教：三根手指到底在摸什么',
+        '男科隐私诊室明天开放，第九代传人亲诊，全程一对一',
+        '长期失眠+疲劳+掉发一起来？王医生说要先辨内科底子'
+      ],
+      review:[
+        '上周王医生防脱调理反馈：她最意外的是头皮出油变化',
+        '产后脱发养护一个月实录：发缝的变化她自己都没敢信',
+        '王医生走前叮嘱：养发这 3 件事做错等于白养',
+        '脉诊说她"虚不受补"，之前吃的补品全白费',
+        '男科调理反馈实录（已征得同意，全程不露脸）',
+        '总疲劳查不出原因的她，调理一个月后敢早起了'
+      ] },
+    copy:{ wx:'王东超医生明天来德馨远！第九代男科传人 + 非遗脉诊 + 内科主治，掉发严重、长期疲劳、男科想私下问的朋友别错过，想约的私我留号～',
+      dy:'很多人掉发疯狂换洗发水，王医生说要先分型：脂溢、血虚、肾虚养护路子完全不同。明天他来德馨远坐诊，非遗脉诊现场辨体质，想了解的评论区扣 1。',
+      xhs:'掉发 / 发际线后移 / 长期疲劳看过来✨ 王东超医生 第九代男科传人 + 非遗脉诊，明天坐诊德馨远。分型辨证不乱补，附预约方式，建议先囤功课。' } },
+  '常玦明': { tags:['非遗整骨','体态调整','产后康复','骨盆修复','脊柱侧弯筛查','长短腿评估','脏腑推拿'],
+    hot:['圆肩驼背','骨盆前倾','长短腿','产后腰痛','妈妈臀','脊柱侧弯','久坐腰板'],
+    topics:{
+      warm:[
+        '照片里总感觉自己"驼"？常医生现场量一次，圆肩驼背当场看数据',
+        '没摔过却总腰胯疼、走路不稳？可能是骨盆错位，不是"腰肌劳损"',
+        '两条裤腿一直不一样长？长短腿评估 3 分钟就能自查',
+        '产后一年腰还是酸、肚子收不回？不是胖，是骨盆和筋膜没归位',
+        '娃背书包一肩高一肩低？青少年脊柱侧弯要趁早筛',
+        '海南人久坐加空调房，腰板得像块铁——常医生讲"骨正筋柔气血通"'
+      ],
+      hit:[
+        '明天常医生坐诊！体态评估 / 整骨 / 产后康复 现场给方案',
+        '来了！常玦明医生非遗整骨专场，圆肩驼背骨盆一次评估',
+        '骨盆一歪浑身疼？常医生演示轻柔复位手法',
+        '产后康复窗口期别错过，常医生讲什么阶段能做什么',
+        '青少年脊柱筛查明天开放，家长可带娃一起来评估',
+        '体态问题拍照就能看出来？常医生教你三个自查动作'
+      ],
+      review:[
+        '上周体态评估反馈：她第一次知道自己长短腿差 1.2 公分',
+        '整骨后走路"轻了"是什么感觉，她描述得很具体',
+        '常医生走前叮嘱：整骨后这 3 个姿势别再犯',
+        '产后康复 4 周记录：从不敢抱娃到能自己拎菜',
+        '孩子脊柱筛查结果出来，家长后悔没早两年来',
+        '久坐族体态改善实录：办公室这个动作她练了一个月'
+      ] },
+    copy:{ wx:'常玦明医生明天来德馨远！非遗整骨 + 体态调整 + 产后康复，圆肩驼背、骨盆歪、产后腰酸的朋友别错过，手法轻柔评估细，想约的私我留号～',
+      dy:'腰疼一直当成"腰肌劳损"？常医生说很多人其实是骨盆错位、体态代偿。现场评估长短腿和骨盆，演示整骨复位。明天他来德馨远坐诊，想了解的评论区扣 1。',
+      xhs:'圆肩驼背 / 骨盆前倾 / 产后腰酸看过来✨ 常玦明医生 非遗整骨 + 产后康复，明天坐诊德馨远。现场体态评估给数据，附预约方式，建议穿紧身衣来。' } },
   '曹琳': { tags:['中医美容颊针','病根秘穴埋线','面部年轻化','痤疮','黄褐斑','减肥塑形','产后修复'],
     hot:['脸垮松弛','黄褐斑反复','埋线减肥','颊针提气色','产后漏尿','法令纹深','中医抗衰'],
     topics:{
