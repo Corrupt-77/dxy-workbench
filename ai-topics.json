@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-09T12:54:17+08:00",
+  "generatedAt": "2026-10-11T10:58:12+08:00",
   "weekStart": "2026-10-05",
   "weekEnd": "2026-10-11",
   "weekly": [
@@ -259,7 +259,7 @@
       "doctor": "无",
       "duration": "无需",
       "needDoc": "否",
-      "isToday": true,
+      "isToday": false,
       "isReview": false,
       "candidates": [
         {
@@ -383,7 +383,7 @@
       "doctor": "无",
       "duration": "居家",
       "needDoc": "否",
-      "isToday": false,
+      "isToday": true,
       "isReview": true,
       "candidates": []
     }
