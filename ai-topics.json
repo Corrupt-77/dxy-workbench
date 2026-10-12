@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-12T23:46:07+08:00",
+  "generatedAt": "2026-10-13T00:57:13+08:00",
   "weekStart": "2026-10-12",
   "weekEnd": "2026-10-18",
   "weekly": [
@@ -11,7 +11,7 @@
       "doctor": "常玦明",
       "duration": "1–1.5h",
       "needDoc": "是·周日约",
-      "isToday": true,
+      "isToday": false,
       "isReview": false,
       "candidates": [
         {
@@ -75,7 +75,7 @@
       "doctor": "曹琳",
       "duration": "1–1.5h",
       "needDoc": "是·周一约",
-      "isToday": false,
+      "isToday": true,
       "isReview": false,
       "candidates": [
         {
