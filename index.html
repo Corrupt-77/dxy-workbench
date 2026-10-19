@@ -1299,7 +1299,10 @@ async function fetchTopics(){
 }
 async function fetchAITopics(){
   try{
-    const j = await fetchFromGitHub('ai-topics.json');
+    let j = await fetchFromGitHub('ai-topics.json');
+    if(!j){
+      try{ const r=await fetch('./ai-topics.json?t='+Date.now(),{cache:'no-store'}); if(r.ok) j=await r.json(); }catch(e){}
+    }
     if(j && Array.isArray(j.weekly) && j.weekly.length){
       window.__WEEKLY__ = j.weekly;
       window.__AI_META__ = j;
@@ -1595,13 +1598,11 @@ async function autoRefreshOnce(){
     await fetchLiveHotspots();
     await fetchLiveHainan();
     try{ await fetchAITopics(); }catch(e){}
+    try{ await fetchLiveViral(); }catch(e){}
     renderAiHotspot(); renderWeeklyTopics(); renderHot();
     const now=new Date();
-    if(now.getHours()===9 && _viralRefreshedDate!==now.toDateString()){
-      await fetchLiveViral(); _viralRefreshedDate=now.toDateString();
-    }
     setAutoStatus();
-    console.log('[auto-refresh] 已自动刷新热点/海南热点/AI选题', fmtClock(now));
+    console.log('[auto-refresh] 已自动刷新热点/海南热点/AI选题/爆款', fmtClock(now));
   }catch(e){ console.warn('[auto-refresh] 失败', e); }
 }
 function setupAutoRefresh(){
