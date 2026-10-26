@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一刻钟·中医调理站 | 招商银行 × 德馨远中医馆</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23B82626'/%3E%3Cpath d='M32 12c6 7 10 12 10 20 0 10-6 17-10 20-4-3-10-10-10-20 0-8 4-13 10-20z' fill='%23F9F6F0'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#B82626;          /* 朱砂红 */
+  --cream:#F9F6F0;        /* 米白 */
+  --gold:#C8A050;         /* 烫金 */
+  --ink:#2B2825;          /* 墨黑 */
+  --gray:#6B655E;         /* 深灰 */
+  --line:#E4D8C6;         /* 细线 */
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  background:#EFE8DB;color:var(--ink);line-height:1.6;
+}
+.font-title{font-family:'Noto Serif SC','Songti SC','SimSun',serif;}
+.page{max-width:560px;margin:0 auto;background:var(--cream);box-shadow:0 0 40px rgba(0,0,0,.12);}
+
+/* ===== 通用按钮 ===== */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--red);color:#fff;border:none;cursor:pointer;text-decoration:none;
+  font-size:16px;letter-spacing:1px;padding:14px 24px;border-radius:40px;
+  font-family:'Noto Sans SC',sans-serif;transition:opacity .25s;
+  box-shadow:0 6px 18px rgba(184,38,38,.25);
+}
+.btn:active{opacity:.85;}
+.btn-ghost{background:#fff;color:var(--red);border:1px solid var(--red);box-shadow:none;}
+.btn-gold{background:var(--gold);color:#fff;box-shadow:0 6px 18px rgba(200,160,80,.3);}
+
+/* ===== 回纹边框 ===== */
+.huiwen{height:14px;background-repeat:repeat-x;opacity:.9;}
+.huiwen-top{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14'%3E%3Cpath d='M0 12h6v-8h6v8h10v-8h6' fill='none' stroke='%23B82626' stroke-width='1.4'/%3E%3C/svg%3E");}
+.huiwen-bottom{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14'%3E%3Cpath d='M0 2h6v8h6v-8h10v8h6' fill='none' stroke='%23B82626' stroke-width='1.4'/%3E%3C/svg%3E");}
+
+/* ===== 淡入 ===== */
+.fade{opacity:0;transform:translateY(18px);transition:opacity .8s ease,transform .8s ease;}
+.fade.in{opacity:1;transform:none;}
+
+/* ===== 第1屏 封面 ===== */
+#sec-cover{position:relative;min-height:100vh;display:flex;flex-direction:column;padding:14px 24px 26px;overflow:hidden;}
+.cover-cloud{
+  position:absolute;inset:0;background-image:url("assets/cloud.jpg");
+  background-size:340px;opacity:.14;pointer-events:none;
+}
+.cover-inner{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.topbar{width:100%;display:flex;justify-content:center;align-items:center;gap:14px;margin:8px 0 22px;}
+.topbar .logo-box{display:flex;align-items:center;}
+.topbar .bank-logo{height:120px;width:auto;max-width:360px;object-fit:contain;}
+.topbar .dex-logo{height:40px;width:auto;max-width:130px;object-fit:contain;}
+.topbar .sep{width:1px;height:26px;background:var(--line);}
+.cover-mid{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+.cover-emo{font-family:'Noto Serif SC',serif;color:var(--gold);font-size:15px;letter-spacing:6px;margin-bottom:12px;}
+.main-title{font-family:'Noto Serif SC',serif;font-weight:900;font-size:22px;color:var(--red);letter-spacing:2px;line-height:1.25;}
+.sub-title{margin-top:12px;font-size:17px;color:var(--ink);letter-spacing:1px;}
+.cover-time{margin-top:24px;font-size:13px;color:var(--gray);letter-spacing:2px;}
+.cover-cta{margin-top:auto;padding-top:24px;width:100%;display:flex;justify-content:center;}
+.cover-cta .btn{width:76%;max-width:300px;}
+
+/* ===== 通用分屏（中间屏去掉整屏高度，内容紧凑连续） ===== */
+.screen{padding:34px 24px 30px;display:flex;flex-direction:column;}
+.sec-title{font-family:'Noto Serif SC',serif;font-weight:700;font-size:30px;color:var(--red);text-align:center;letter-spacing:2px;}
+.sec-title .line{display:block;width:46px;height:3px;background:var(--gold);margin:10px auto 0;border-radius:2px;}
+.sec-lead{margin-top:10px;text-align:center;font-size:14px;color:var(--gray);}
+
+/* ===== 第2屏 活动内容 ===== */
+#sec-activity{background:var(--cream);}
+.card{background:#fff;border:1px solid var(--red);border-radius:16px;padding:18px 18px;margin-top:16px;}
+.card .c-tag{display:inline-flex;align-items:center;font-family:'Noto Serif SC',serif;font-weight:700;color:var(--red);font-size:16px;letter-spacing:1px;}
+.card .c-tag .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);margin-right:8px;}
+.card p{margin-top:8px;font-size:14px;color:#4A443E;}
+.act-cta{margin-top:28px;width:100%;display:flex;justify-content:center;}
+.act-cta .btn{width:100%;max-width:340px;}
+
+/* ===== 第3屏 排班 ===== */
+#sec-schedule{background:var(--cream);}
+.day-group{margin-top:20px;}
+.day-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.day-head .date{font-family:'Noto Serif SC',serif;font-weight:700;color:var(--red);font-size:19px;letter-spacing:1px;}
+.day-head .rule{flex:1;height:1px;background:var(--line);}
+.doc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.doc-card{
+  background:#fff;border:1px solid var(--red);border-radius:12px;padding:14px 12px;
+  cursor:pointer;transition:transform .2s,box-shadow .2s;text-align:center;
+}
+.doc-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(184,38,38,.12);}
+.doc-card:active{transform:scale(.97);}
+.doc-card .d-name{font-family:'Noto Serif SC',serif;font-weight:700;color:var(--ink);font-size:18px;}
+.doc-card .d-tag{display:inline-block;margin-top:6px;font-size:11px;line-height:1.45;color:var(--red);border:1px solid var(--red);border-radius:12px;padding:3px 9px;letter-spacing:.3px;max-width:100%;}
+.doc-card .d-good{margin-top:9px;font-size:11.5px;color:var(--gray);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.doc-card .d-more{margin-top:9px;font-size:11px;color:var(--gold);}
+.sched-cta{margin-top:28px;width:100%;display:flex;justify-content:center;}
+.sched-cta .btn{width:100%;max-width:340px;}
+
+/* ===== 第4屏 预约（内嵌金数据表单，不跳页） ===== */
+#sec-booking{background:var(--cream);}
+.book-iframe-wrap{margin-top:22px;width:100%;border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(184,38,38,.10);border:1px solid var(--line);background:#fff;}
+.book-iframe-wrap iframe{display:block;width:100%;height:680px;border:0;}
+.book-note{margin-top:16px;font-size:12.5px;color:var(--gray);text-align:center;line-height:1.8;}
+.book-note a{color:var(--red);text-decoration:none;font-weight:600;}
+
+/* ===== 第5屏 收尾 ===== */
+#sec-end{position:relative;min-height:100vh;padding:40px 26px 36px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;
+  background:linear-gradient(180deg,#B82626 0%,#C93B2E 55%,#D05B44 100%);}
+.end-cloud{position:absolute;inset:0;background-image:url("assets/cloud.jpg");background-size:340px;opacity:.10;pointer-events:none;}
+.end-inner{position:relative;text-align:center;color:#fff;}
+.end-brand{font-family:'Noto Serif SC',serif;font-weight:700;font-size:26px;letter-spacing:2px;}
+.end-sub{margin-top:12px;font-size:15px;letter-spacing:2px;color:#F6E8DC;}
+.end-rule{width:56px;height:2px;background:var(--gold);margin:24px auto;}
+.end-info{margin-top:8px;font-size:13.5px;line-height:2;color:#FBE9DE;}
+.end-info b{color:#FFD9A0;font-weight:600;}
+.end-info .ic{width:15px;height:15px;vertical-align:-2px;margin-right:5px;color:#FFD9A0;}
+.end-qr{display:flex;gap:14px;justify-content:center;margin-top:26px;}
+.qr-item{width:42%;background:#fff;border-radius:12px;padding:10px;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.18);}
+.qr-item img{width:100%;height:auto;display:block;border-radius:6px;}
+.qr-label{margin-top:8px;font-size:12.5px;color:var(--red);font-weight:600;letter-spacing:.5px;}
+.end-qr-note{margin-top:16px;font-size:12.5px;color:#F9E8DC;line-height:1.9;text-align:center;}
+.end-tip{margin-top:22px;padding:14px 16px;border:1px solid rgba(255,255,255,.4);border-radius:10px;font-size:12px;line-height:1.9;color:#F9E8DC;text-align:left;}
+
+/* ===== 弹窗 ===== */
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:22px;}
+.modal.open{display:flex;}
+.mask{position:absolute;inset:0;background:rgba(43,38,33,.55);}
+.modal-box{position:relative;width:100%;max-width:400px;max-height:84vh;background:#fff;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;animation:pop .35s ease;}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97);}to{opacity:1;transform:none;}}
+.m-head{background:var(--red);color:#fff;padding:16px 18px;}
+.m-head .m-name{font-family:'Noto Serif SC',serif;font-weight:700;font-size:20px;}
+.m-head .m-title{font-size:12.5px;margin-top:4px;color:#F7D9C9;letter-spacing:.5px;}
+.m-body{padding:18px 20px;overflow-y:auto;}
+.m-body h4{font-family:'Noto Serif SC',serif;font-weight:700;font-size:15px;color:var(--red);margin-top:14px;letter-spacing:1px;}
+.m-body h4:first-child{margin-top:0;}
+.m-body .good{list-style:none;margin-top:8px;}
+.m-body .good li{padding-left:16px;position:relative;font-size:13.5px;color:#4A443E;margin-bottom:7px;line-height:1.65;}
+.m-body .good li::before{content:'';position:absolute;left:0;top:.6em;width:7px;height:7px;border-radius:50%;background:var(--gold);}
+.m-body .bio{margin-top:8px;font-size:13.5px;color:#5A5349;line-height:1.8;}
+.m-foot{padding:14px 20px;border-top:1px solid var(--line);}
+.m-foot .btn{width:100%;}
+
+@media (min-width:768px){
+  .main-title{font-size:28px;}
+  .sec-title{font-size:38px;}
+  .doc-grid{grid-template-columns:repeat(2,1fr);}
+  .book-iframe-wrap iframe{height:640px;}
+}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <!-- ===== 第1屏 封面 ===== -->
+  <section class="screen" id="sec-cover" style="min-height:100vh;">
+    <div class="cover-cloud" aria-hidden="true"></div>
+    <div class="cover-inner fade">
+      <div class="huiwen huiwen-top" aria-hidden="true"></div>
+      <div class="topbar">
+        <img class="bank-logo" src="assets/bank-logo.png" alt="招商银行">
+        <div class="sep" aria-hidden="true"></div>
+        <img class="dex-logo" src="assets/dex-logo.png" alt="德馨远">
+      </div>
+      <div class="cover-mid">
+        <div class="cover-emo">—— 中医健康管理专区 ——</div>
+        <h1 class="main-title">一刻钟·中医调理站</h1>
+        <div class="sub-title">招行客户专属体验</div>
+        <div class="cover-time">活动时间：11月4日 — 11月6日</div>
+      </div>
+      <div class="cover-cta">
+        <button class="btn" onclick="go('#sec-activity')">查看活动详情</button>
+      </div>
+      <div class="huiwen huiwen-bottom" aria-hidden="true" style="margin-top:20px;"></div>
+    </div>
+  </section>
+
+  <!-- ===== 第2屏 活动内容 ===== -->
+  <section class="screen" id="sec-activity">
+    <div class="sec-title fade">活动内容</div>
+    <span class="line" style="display:block;width:46px;height:3px;background:var(--gold);margin:10px auto 0;" aria-hidden="true"></span>
+    <div class="fade">
+      <div class="card">
+        <div class="c-tag"><span class="dot"></span>一刻钟·推拿现场体验</div>
+        <p>针对肩颈僵硬、久坐腰背不适、睡眠欠佳等问题，现场专业推拿调理，舒缓职场疲劳。</p>
+      </div>
+      <div class="card">
+        <div class="c-tag"><span class="dot"></span>一对一·中医健康咨询</div>
+        <p>针对睡眠、肠胃、慢性疲劳等常见亚健康困扰，给到个性化日常调理建议。</p>
+      </div>
+    </div>
+    <div class="act-cta fade">
+      <button class="btn btn-ghost" onclick="go('#sec-schedule')">查看医师排班</button>
+    </div>
+  </section>
+
+  <!-- ===== 第3屏 医师排班 ===== -->
+  <section class="screen" id="sec-schedule">
+    <div class="sec-title fade">医生出场安排</div>
+    <span class="line" style="display:block;width:46px;height:3px;background:var(--gold);margin:10px auto 0;" aria-hidden="true"></span>
+    <div class="sec-lead fade">点击医师卡片查看详情</div>
+
+    <div class="day-group fade">
+      <div class="day-head"><span class="date">11月4日</span><span class="rule"></span></div>
+      <div class="doc-grid">
+        <div class="doc-card" onclick="openDoc('cao')"><div class="d-name">曹琳医生</div><div class="d-tag">针灸硕士</div><div class="d-good">美容针灸·减脂塑形·颊针痛症·结节专病</div><div class="d-more">查看详情</div></div>
+        <div class="doc-card" onclick="openDoc('guo')"><div class="d-name">郭怀奇</div><div class="d-tag">二十年推拿手艺</div><div class="d-good">颈肩腰腿痛·慢性劳损·小儿推拿</div><div class="d-more">查看详情</div></div>
+      </div>
+    </div>
+
+    <div class="day-group fade">
+      <div class="day-head"><span class="date">11月5日</span><span class="rule"></span></div>
+      <div class="doc-grid">
+        <div class="doc-card" onclick="openDoc('fan')"><div class="d-name">樊麟医生</div><div class="d-tag">50多年行医经验，六代中医世家传人</div><div class="d-good">不孕不育·疑难杂症·亚健康调养</div><div class="d-more">查看详情</div></div>
+        <div class="doc-card" onclick="openDoc('wang')"><div class="d-name">王秀叶医生</div><div class="d-tag">资深理疗师</div><div class="d-good">眼部护理·美容艾灸·宫寒调理</div><div class="d-more">查看详情</div></div>
+      </div>
+    </div>
+
+    <div class="day-group fade">
+      <div class="day-head"><span class="date">11月6日</span><span class="rule"></span></div>
+      <div class="doc-grid">
+        <div class="doc-card" onclick="openDoc('wu')"><div class="d-name">吴艳群医生</div><div class="d-tag">脾胃专家</div><div class="d-good">脾胃系统·内科·妇科·儿科</div><div class="d-more">查看详情</div></div>
+        <div class="doc-card" onclick="openDoc('chang')"><div class="d-name">常玦明医生</div><div class="d-tag">非遗手法</div><div class="d-good">体态调整·产后康复·非遗揉腹</div><div class="d-more">查看详情</div></div>
+      </div>
+    </div>
+
+    <div class="sched-cta fade">
+      <button class="btn" onclick="go('#sec-booking')">立即预约体验</button>
+    </div>
+  </section>
+
+  <!-- ===== 第4屏 预约报名（内嵌金数据表单，不跳页） ===== -->
+  <section class="screen" id="sec-booking">
+    <div class="sec-title fade">预约体验</div>
+    <span class="line" style="display:block;width:46px;height:3px;background:var(--gold);margin:10px auto 0;" aria-hidden="true"></span>
+    <div class="sec-lead fade">招行客户专享，请填写以下信息预约</div>
+    <div class="book-iframe-wrap fade">
+      <script src="https://6hbmdcng.jsjform.com/f/xWh7xc/embedded.js?background=white&banner=hide&inner_redirect=false&height=1437.666748046875"></script>
+    </div>
+    <p class="book-note fade">如表单未能显示，请<a href="https://6hbmdcng.jsjform.com/f/xWh7xc" target="_blank">点此打开预约表单</a>。<br>您填写的信息仅用于本次中医预约回访，我们不会对外泄露。</p>
+  </section>
+
+  <!-- ===== 第5屏 收尾 ===== -->
+  <section class="screen" id="sec-end">
+    <div class="end-cloud" aria-hidden="true"></div>
+    <div class="end-inner fade">
+      <div class="end-brand">招商银行 × 德馨远中医馆</div>
+      <div class="end-sub">传承中医智慧 · 守护日常健康</div>
+      <div class="end-rule"></div>
+      <div class="end-info">
+        <div><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="2.6"/></svg>医馆地址：海南省海口市·桃李路8-3，紫荆百货101商铺</div>
+        <div><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7A2 2 0 0 1 22 16.9z"/></svg>咨询电话：138-7603-0338</div>
+        <div><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>营业时间：每日 9:00 — 19:00</div>
+      </div>
+      <div class="end-qr">
+        <div class="qr-item">
+          <img src="assets/qr-kefu.png" alt="人工客服二维码">
+          <div class="qr-label">人工客服 · 在线咨询</div>
+        </div>
+        <div class="qr-item">
+          <img src="assets/qr-service.jpg" alt="服务号二维码">
+          <div class="qr-label">服务号 · 一键预约</div>
+        </div>
+      </div>
+      <div class="end-qr-note">一键预约医师 · 永久留存看诊档案<br>每次调理有据可查 · 复诊更省心</div>
+      <div class="end-tip">温馨提示：体验前请告知医师基础身体情况；孕妇、急性损伤期请提前沟通。</div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== 医师详情弹窗 ===== -->
+<div class="modal" id="doc-modal" role="dialog" aria-modal="true">
+  <div class="mask" onclick="closeDoc()"></div>
+  <div class="modal-box">
+    <div class="m-head">
+      <div class="m-name" id="m-name"></div>
+      <div class="m-title" id="m-title"></div>
+    </div>
+    <div class="m-body">
+      <h4>擅长方向</h4>
+      <ul class="good" id="m-good"></ul>
+      <h4>医师简介</h4>
+      <div class="bio" id="m-bio"></div>
+    </div>
+    <div class="m-foot"><button class="btn" onclick="closeDoc()">返回排班表</button></div>
+  </div>
+</div>
+
+<script>
+/* ===== 医师数据 ===== */
+var DOCS = {
+  cao:{
+    name:'曹琳医生', tag:'针灸硕士 · 内科主治医师',
+    title:'内科主治医师 · 颊针第三代传人 · 针灸硕士',
+    good:['美容针灸 / 美容埋线（祛斑祛痘、抗衰、黄气、水肿、面部松弛、细纹垮脸）',
+      '减脂塑形（针灸+病根秘穴埋线调代谢、改善体态）',
+      '颊针急慢性痛症（头颈肩腰、肩周炎、腱鞘炎、网球肘）',
+      '结节专病（甲状腺/乳腺结节非手术化方案）',
+      '无痛针灸配合中药调理各科（痛症、肺系、脾胃、妇科、皮肤、情志）'],
+    bio:'近20年针灸临床经验，颊针第三代传人，针灸硕士，2019年全国埋线之星一等奖，师从病根秘穴埋线创始人董立君教授，《病根秘穴埋线针疗图解》副主编，《穴位埋线减肥及疼痛性疾病的临床应用》编委。'
+  },
+  guo:{
+    name:'郭怀奇', tag:'二十年推拿手艺',
+    title:'资深理疗推拿师',
+    good:['颈肩腰腿痛（落枕、颈肩僵硬酸胀、腰背痛、臀腿放射痛、久坐久站不适）',
+      '慢性劳损与亚健康综合调理',
+      '小儿推拿（积食、便秘、腹胀、腹泻等脾胃问题）'],
+    bio:'从业推拿理疗二十年，手法稳、准、渗、透，擅长从中医经络循行、经筋走向的角度判断问题根源，深度松解肌肉、筋膜、筋结，循序渐进从根源上缓解疼痛和功能受限。'
+  },
+  fan:{
+    name:'樊麟医生', tag:'50多年行医经验 · 六代中医世家传人',
+    title:'50多年行医经验 · 六代中医世家传人',
+    good:['不孕不育、备孕调理：整体调护。针对久备难成、体质偏颇人群。',
+      '亚健康状态调养：体质亏虚、气血失和、脏腑淤堵等。',
+      '多年反复难愈的疑难杂症：调元。内科杂病、慢病体虚、固本。',
+      '脾胃失调：反复腹胀、食欲差、便秘、消化不良。',
+      '睡眠情志问题：入睡难、多梦易醒、情绪郁结。',
+      '呼吸道调养：反复易感、久咳、痰多、肺虚不耐寒热。',
+      '妇科调护：月经不调、痛经、带下异常、产后调养。',
+      '筋骨不适：周身酸沉、肩背腰腿隐痛、寒湿痹阻调理。'],
+    bio:'军旅行医多年，行医严谨，走访民间得乡。中医世家第六代传人，50多年行医经验，中国第一代药剂师。'
+  },
+  wang:{
+    name:'王秀叶医生', tag:'资深理疗师',
+    title:'资深理疗师',
+    good:['眼部护理（眼干、眼涩、红血丝、视疲劳）',
+      '美容艾灸（温通气血、改善气色暗沉）',
+      '宫寒调理（暖宫散寒、小腹寒凉、女性气血）'],
+    bio:'秉承中医“整体观，精于察、专于调”的核心理念。深耕中医多年理疗，不只解决表面不适，立足整体探寻身体根源。成人孩童均可调理，一人一方定制专属方案，坚持让患者明明白白调理的原则。'
+  },
+  wu:{
+    name:'吴艳群医生', tag:'脾胃专家',
+    title:'内科医师 · 脾胃调理专家',
+    good:['脾胃系统（顽固性胃脘痛、慢性腹胀、餐后不适、习惯性腹泻/便秘、食欲不振）',
+      '内科（感冒咳嗽鼻炎、心悸、失眠抑郁、偏头疼、脱发盗汗）',
+      '妇科（月经不调、多囊、子宫肌瘤、盆腔炎、更年期）',
+      '儿科（厌食偏食、积食内热、反复发烧咳嗽）'],
+    bio:'辩证精准，用药精专，方案系统，标本兼顾。'
+  },
+  chang:{
+    name:'常玦明医生', tag:'非遗手法',
+    title:'体态调整师 · 健康管理师 · 中国确有专长医师',
+    good:['体态调整（高低肩、翼状肩胛、颈前伸、圆肩驼背、长短腿、富贵包、脊柱侧弯、小腿外翻）',
+      '产后康复（腹直肌分离、漏尿、产后腰痛、假胯宽、骨盆矫正、妈妈臀、耻骨联合分离）',
+      '非遗揉腹（脾胃胀痛、便秘、痛经、失眠、上热下寒，通三焦调气机）'],
+    bio:'体态调整师、健康管理师、中国确有专长医师，累计调理患者上万例，纯中式手法，精准探知身体筋骨等问题，松解筋结瘀堵。'
+  }
+};
+
+/* ===== 淡入显现 ===== */
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+},{threshold:.12});
+document.querySelectorAll('.fade').forEach(function(el){ io.observe(el); });
+
+/* ===== 页面跳转 ===== */
+function go(sel){ var t=document.querySelector(sel); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); }
+
+/* ===== 医师弹窗 ===== */
+function openDoc(key){
+  var d=DOCS[key]; if(!d) return;
+  document.getElementById('m-name').textContent=d.name;
+  document.getElementById('m-title').textContent=d.title;
+  var ul=document.getElementById('m-good'); ul.innerHTML='';
+  d.good.forEach(function(g){ var li=document.createElement('li'); li.textContent=g; ul.appendChild(li); });
+  document.getElementById('m-bio').textContent=d.bio;
+  document.getElementById('doc-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDoc(){
+  document.getElementById('doc-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeDoc(); } });
+</script>
+</body>
+</html>
