@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-03T10:58:27+08:00",
+  "generatedAt": "2026-11-08T10:31:41+08:00",
   "weekStart": "2026-11-02",
   "weekEnd": "2026-11-08",
   "weekly": [
@@ -75,7 +75,7 @@
       "doctor": "曹琳",
       "duration": "1–1.5h",
       "needDoc": "是·周一约",
-      "isToday": true,
+      "isToday": false,
       "isReview": false,
       "candidates": [
         {
@@ -383,7 +383,7 @@
       "doctor": "无",
       "duration": "居家",
       "needDoc": "否",
-      "isToday": false,
+      "isToday": true,
       "isReview": true,
       "candidates": []
     }
