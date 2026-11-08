@@ -653,6 +653,8 @@
         <div class="chipgrp" id="chips-chang" data-page-node-id="wRAjEgzIEJ3O2QXJBeSx1O"></div>
         <div class="chipgrp" id="chips-general" data-page-node-id="v5OFc1eUuqRoQPd98GjpNR"></div>
         <div class="chipgrp" id="chips-cao" data-page-node-id="Z5BxtJLiCNDbNjvrRqolJ6"></div>
+        <div class="chipgrp" id="chips-fan" data-page-node-id="FANCHIPS001"></div>
+        <div class="chipgrp" id="chips-liu" data-page-node-id="LIUCHIPS001"></div>
         <div class="field" style="margin-top:10px;" data-page-node-id="Uq9Y4buKPbT9wI2ugx0dyG"><label data-page-node-id="pxn2jdUIFG3DMsXf5uUUzR">选题灵感备忘（自动保存）</label>
           <textarea id="inspire-notes" style="min-height:120px;" placeholder="随时记下想到的点子、患者反馈、灵感…"></textarea></div>
       </div>
@@ -825,7 +827,7 @@ function switchPage(p){
 function mondayOf(d){ const x=new Date(d); const day=x.getDay(); const diff=(day===0?-6:1-day); x.setDate(x.getDate()+diff); x.setHours(0,0,0,0); return x; }
 function weekDates(){ const mon=mondayOf(today); const arr=[]; for(let i=0;i<7;i++){ const d=new Date(mon); d.setDate(d.getDate()+i); arr.push(fmtDate(d)); } return arr; }
 function fridayPrinciple(){ const anchor=new Date(2026,6,27); const mon=mondayOf(today); const days=Math.round((mon-anchor)/86400000); const idx=((Math.floor(days/7))%3+3)%3; return ['环境好','医生多','服务好'][idx]; }
-const ROTATION={1:{direction:'常医生整骨',doctor:'常玦明',duration:'1–1.5h',needDoc:'是·周日约'},2:{direction:'曹医生颊针/埋线',doctor:'曹琳',duration:'1–1.5h',needDoc:'是·周一约'},3:{direction:'周三轮值医生日',doctor:'轮值医生',duration:'1h',needDoc:'是·周二约'},4:{direction:'医馆科普日',doctor:'无',duration:'1h',needDoc:'否'},5:{direction:'三大准则·'+fridayPrinciple(),doctor:'无',duration:'无需',needDoc:'否'},6:{direction:'随机养生',doctor:'视情况',duration:'可图文',needDoc:'否'},0:{direction:'数据复盘+下周选题',doctor:'无',duration:'居家',needDoc:'否'}};
+const ROTATION={1:{direction:'常医生整骨',doctor:'常玦明',duration:'1–1.5h',needDoc:'是·周日约'},2:{direction:'曹医生颊针/埋线',doctor:'曹琳',duration:'1–1.5h',needDoc:'是·周一约'},3:{direction:'周三轮值医生日（郭怀奇/吴艳群/樊麟/刘瑞鑫）',doctor:'轮值医生',duration:'1h',needDoc:'是·周二约'},4:{direction:'医馆科普日',doctor:'无',duration:'1h',needDoc:'否'},5:{direction:'三大准则·'+fridayPrinciple(),doctor:'无',duration:'无需',needDoc:'否'},6:{direction:'随机养生',doctor:'视情况',duration:'可图文',needDoc:'否'},0:{direction:'数据复盘+下周选题',doctor:'无',duration:'居家',needDoc:'否'}};
 
 /* ---------- 节气 / 季节 / 实时热点引擎 ---------- */
 const SOLAR_TERMS_2026 = [
@@ -910,6 +912,8 @@ function fill(s, ctx){
 function ctaFor(rot){
   if(rot.doctor && rot.doctor.indexOf('常')>=0) return '同款不适，来德馨远找常医生辨证调理';
   if(rot.doctor && rot.doctor.indexOf('曹')>=0) return '同款困扰，来德馨远找曹医生辨证调理';
+  if(rot.doctor && rot.doctor.indexOf('樊')>=0) return '备孕/调理难题，来德馨远找樊医生辨证调养';
+  if(rot.doctor && rot.doctor.indexOf('刘')>=0) return '心脑血管/慢病调理，来德馨远找刘主任辨证调养';
   return '想系统调理，到店导航搜「德馨远医馆」';
 }
 function buildScript(rot, title, hook, outline){
@@ -927,9 +931,13 @@ const WEEKLY_CANDIDATES = {
     {title:'局部胖减不掉？曹医生病根秘穴埋线',hook:'肚子/大腿赘肉卡住不掉？不是不努力，是代谢卡点了。',outline:'曹医生讲病根秘穴埋线思路，强调需专业辨证、循序渐进。',kw:['埋线','曹琳','减肥塑形','调理']},
     {title:'黄褐斑反复？曹医生内调外养',hook:'斑一晒就深、一熬夜就炸？黄褐斑要内调不是猛擦。',outline:'曹医生讲黄褐斑的体质调理路径，给温和养护方向。',kw:['黄褐斑','曹琳','中医美容','内调']}
   ],
-  3:[ // 周三 轮值医生日（郭怀奇/吴艳群，不推揉腹）
+  3:[ // 周三 轮值医生日（郭怀奇/吴艳群/樊麟，樊麟为半月一次专家，到诊周优先）
     {title:'{term}老寒腰反复疼？郭怀奇医生推拿20年有招',hook:'腰疼贴膏药管一阵、停了又犯？多半是筋结没松开。',outline:'郭怀奇演示松解筋结手法，讲慢性痛症日常养护。',kw:['痛症','郭怀奇','推拿','腰肌劳损']},
-    {title:'吃一点就胀、大便不爽？吴艳群医生讲脾胃',hook:'吃点东西就顶、上厕所不痛快？是脾胃运化弱了。',outline:'吴艳群讲脾胃辨证思路，给温和调养方向。',kw:['脾胃','吴艳群','消化不良','运化']}
+    {title:'吃一点就胀、大便不爽？吴艳群医生讲脾胃',hook:'吃点东西就顶、上厕所不痛快？是脾胃运化弱了。',outline:'吴艳群讲脾胃辨证思路，给温和调养方向。',kw:['脾胃','吴艳群','消化不良','运化']},
+    {title:'备孕一年没动静、双方都焦虑？樊麟医生讲怎么"养"',hook:'备孕总怀不上，压力比身体更累？六代世家樊医生讲夫妻同调思路。',outline:'樊麟医生讲备孕要先调底子、别只查女方，给温和养护方向。',kw:['备孕','樊麟','不孕不育','夫妻同诊']},
+    {title:'月经量少快闭经、宫寒痛经？樊麟医生讲暖养',hook:'姨妈越来越少、痛经跪着过？根在寒凝不是忍忍就过。',outline:'樊麟医生讲宫寒怎么一点点暖回来，强调需专业辨证。',kw:['宫寒','樊麟','月经不调','暖养']},
+    {title:'头常晕、记性差、血压忽高忽低？刘瑞鑫主任讲心脑血管养护',hook:'一过性头晕、偶尔胸闷、血压不稳？血管在悄悄老化，别等出了事才重视。',outline:'刘瑞鑫主任（北中医药大学，心脑血管+针灸硕士）讲日常护血管思路，给温和调养方向。',kw:['心脑血管','刘瑞鑫','头晕','养护']},
+    {title:'体检没大毛病却总累、睡不醒？刘瑞鑫主任讲亚健康',hook:'化验单全正常，人却像没充上电？这是亚健康，不是矫情。',outline:'刘主任讲亚健康的中医调理路径（针药同调），强调需专业辨证。',kw:['亚健康','刘瑞鑫','疲劳','针药同调']}
   ],
   4:[ // 周四 医馆科普
     {title:'门诊常遇的体质误区：寒热不分就乱补',hook:'喝凉的拉肚子、吃辣就上火？先辨清寒热再说补。',outline:'讲中医寒热体质差异与日常养护边界，引导专业辨证。',kw:['体质','辨证','中医科普','调理']},
@@ -1046,6 +1054,8 @@ function renameTask(id,name){ const arr=getKanban(); const t=arr.find(x=>x.id===
 const CHIPS = {
   chang:['腹胀','便秘腹泻','脾胃虚弱','宫寒痛经','长短腿','脊柱侧弯','骨盆倾斜','腰椎间盘突出','颈椎病','肩周炎','失眠多梦','神疲乏力'],
   cao:['颊针','病根秘穴埋线','中医美容','黄褐斑','面部年轻化','减肥塑形','痤疮','抗初老'],
+  fan:['备孕调理','不孕不育','月经不调','宫寒','多囊卵巢','脾胃虚寒','睡眠情志','试管前调理','男方调理','固本培元'],
+  liu:['心脑血管','头晕胸闷','高血压养护','失眠心悸','针灸调理','针药同调','亚健康','慢性疲劳','脑梗预防','中风先兆'],
   general:['三伏晒背','三伏贴穴位','中伏祛湿','冬病夏治','八段锦','艾灸','药食同源','节气养生','脾胃调养','气血调理']
 };
 function planKeyFor(dt){ return 'dxy_plan_'+dt; }
@@ -1189,6 +1199,8 @@ function renderInspireChips(){
   $('chips-chang').innerHTML='<h5>常玦明 · 整骨/脏腑推拿</h5>'+CHIPS.chang.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
   $('chips-general').innerHTML='<h5>通用养生</h5>'+CHIPS.general.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
   $('chips-cao').innerHTML='<h5>曹琳 · 中医美容颊针/埋线</h5>'+CHIPS.cao.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
+  if($('chips-fan')) $('chips-fan').innerHTML='<h5>樊麟 · 备孕/脾胃/睡眠情志</h5>'+CHIPS.fan.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
+  if($('chips-liu')) $('chips-liu').innerHTML='<h5>刘瑞鑫 · 心脑血管/针灸/亚健康</h5>'+CHIPS.liu.map(c=>`<span class="chip" onclick="addInspire('${c}')">${c}</span>`).join('');
   const ta=$('inspire-notes'); if(!ta) return; ta.value = localStorage.getItem('dxy_inspire_'+dateStr)||'';
   if(!ta.dataset.bound){ ta.addEventListener('change',e=>localStorage.setItem('dxy_inspire_'+dateStr,e.target.value)); ta.dataset.bound='1'; }
 }
@@ -1488,7 +1500,7 @@ function genWeekReport(){
   let any=false; dates.forEach(dt=>{ const d=getDataFor(dt); if(!d) return; any=true; PLATFORMS.forEach(p=>{ const r=d[p]||{}; METRICS.forEach(([k])=>platSum[p][k]+=Number(r[k])||0); }); });
   if(any) PLATFORMS.forEach(p=>{ txt+=`【${p}】播放${platSum[p].views} 赞${platSum[p].likes} 藏${platSum[p].favs} 评${platSum[p].comments} 私信${platSum[p].dms} 到店${platSum[p].bookings}\n`; });
   else txt+='（暂无录入数据，周日 18:00 AI 将结合 topic-history 出完整周报）\n';
-  txt+=`\n三、最佳/最差内容：待 AI 周报分析\n四、下周 5 选题：待 AI 周日生成\n五、医生预约表：常玦明/曹琳 提前1天约\n`;
+  txt+=`\n三、最佳/最差内容：待 AI 周报分析\n四、下周 5 选题：待 AI 周日生成\n五、医生预约表：常玦明/曹琳 提前1天约；樊麟/刘瑞鑫 为半月一次专家（到诊周优先排）\n`;
   $('week-report').value=txt; toast('周报已生成');
 }
 function copyWeekReport(){ if($('week-report').value){ copyText($('week-report').value); toast('周报已复制'); } }
@@ -1537,7 +1549,7 @@ function renderWeeklyTopics(){
       return `<div class="day-card review ${day.isToday?'today':''}">
         <div class="day-head"><span class="day-wd">${day.weekday} · ${day.date.slice(5)}</span>${day.isToday?'<span class="today-badge">今天</span>':''}</div>
         <div class="day-dir">📊 ${escapeHtml(day.direction)}</div>
-        <div class="day-note">去「内容复盘」页录入本周数据，周日 18:00 AI 自动出周报与下周选题。医生预约表：常玦明/曹琳 提前1天约。</div>
+        <div class="day-note">去「内容复盘」页录入本周数据，周日 18:00 AI 自动出周报与下周选题。医生预约表：常玦明/曹琳 提前1天约；樊麟/刘瑞鑫 为半月一次专家（到诊周优先排）。</div>
       </div>`;
     }
     const plats=['抖音','小红书','视频号'].map(p=>`<span class="plat ${platClass(p)}">${p}</span>`).join('');
@@ -2153,7 +2165,7 @@ function renderGalleryPage(){
 }
 const CLINIC_FACTS = {
   rooms: 6, beds: 9,
-  doctors_internal: 2, therapists: 3, beauty_doctor: 1, pharmacists: 2, marketing: 4,
+  doctors_internal: 2, therapists: 3, beauty_doctor: 1, pharmacists: 3, marketing: 4,
   highlights: ['6间独立诊室','9张诊疗床','原木＋藤编＋整面中药柜墙','窗景竹林','免费凉茶/热茶','一人一换床品']
 };
 const BRAND_BASE = '新中式医养美学品牌，主色调咖啡棕与米白，点缀朱红与草本绿，画面温润留白、干净高级，书法标题，东方生活美学';
