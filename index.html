@@ -931,7 +931,7 @@ const WEEKLY_CANDIDATES = {
     {title:'局部胖减不掉？曹医生病根秘穴埋线',hook:'肚子/大腿赘肉卡住不掉？不是不努力，是代谢卡点了。',outline:'曹医生讲病根秘穴埋线思路，强调需专业辨证、循序渐进。',kw:['埋线','曹琳','减肥塑形','调理']},
     {title:'黄褐斑反复？曹医生内调外养',hook:'斑一晒就深、一熬夜就炸？黄褐斑要内调不是猛擦。',outline:'曹医生讲黄褐斑的体质调理路径，给温和养护方向。',kw:['黄褐斑','曹琳','中医美容','内调']}
   ],
-  3:[ // 周三 轮值医生日（郭怀奇/吴艳群/樊麟，樊麟为半月一次专家，到诊周优先）
+  3:[ // 周三 轮值医生日（郭怀奇/吴艳群/樊麟/刘瑞鑫，樊麟每日在馆需提前预约，刘瑞鑫半月一次到诊周优先）
     {title:'{term}老寒腰反复疼？郭怀奇医生推拿20年有招',hook:'腰疼贴膏药管一阵、停了又犯？多半是筋结没松开。',outline:'郭怀奇演示松解筋结手法，讲慢性痛症日常养护。',kw:['痛症','郭怀奇','推拿','腰肌劳损']},
     {title:'吃一点就胀、大便不爽？吴艳群医生讲脾胃',hook:'吃点东西就顶、上厕所不痛快？是脾胃运化弱了。',outline:'吴艳群讲脾胃辨证思路，给温和调养方向。',kw:['脾胃','吴艳群','消化不良','运化']},
     {title:'备孕一年没动静、双方都焦虑？樊麟医生讲怎么"养"',hook:'备孕总怀不上，压力比身体更累？六代世家樊医生讲夫妻同调思路。',outline:'樊麟医生讲备孕要先调底子、别只查女方，给温和养护方向。',kw:['备孕','樊麟','不孕不育','夫妻同诊']},
@@ -1500,7 +1500,7 @@ function genWeekReport(){
   let any=false; dates.forEach(dt=>{ const d=getDataFor(dt); if(!d) return; any=true; PLATFORMS.forEach(p=>{ const r=d[p]||{}; METRICS.forEach(([k])=>platSum[p][k]+=Number(r[k])||0); }); });
   if(any) PLATFORMS.forEach(p=>{ txt+=`【${p}】播放${platSum[p].views} 赞${platSum[p].likes} 藏${platSum[p].favs} 评${platSum[p].comments} 私信${platSum[p].dms} 到店${platSum[p].bookings}\n`; });
   else txt+='（暂无录入数据，周日 18:00 AI 将结合 topic-history 出完整周报）\n';
-  txt+=`\n三、最佳/最差内容：待 AI 周报分析\n四、下周 5 选题：待 AI 周日生成\n五、医生预约表：常玦明/曹琳 提前1天约；樊麟/刘瑞鑫 为半月一次专家（到诊周优先排）\n`;
+  txt+=`\n三、最佳/最差内容：待 AI 周报分析\n四、下周 5 选题：待 AI 周日生成\n五、医生预约表：常玦明/曹琳 提前1天约；樊麟每日在馆·需提前预约；刘瑞鑫半月一次，到诊周优先排\n`;
   $('week-report').value=txt; toast('周报已生成');
 }
 function copyWeekReport(){ if($('week-report').value){ copyText($('week-report').value); toast('周报已复制'); } }
@@ -1549,7 +1549,7 @@ function renderWeeklyTopics(){
       return `<div class="day-card review ${day.isToday?'today':''}">
         <div class="day-head"><span class="day-wd">${day.weekday} · ${day.date.slice(5)}</span>${day.isToday?'<span class="today-badge">今天</span>':''}</div>
         <div class="day-dir">📊 ${escapeHtml(day.direction)}</div>
-        <div class="day-note">去「内容复盘」页录入本周数据，周日 18:00 AI 自动出周报与下周选题。医生预约表：常玦明/曹琳 提前1天约；樊麟/刘瑞鑫 为半月一次专家（到诊周优先排）。</div>
+        <div class="day-note">去「内容复盘」页录入本周数据，周日 18:00 AI 自动出周报与下周选题。医生预约表：常玦明/曹琳 提前1天约；樊麟每日在馆·需提前预约；刘瑞鑫半月一次，到诊周优先排。</div>
       </div>`;
     }
     const plats=['抖音','小红书','视频号'].map(p=>`<span class="plat ${platClass(p)}">${p}</span>`).join('');
