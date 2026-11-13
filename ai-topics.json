@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T09:31:06+08:00",
+  "generatedAt": "2026-11-13T17:08:55+08:00",
   "weekStart": "2026-11-09",
   "weekEnd": "2026-11-15",
   "weekly": [
@@ -198,7 +198,7 @@
       "doctor": "医馆科普",
       "duration": "可图文",
       "needDoc": "否",
-      "isToday": true,
+      "isToday": false,
       "isReview": false,
       "candidates": [
         {
@@ -259,7 +259,7 @@
       "doctor": "无",
       "duration": "无需",
       "needDoc": "否",
-      "isToday": false,
+      "isToday": true,
       "isReview": false,
       "candidates": [
         {
